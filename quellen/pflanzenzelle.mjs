@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import fs from 'fs';
+import { Brush, Evaluator, SUBTRACTION, INTERSECTION, ADDITION } from 'three-bvh-csg';
 
 globalThis.FileReader = class {
   readAsArrayBuffer(b) { b.arrayBuffer().then(r => { this.result = r; this.onloadend && this.onloadend(); }); }
@@ -22,6 +23,8 @@ const D = THREE.DoubleSide;
 const FARBEN = {
   wand:       [0x8bbf5c, {}],
   wandKante:  [0x6e9e45, {}],
+  wandSchnitt: [0xc5e1a5, {}],
+  membranSchnitt: [0xf7d98a, {}],
   tuepfel:    [0x3e6b1f, {}],
   membran:    [0xf2c14e, {}],
   plasma:     [0xfff3b0, { transparent: true, opacity: 0.16 }],
@@ -72,7 +75,7 @@ const KIPP = -0.65;  // Schnittfläche zeigt nach oben-vorne (Blick meist von sc
 const trafo = (pos, rot = [0, 0, 0], s = 1) => new THREE.Matrix4().compose(pos, new THREE.Quaternion().setFromEuler(new THREE.Euler(...rot)), V(s, s, s));
 
 // Halbschale eines Ellipsoids: hintere Hälfte (z ≤ 0), offene Seite zeigt nach vorne (+z)
-function halbschale(rx, ry, rz, seg = 24) {
+function halbschale(rx, ry, rz, seg = 20) {
   const g = new THREE.SphereGeometry(1, seg, Math.round(seg * 0.6), Math.PI, Math.PI);
   g.scale(rx, ry, rz); return g;
 }
@@ -85,7 +88,7 @@ function chloroplast(b, M, stufe) {
     const n = stufe === 78 ? 6 : 5, hoeheMax = 0.36 * Math.sqrt(1 - (sx / 0.9) ** 2);
     for (let i = 0; i < n; i++) {
       const yy = -hoeheMax + (i + 0.5) * (2 * hoeheMax / n);
-      const d = new THREE.CylinderGeometry(0.13, 0.13, 0.045, 10); d.translate(sx, yy, -0.2); b.add('thylakoid', d, M);
+      const d = new THREE.CylinderGeometry(0.13, 0.13, 0.045, 8); d.translate(sx, yy, -0.2); b.add('thylakoid', d, M);
     }
   }
   for (const yy of [-0.08, 0.1]) { const l = new THREE.BoxGeometry(1.2, 0.02, 0.1); l.translate(0, yy, -0.2); b.add('thylakoid', l, M); }
@@ -101,6 +104,36 @@ function mitochondrium(b, M) {
   }
 }
 
+// ---------- Zellform: abgerundeter, leicht unregelmäßiger Körper (Superellipsoid + sanfte Beulen) ----------
+function beule(d) { return 1 + 0.022 * Math.sin(3.1 * d.x + 1.3) * Math.cos(2.7 * d.y + 0.4) + 0.018 * Math.sin(4.3 * d.z + 0.7) * Math.cos(1.9 * d.x); }
+function zellform(A, B, C, p = 5, seg = 72) {
+  const g = new THREE.SphereGeometry(1, seg, Math.round(seg * 0.65)), P = g.attributes.position, d = new THREE.Vector3();
+  for (let i = 0; i < P.count; i++) {
+    d.set(P.getX(i), P.getY(i), P.getZ(i)).normalize();
+    const r = 1 / Math.pow(Math.abs(d.x / A) ** p + Math.abs(d.y / B) ** p + Math.abs(d.z / C) ** p, 1 / p) * beule(d);
+    P.setXYZ(i, d.x * r, d.y * r, d.z * r);
+  }
+  g.deleteAttribute('uv'); g.computeVertexNormals();
+  return g;
+}
+const csg = new Evaluator(); csg.useGroups = true; csg.attributes = ['position', 'normal'];
+const pinsel = (g, k) => { const b = new Brush(g, mat(k)); b.updateMatrixWorld(); return b; };
+const schnittKiste = (x0, x1, y0, y1, z0, z1, k) => { const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0); g.translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); g.deleteAttribute('uv'); return pinsel(g, k); };
+// Ergebnis einer Schnittberechnung nach Materialgruppen in den Baukasten übernehmen
+function csgNach(b, brush) {
+  const g = brush.geometry, mats = Array.isArray(brush.material) ? brush.material : [brush.material];
+  const gruppen = g.groups.length ? g.groups : [{ start: 0, count: (g.index ? g.index.count : g.attributes.position.count), materialIndex: 0 }];
+  const nicht = g.index ? g.toNonIndexed() : g;
+  for (const gr of gruppen) {
+    const teil = new THREE.BufferGeometry();
+    for (const name of ['position', 'normal']) {
+      const a = nicht.attributes[name];
+      teil.setAttribute(name, new THREE.BufferAttribute(a.array.slice(gr.start * 3, (gr.start + gr.count) * 3), 3));
+    }
+    b.add(mats[gr.materialIndex].name, mergeVertices(teil));
+  }
+}
+
 // ---------- Zellmaße ----------
 const X = 5, Y = 3.5, ZH = -3.5, ZV = 3.5;  // Innenraum (Membran) x∈[-X,X], y∈[-Y,Y], z∈[ZH,ZV]
 const W = 0.45, MEM = 0.08;                 // Wanddicke, Membrandicke
@@ -110,41 +143,20 @@ function bauen(stufe) {
   const teile = [];
   const s78 = stufe === 78;
 
-  // Zellwand (5 Seiten, vorne offen)
+  // Zellwand, Membran und Plasma als abgerundete Schalen; oben und vorne aufgeschnitten
   {
-    const b = new Bau();
-    b.box('wand', -X - W, X + W, -Y - W, -Y, ZH - W, ZV);        // unten
-    b.box('wand', -X - W, -X, -Y, Y, ZH - W, ZV);                // links
-    b.box('wand', X, X + W, -Y, Y, ZH - W, ZV);                  // rechts
-    b.box('wand', -X, X, -Y, Y, ZH - W, ZH);                     // hinten
-    // Mittellamelle (dunklere Kante an der Schnittfläche)
-    for (const [x0, x1, y0, y1] of [[-X - W, X + W, -Y - W, -Y - W + 0.06], [-X - W, -X - W + 0.06, -Y - W, Y + W], [X + W - 0.06, X + W, -Y - W, Y + W]])
-      b.box('wandKante', x0, x1, y0, y1, ZV, ZV + 0.01);
-    teile.push(b.bauen('zellwand'));
-  }
-  // Zellmembran (innen an der Wand)
-  {
-    const b = new Bau(), m = MEM;
-    b.box('membran', -X, X, -Y, -Y + m, ZH, ZV);
-    b.box('membran', -X, -X + m, -Y + m, Y - m, ZH, ZV);
-    b.box('membran', X - m, X, -Y + m, Y - m, ZH, ZV);
-    b.box('membran', -X + m, X - m, -Y + m, Y - m, ZH, ZH + m);
-    teile.push(b.bauen('zellmembran'));
-  }
-  // Vorderseite (abnehmbar): Wand + Membran vorne
-  {
-    const b = new Bau();
-    b.box('wand', -X - W, X + W, -Y - W, Y + W, ZV + 0.02, ZV + W);          // vorne
-    b.box('wand', -X - W, X + W, Y + 0.02, Y + W, ZH - W, ZV + 0.02);        // Deckel
-    b.box('membran', -X, X, -Y, Y - MEM, ZV - MEM, ZV);
-    b.box('membran', -X, X, Y - MEM, Y, ZH, ZV);
-    teile.push(b.bauen('vorderseite'));
-  }
-  // Zellplasma (durchscheinend)
-  {
-    const b = new Bau();
-    b.box('plasma', -X + 0.12, X - 0.12, -Y + 0.12, Y - 0.12, ZH + 0.12, ZV - 0.12);
-    teile.push(b.bauen('zellplasma'));
+    const OBEN = Y - 0.4, VORN = ZV - 0.4, C = (ZV - ZH) / 2;
+    const aussen = pinsel(zellform(X + W, Y + W, C + W), 'wand');
+    const innen = pinsel(zellform(X, Y, C), 'wandSchnitt');
+    const wand = csg.evaluate(aussen, innen, SUBTRACTION);
+    const memInnen = pinsel(zellform(X - MEM, Y - MEM, C - MEM), 'membranSchnitt');
+    const membran = csg.evaluate(pinsel(zellform(X, Y, C), 'membran'), memInnen, SUBTRACTION);
+    const offen = (brush, k) => csg.evaluate(csg.evaluate(brush, schnittKiste(-20, 20, OBEN, 20, -20, 20, k), SUBTRACTION), schnittKiste(-20, 20, -20, 20, VORN, 20, k), SUBTRACTION);
+    const deckel = (brush, k) => csg.evaluate(brush, csg.evaluate(schnittKiste(-20, 20, OBEN, 20, -20, 20, k), schnittKiste(-20, 20, -20, 20, VORN, 20, k), ADDITION), INTERSECTION);
+    { const b = new Bau(); csgNach(b, offen(wand, 'wandSchnitt')); teile.push(b.bauen('zellwand')); }
+    { const b = new Bau(); csgNach(b, offen(membran, 'membranSchnitt')); teile.push(b.bauen('zellmembran')); }
+    { const b = new Bau(); csgNach(b, deckel(wand, 'wandSchnitt')); csgNach(b, deckel(membran, 'membranSchnitt')); teile.push(b.bauen('vorderseite')); }
+    { const b = new Bau(); csgNach(b, offen(pinsel(zellform(X - 0.14, Y - 0.14, C - 0.14, 5, 48), 'plasma'), 'plasma')); teile.push(b.bauen('zellplasma')); }
   }
   // Vakuole
   const VAK = { c: V(1.5, -0.25, -1.0), r: V(2.8, 2.1, 1.9) };
@@ -273,9 +285,9 @@ function bauen(stufe) {
       ];
       for (const [p, rot] of stellen) {
         const M = trafo(p, rot);
-        b.add('tuepfel', new THREE.CylinderGeometry(0.32, 0.32, W + 0.04, 20), M);
+        b.add('tuepfel', new THREE.CylinderGeometry(0.32, 0.32, W + 0.35, 20), M);
         for (const [dx, dz] of [[-0.12, 0], [0.12, 0], [0, 0.12], [0, -0.12]]) {
-          const s = new THREE.CylinderGeometry(0.025, 0.025, W + 0.3, 6); s.translate(dx, 0, dz); b.add('membran', s, M);
+          const s = new THREE.CylinderGeometry(0.025, 0.025, W + 0.4, 6); s.translate(dx, 0, dz); b.add('membran', s, M);
         }
       }
       teile.push(b.bauen('tuepfel'));
