@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>3D-Lernmodelle – Tafelansicht</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; font-family: system-ui, sans-serif;
+               background: radial-gradient(circle at 50% 40%, #f4f5f7 0%, #c9ced6 70%, #9aa1ab 100%); }
+  [hidden] { display: none !important; }
+  canvas { display: block; touch-action: none; }
+  #leiste { position: fixed; left: 0; right: 0; bottom: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+            padding: 12px 16px; background: rgba(20,24,30,.8); color: #fff; font-size: 18px; }
+  #leiste select, #leiste button { font-size: 18px; padding: 10px 14px; border-radius: 10px; border: 0; min-height: 48px; }
+  #leiste button.on { background: #3b82f6; color: #fff; }
+  .gruppe { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .trenner { width: 1px; align-self: stretch; background: rgba(255,255,255,.25); }
+  #titel { position: fixed; top: 14px; left: 16px; font-size: 22px; font-weight: 600; color: #1f2937; }
+</style>
+<script type="importmap">{ "imports": { "three": "./lib/three.module.js" } }</script>
+</head>
+<body>
+<div id="titel">Markerwürfel</div>
+<div id="leiste">
+  <div class="gruppe">
+    <button id="zeigWuerfel" class="on">Würfel</button>
+    <button id="zeigModell">Modell</button>
+  </div>
+  <div class="gruppe" id="modellWahl" hidden>
+    <select id="modell"></select>
+    <select id="teil" hidden></select>
+    <button id="dach" hidden>Dach</button>
+  </div>
+  <div class="trenner"></div>
+  <div class="gruppe" id="ansichten">
+    <button data-v="schraeg">Schräg</button>
+    <button data-v="vorne">Vorne</button>
+    <button data-v="hinten">Hinten</button>
+    <button data-v="links">Links</button>
+    <button data-v="rechts">Rechts</button>
+    <button data-v="oben">Oben</button>
+    <button data-v="unten">Unten</button>
+  </div>
+  <div class="trenner"></div>
+  <div class="gruppe">
+    <button id="kleiner">−</button><button id="groesser">+</button>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './lib/GLTFLoader.js';
+import { MODELLE } from './modelle/liste.js';
+
+const E = 1.25;   // Würfelkante in Marker-Einheiten (wie im Viewer)
+// Faltvorlage: Seite → [rechts, oben (Bildrichtung), Normale] im Würfelsystem
+const SEITEN = {
+  1: { name: 'oben',   a: [[1,0,0],[0,0,-1],[0,1,0]] },
+  2: { name: 'vorne',  a: [[1,0,0],[0,1,0],[0,0,1]] },
+  3: { name: 'unten',  a: [[1,0,0],[0,0,1],[0,-1,0]] },
+  4: { name: 'links',  a: [[0,0,1],[0,1,0],[-1,0,0]] },
+  5: { name: 'rechts', a: [[0,0,-1],[0,1,0],[1,0,0]] },
+  6: { name: 'hinten', a: [[-1,0,0],[0,1,0],[0,0,-1]] },
+};
+
+// ---- Szene ----
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+let abstand = 4.8;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x555555, 1.6));
+const sonne = new THREE.DirectionalLight(0xffffff, 1.4); sonne.position.set(2, 4, 3); scene.add(sonne);
+
+function groesse() {
+  const h = innerHeight - document.getElementById('leiste').offsetHeight;
+  renderer.setSize(innerWidth, h);
+  camera.aspect = innerWidth / h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', groesse);
+
+// Würfel-Gruppe: wird gedreht; enthält Bastelwürfel, Umriss und Modell
+const wuerfel = new THREE.Group(); scene.add(wuerfel);
+const bastel = new THREE.Group(); wuerfel.add(bastel);
+const umriss = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(E, E, E)), new THREE.LineBasicMaterial({ color: 0x475569, transparent: true, opacity: 0.6 }));
+umriss.visible = false; wuerfel.add(umriss);
+
+function seitenTextur(id) {
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 512, 512);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  const img = new Image();
+  img.onload = () => {
+    g.imageSmoothingEnabled = false;
+    g.drawImage(img, 51, 51, 410, 410);                       // Marker = 80 % der Seite (wie Vorlage)
+    g.fillStyle = '#6b7280'; g.font = '22px system-ui'; g.fillText(id + ' ' + SEITEN[id].name, 8, 502);
+    t.needsUpdate = true;
+  };
+  img.src = 'marker/bilder/' + id + '.png';
+  return t;
+}
+for (const id in SEITEN) {
+  const [rt, up, n] = SEITEN[id].a.map(v => new THREE.Vector3(...v));
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(E, E), new THREE.MeshBasicMaterial({ map: seitenTextur(id) }));
+  const M = new THREE.Matrix4().makeBasis(rt, up, n); M.setPosition(n.clone().multiplyScalar(E / 2));
+  m.applyMatrix4(M); bastel.add(m);
+}
+// Papierkanten
+bastel.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(E, E, E)), new THREE.LineBasicMaterial({ color: 0x9ca3af })));
+
+// ---- Modell ----
+const hülle = new THREE.Group(); hülle.visible = false; wuerfel.add(hülle);
+const loader = new GLTFLoader();
+const sel = document.getElementById('modell'), selTeil = document.getElementById('teil'), btnDach = document.getElementById('dach');
+for (const [k, v] of Object.entries(MODELLE)) sel.add(new Option(v.name, k));
+let inhalt = null, cfg = null, knoten = {}, boxen = {}, gesamtBox = null, dachAn = false, nr = 0;
+
+function lade(name) {
+  const meine = ++nr; cfg = MODELLE[name];
+  selTeil.innerHTML = ''; selTeil.hidden = !cfg.teile;
+  if (cfg.teile) { selTeil.add(new Option(cfg.ganz || 'Ganzes Modell', '')); for (const t of cfg.teile) selTeil.add(new Option(t.name, t.id)); }
+  loader.load('modelle/' + name + '.glb', (gltf) => {
+    if (meine !== nr) return;
+    if (inhalt) hülle.remove(inhalt);
+    inhalt = gltf.scene; inhalt.updateMatrixWorld(true);
+    gesamtBox = new THREE.Box3().setFromObject(inhalt);
+    knoten = {}; boxen = {};
+    for (const id of [...(cfg.teile || []).map(t => t.id), 'dach', 'umgebung']) {
+      const k = inhalt.getObjectByName(id);
+      if (k) { knoten[id] = k; boxen[id] = new THREE.Box3().setFromObject(k); }
+    }
+    dachAn = false; hülle.add(inhalt); zeige('');
+  });
+}
+function zeige(teil) {
+  if (!inhalt) return;
+  const t = cfg.teile && cfg.teile.find(x => x.id === teil);
+  for (const [id, k] of Object.entries(knoten)) k.visible = t ? id === teil : (id === 'dach' ? dachAn : true);
+  const box = t ? boxen[teil] : gesamtBox;
+  inhalt.position.copy(box.getCenter(new THREE.Vector3())).negate();
+  hülle.scale.setScalar(E * (t ? 1.5 : 1.3) / box.getSize(new THREE.Vector3()).length());
+  selTeil.value = t ? teil : '';
+  btnDach.hidden = !knoten.dach || !!t; btnDach.classList.toggle('on', dachAn);
+  document.getElementById('titel').textContent = modellModus ? (t ? t.name : cfg.name) : 'Markerwürfel';
+}
+sel.onchange = () => lade(sel.value);
+selTeil.onchange = () => zeige(selTeil.value);
+btnDach.onclick = () => { dachAn = !dachAn; if (knoten.dach) knoten.dach.visible = dachAn; btnDach.classList.toggle('on', dachAn); };
+
+// ---- Umschalten Würfel / Modell ----
+let modellModus = false;
+function modus(m) {
+  modellModus = m;
+  bastel.visible = !m; umriss.visible = m; hülle.visible = m;
+  document.getElementById('zeigWuerfel').classList.toggle('on', !m);
+  document.getElementById('zeigModell').classList.toggle('on', m);
+  document.getElementById('modellWahl').hidden = !m;
+  if (m && !inhalt) lade(sel.value); else zeige(selTeil.value);
+}
+document.getElementById('zeigWuerfel').onclick = () => modus(false);
+document.getElementById('zeigModell').onclick = () => modus(true);
+
+// ---- Schnellansichten (weich animiert) ----
+const ANSICHTEN = {
+  schraeg: new THREE.Euler(0.45, -0.6, 0),
+  vorne: new THREE.Euler(0, 0, 0),
+  hinten: new THREE.Euler(0, Math.PI, 0),
+  links: new THREE.Euler(0, Math.PI / 2, 0),
+  rechts: new THREE.Euler(0, -Math.PI / 2, 0),
+  oben: new THREE.Euler(Math.PI / 2, 0, 0),
+  unten: new THREE.Euler(-Math.PI / 2, 0, 0),
+};
+let ziel = null;
+function ansicht(v) {
+  ziel = new THREE.Quaternion().setFromEuler(ANSICHTEN[v]);
+  document.querySelectorAll('#ansichten button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+}
+document.querySelectorAll('#ansichten button').forEach(b => b.onclick = () => ansicht(b.dataset.v));
+wuerfel.quaternion.setFromEuler(ANSICHTEN.schraeg);
+document.querySelector('[data-v="schraeg"]').classList.add('on');
+
+// ---- Drehen mit Finger/Maus (wie einen echten Würfel), Zoom mit Pinch/Mausrad ----
+const zeiger = new Map(); let pinchStart = 0, abstandStart = abstand;
+const el = renderer.domElement;
+el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); zeiger.set(e.pointerId, { x: e.clientX, y: e.clientY }); ziel = null;
+  document.querySelectorAll('#ansichten button').forEach(b => b.classList.remove('on'));
+  if (zeiger.size === 2) { const [a, b] = [...zeiger.values()]; pinchStart = Math.hypot(a.x - b.x, a.y - b.y); abstandStart = abstand; } });
+el.addEventListener('pointermove', e => {
+  const alt = zeiger.get(e.pointerId); if (!alt) return;
+  const neu = { x: e.clientX, y: e.clientY }; zeiger.set(e.pointerId, neu);
+  if (zeiger.size === 1) {
+    const k = 3.5 / Math.min(innerWidth, innerHeight);
+    const dq = new THREE.Quaternion().setFromEuler(new THREE.Euler((neu.y - alt.y) * k, (neu.x - alt.x) * k, 0, 'XYZ'));
+    wuerfel.quaternion.premultiply(dq);
+  } else if (zeiger.size === 2 && pinchStart) {
+    const [a, b] = [...zeiger.values()];
+    abstand = THREE.MathUtils.clamp(abstandStart * pinchStart / Math.hypot(a.x - b.x, a.y - b.y), 2.5, 15);
+  }
+});
+const los = e => { zeiger.delete(e.pointerId); if (zeiger.size < 2) pinchStart = 0; };
+el.addEventListener('pointerup', los); el.addEventListener('pointercancel', los);
+el.addEventListener('wheel', e => { e.preventDefault(); abstand = THREE.MathUtils.clamp(abstand * (1 + e.deltaY * 0.001), 2.5, 15); }, { passive: false });
+document.getElementById('groesser').onclick = () => abstand = Math.max(2.5, abstand / 1.2);
+document.getElementById('kleiner').onclick = () => abstand = Math.min(15, abstand * 1.2);
+
+// ---- Start ----
+const Q = new URLSearchParams(location.search);
+if (Q.get('m') && MODELLE[Q.get('m')]) sel.value = Q.get('m');
+groesse();
+if (Q.get('m')) modus(true);
+renderer.setAnimationLoop(() => {
+  if (ziel) { wuerfel.quaternion.slerp(ziel, 0.12); if (wuerfel.quaternion.angleTo(ziel) < 0.002) { wuerfel.quaternion.copy(ziel); ziel = null; } }
+  camera.position.set(0, 0, abstand); camera.lookAt(0, 0, 0);
+  renderer.render(scene, camera);
+});
+window.TEST = { ansicht, modus, wuerfel, bereit: () => !!inhalt };
+</script>
+</body>
+</html>
