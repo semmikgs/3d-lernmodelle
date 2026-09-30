@@ -1,12 +1,14 @@
 // Modellliste für den Viewer.
 // Schlüssel = Dateiname in /modelle (ohne .glb).
-// Optional: info (Text zum ganzen Modell), teile (Untermenü; id = Gruppenname im Modell).
+// Optional: info (Text zum ganzen Modell), teile (Untermenü; id = Gruppenname im Modell),
+//           thema (Hintergrundbild aus /hintergruende, Standard: blaupause).
 export const MODELLE = {
   zahnrad: { name: 'Zahnradgetriebe' },
   magnet: { name: 'Stabmagnet mit Feldlinien' },
   ikosaeder: { name: 'Ikosaeder' },
   villa: {
     name: 'Römische Villa (Stadthaus)',
+    thema: 'pompeji',
     ganz: 'Ganze Villa',
     info: 'So wohnte eine reiche Familie in einer römischen Stadt wie Pompeji. Von der Straße aus sieht das Haus fast fensterlos aus – das Leben spielte sich innen ab, rund um Atrium und Garten. Wähle unten einen Raum aus!',
     teile: [

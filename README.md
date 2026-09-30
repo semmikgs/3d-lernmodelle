@@ -15,3 +15,8 @@ Direktlink auf einen Raum: `viewer.html?m=villa&r=atrium`
 Die Modelle werden per Skript erzeugt (`quellen/`, benötigt Node + `npm i three`): `node quellen/villa.mjs modelle`
 
 Technik: three.js + AR.js (ARToolKit, 3×3-Barcode-Marker 1–6).
+
+## Ansicht und Erkennung
+- **Ansicht**-Knopf: Kamera → Neutral → Themenbild (Hand und Würfel ausgeblendet, Modell bleibt bei Aussetzern stehen). Themenbild pro Modell über `thema` in `modelle/liste.js`, Bilder in `hintergruende/`.
+- Erkennung: alle sichtbaren Würfelseiten werden per Mehrheitsentscheid fusioniert und geglättet (`js/tracker.js`); kurze Aussetzer überbrückt der Lagesensor des iPads (einmal „Tippen zum Starten“).
+- URL-Parameter: `ansicht=neutral|thema`, `aufl=niedrig` (schnellere Auswertung für ältere Geräte), `schwelle=otsu`, `gyro=0`, `debug=1`.

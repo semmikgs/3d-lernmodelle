@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="g" cx="0.5" cy="0.45" r="0.75"><stop offset="0" stop-color="#2d5f9a"/><stop offset="1" stop-color="#173659"/></radialGradient>
+    <pattern id="fein" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1"/></pattern>
+    <pattern id="grob" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1.5"/></pattern>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g)"/>
+  <rect width="1600" height="1000" fill="url(#fein)"/>
+  <rect width="1600" height="1000" fill="url(#grob)"/>
+</svg>

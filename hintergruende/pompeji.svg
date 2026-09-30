@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="himmel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5f8fc4"/><stop offset="0.55" stop-color="#a9c8e2"/><stop offset="0.8" stop-color="#f3dcb8"/>
+    </linearGradient>
+    <linearGradient id="berg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a7f86"/><stop offset="1" stop-color="#8f9a8a"/></linearGradient>
+    <linearGradient id="feld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa76a"/><stop offset="1" stop-color="#6d7f45"/></linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#himmel)"/>
+  <circle cx="1280" cy="210" r="60" fill="#fff4d6" opacity="0.9"/>
+  <g fill="#fff" opacity="0.7">
+    <ellipse cx="300" cy="180" rx="120" ry="28"/><ellipse cx="380" cy="165" rx="80" ry="24"/>
+    <ellipse cx="900" cy="120" rx="140" ry="24"/><ellipse cx="980" cy="108" rx="70" ry="20"/>
+  </g>
+  <!-- Vesuv -->
+  <path d="M380 640 C 560 560, 700 360, 820 330 C 850 322, 900 322, 930 332 C 1050 370, 1180 560, 1400 640 Z" fill="url(#berg)"/>
+  <path d="M820 330 C 850 322, 900 322, 930 332 C 900 350, 860 352, 820 330 Z" fill="#62666b"/>
+  <!-- ferne Hügel und Meer -->
+  <path d="M0 650 C 200 600, 350 620, 520 640 L 520 700 L 0 700 Z" fill="#8fa3a0"/>
+  <path d="M1250 640 C 1400 610, 1500 620, 1600 630 L 1600 700 L 1250 700 Z" fill="#8fa3a0"/>
+  <rect x="0" y="655" width="1600" height="40" fill="#6f9cc0" opacity="0.8"/>
+  <!-- Felder -->
+  <path d="M0 690 C 400 660, 1200 670, 1600 690 L 1600 1000 L 0 1000 Z" fill="url(#feld)"/>
+  <path d="M0 780 C 500 740, 1100 760, 1600 790 L 1600 1000 L 0 1000 Z" fill="#627538"/>
+  <!-- Pinien -->
+  <g fill="#2f4524">
+    <rect x="178" y="600" width="10" height="120" fill="#5a4030"/><ellipse cx="183" cy="600" rx="80" ry="26"/>
+    <rect x="1418" y="610" width="10" height="110" fill="#5a4030"/><ellipse cx="1423" cy="610" rx="70" ry="24"/>
+  </g>
+  <!-- Zypressen -->
+  <g fill="#23361c">
+    <ellipse cx="320" cy="690" rx="16" ry="70"/><ellipse cx="350" cy="700" rx="13" ry="58"/>
+    <ellipse cx="1250" cy="690" rx="16" ry="72"/><ellipse cx="1285" cy="702" rx="12" ry="55"/><ellipse cx="1320" cy="706" rx="11" ry="48"/>
+  </g>
+</svg>

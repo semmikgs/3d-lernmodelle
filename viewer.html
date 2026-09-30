@@ -18,6 +18,11 @@
           background: rgba(255,255,255,.92); color: #111; padding: 10px 14px; border-radius: 10px; font-size: 16px; line-height: 1.4; }
   #info b { display: block; margin-bottom: 2px; }
   #info button { float: right; border: 0; background: none; font-size: 18px; margin: -4px -6px 0 6px; }
+  body[data-ansicht="neutral"] { background: radial-gradient(circle at 50% 40%, #f4f5f7 0%, #c9ced6 70%, #9aa1ab 100%); }
+  body[data-ansicht="thema"] { background: #87a9c9 center / cover no-repeat; }
+  body[data-ansicht="neutral"] video, body[data-ansicht="thema"] video { opacity: 0 !important; }
+  #start { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.6); }
+  #start button { font-size: 20px; padding: 14px 22px; border-radius: 12px; border: 0; background: #3b82f6; color: #fff; }
   #status { position: fixed; top: 10px; left: 10px; z-index: 10; color: #fff; background: rgba(0,0,0,.55); padding: 6px 10px; border-radius: 8px; font-size: 14px; }
 </style>
 <script type="importmap">{ "imports": { "three": "./lib/three.module.js" } }</script>
@@ -31,8 +36,10 @@
   <button id="drehen">Drehen</button>
   <button id="dach" hidden>Dach</button>
   <button id="infoBtn" hidden>Info</button>
+  <button id="ansicht">Ansicht: Kamera</button>
   <button id="wuerfel">Würfel</button>
 </div>
+<div id="start"><button id="startBtn">Tippen zum Starten</button></div>
 <div id="info"><button id="infoZu" aria-label="Schließen">✕</button><b id="infoTitel"></b><span id="infoText"></span></div>
 
 <script type="module">
@@ -40,6 +47,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from './lib/GLTFLoader.js';
 import { ArToolkitSource, ArToolkitContext, ArMarkerControls } from './lib/ar-threex.mjs';
 import { MODELLE } from './modelle/liste.js';
+import { WuerfelTracker, Lagesensor } from './js/tracker.js';
 
 // ---- Würfelgeometrie ----
 // Marker (inkl. schwarzem Rand) = 1 Einheit. Würfelkante = Kante / Markergröße (7 cm / 5,6 cm).
@@ -78,27 +86,51 @@ hilfsWuerfel.visible = false;
 anker.add(hilfsWuerfel);
 
 // ---- AR.js ----
+const Q = new URLSearchParams(location.search);
+const AUFL = Q.get('aufl') === 'niedrig' ? [640, 480] : [800, 600];   // Auswerteauflösung
 const source = new ArToolkitSource({ sourceType: 'webcam', sourceWidth: 1280, sourceHeight: 960, displayWidth: innerWidth, displayHeight: innerHeight });
 const context = new ArToolkitContext({
   cameraParametersUrl: 'data/camera_para.dat',
   detectionMode: 'mono_and_matrix', matrixCodeType: '3x3', patternRatio: 0.5,
-  maxDetectionRate: 30, canvasWidth: 640, canvasHeight: 480,
+  maxDetectionRate: 30, canvasWidth: AUFL[0], canvasHeight: AUFL[1],
 });
 
 function onResize() {
   source.onResizeElement();
   source.copyElementSizeTo(renderer.domElement);
+  // Zeichenfläche in voller Bildschirmauflösung (sonst wird ein kleines Bild hochskaliert → unscharf)
+  const w = parseFloat(renderer.domElement.style.width), h = parseFloat(renderer.domElement.style.height);
+  if (w && h) renderer.setSize(w, h, false);
   if (context.arController) source.copyElementSizeTo(context.arController.canvas);
 }
 source.init(() => {
   source.domElement.addEventListener('canplay', () => {
     onResize();
-    context.init(() => { camera.projectionMatrix.copy(context.getProjectionMatrix()); status.textContent = 'Würfel vor die Kamera halten'; });
+    context.init(() => {
+      camera.projectionMatrix.copy(context.getProjectionMatrix());
+      // Schwellwert passt sich an ungleichmäßiges Licht an (3 = adaptiv, 2 = Otsu)
+      try { context.arController.setThresholdMode(Q.get('schwelle') === 'otsu' ? 2 : 3); } catch (e) {}
+      status.textContent = 'Würfel vor die Kamera halten';
+    });
   });
   setTimeout(onResize, 1500);
 }, (err) => { status.textContent = 'Kamera-Fehler: ' + (err && err.message || err); });
 addEventListener('resize', onResize);
 document.addEventListener('click', () => { const v = source.domElement; if (v && v.paused) v.play().catch(() => {}); });
+
+// ---- Lagesensor (iOS braucht einmal ein Antippen für die Erlaubnis) ----
+const sensor = new Lagesensor();
+const startBox = document.getElementById('start');
+if (Q.get('gyro') !== '0') {
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    startBox.style.display = 'flex';
+    document.getElementById('startBtn').onclick = async () => {
+      startBox.style.display = 'none';
+      const v = source.domElement; if (v && v.paused) v.play().catch(() => {});
+      await sensor.start();
+    };
+  } else sensor.start();
+}
 
 // Pro Würfelseite ein Marker-Root + Offset-Matrix (Marker -> Würfelmitte)
 const marker = SEITEN.map(s => {
@@ -109,6 +141,7 @@ const marker = SEITEN.map(s => {
   T.setPosition(new THREE.Vector3(...s.y).multiplyScalar(E / 2));
   return { ...s, root, inv: T.clone().invert() };
 });
+const tracker = new WuerfelTracker(marker, sensor);
 
 // ---- Modell laden ----
 const loader = new GLTFLoader();
@@ -154,6 +187,7 @@ function lade(name, teil) {
     }
     dachAn = false;
     hülle.add(inhalt);
+    setzeAnsicht(ansicht);
     selTeil.value = (teil && boxen[teil]) ? teil : '';
     zeige(selTeil.value);
   }, undefined, () => { status.textContent = 'Modell nicht gefunden: ' + name; status.style.display = ''; });
@@ -196,6 +230,21 @@ btnDach.onclick = () => { dachAn = !dachAn; if (knoten.dach) knoten.dach.visible
 
 lade(sel.value, url.get('r'));
 
+// ---- Ansicht: Kamera / Neutral / Thema ----
+const ANSICHTEN = ['kamera', 'neutral', 'thema'];
+const ANSICHT_TEXT = { kamera: 'Kamera', neutral: 'Neutral', thema: 'Themenbild' };
+let ansicht = ANSICHTEN.includes(Q.get('ansicht')) ? Q.get('ansicht') : 'kamera';
+const btnAnsicht = document.getElementById('ansicht');
+function setzeAnsicht(a) {
+  ansicht = a;
+  document.body.dataset.ansicht = a;
+  document.body.style.backgroundImage = a === 'thema' ? `url(hintergruende/${(cfg && cfg.thema) || 'blaupause'}.svg)` : '';
+  btnAnsicht.textContent = 'Ansicht: ' + ANSICHT_TEXT[a];
+  btnAnsicht.classList.toggle('on', a !== 'kamera');
+}
+btnAnsicht.onclick = () => setzeAnsicht(ANSICHTEN[(ANSICHTEN.indexOf(ansicht) + 1) % 3]);
+setzeAnsicht(ansicht);
+
 // ---- Bedienung ----
 const groesse = document.getElementById('groesse');
 groesse.oninput = () => drehteller.scale.setScalar(+groesse.value);
@@ -205,33 +254,23 @@ btnDrehen.onclick = () => { drehen = !drehen; btnDrehen.classList.toggle('on', d
 const btnWuerfel = document.getElementById('wuerfel');
 btnWuerfel.onclick = () => { hilfsWuerfel.visible = !hilfsWuerfel.visible; btnWuerfel.classList.toggle('on', hilfsWuerfel.visible); };
 
-// ---- Schleife: sichtbare Seite wählen, Pose glätten ----
-let aktiv = null, verloren = 0;
-const ziel = { p: new THREE.Vector3(), q: new THREE.Quaternion(), s: new THREE.Vector3() };
-const ist = { p: new THREE.Vector3(), q: new THREE.Quaternion(), s: new THREE.Vector3(1, 1, 1) };
-const tmp = new THREE.Matrix4();
+// ---- Schleife ----
 let letzte = performance.now();
-
 renderer.setAnimationLoop(() => {
-  const jetzt = performance.now(), dt = (jetzt - letzte) / 1000; letzte = jetzt;
-  if (source.ready && context.arController) context.update(source.domElement);
-
-  // aktive Seite behalten, solange sichtbar (verhindert Springen)
-  if (!(aktiv && aktiv.root.visible)) aktiv = marker.find(m => m.root.visible) || null;
-  if (aktiv) {
-    tmp.multiplyMatrices(aktiv.root.matrix, aktiv.inv);
-    tmp.decompose(ziel.p, ziel.q, ziel.s);
-    const a = anker.visible ? 0.35 : 1;
-    ist.p.lerp(ziel.p, a); ist.q.slerp(ziel.q, a);
-    anker.matrix.compose(ist.p, ist.q, ist.s);
-    anker.visible = true; verloren = 0;
+  const jetzt = performance.now(), dt = Math.min((jetzt - letzte) / 1000, 0.1); letzte = jetzt;
+  let neu = false;
+  if (source.ready && context.arController) neu = context.update(source.domElement) !== false;
+  tracker.update(dt, neu);
+  anker.visible = tracker.sichtbar(ansicht !== 'kamera');
+  if (anker.visible) {
+    anker.matrix.compose(tracker.pos, tracker.rot, EINS);
     status.style.display = 'none';
-  } else if (anker.visible && (verloren += dt) > 0.3) {
-    anker.visible = false;
   }
   if (drehen) drehteller.rotation.y += dt * 0.6;
   renderer.render(scene, camera);
+  if (Q.get('debug')) window.DEBUG = { sichtbar: anker.visible, seiten: tracker.anzahlSeiten, pos: tracker.pos.toArray(), rot: tracker.rot.toArray(), verloren: tracker.verloren, diag: tracker.diag };
 });
+const EINS = new THREE.Vector3(1, 1, 1);
 </script>
 </body>
 </html>
