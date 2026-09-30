@@ -65,6 +65,9 @@ export class WuerfelTracker {
     this.kameraBeiLetzterSicht = new THREE.Quaternion(); this.poseBeiLetzterSicht = { p: new THREE.Vector3(), q: new THREE.Quaternion() };
     this.maxLuecke = 1.5;           // Sekunden, die mit dem Lagesensor überbrückt werden
     this.anzahlSeiten = 0;
+    // Selbstkorrektur des Objektivunterschieds: Mittelpunkt = Seitenposition − Normale · (halbe Kante · skala).
+    // skala wird aus Bildern mit ≥ 2 Seiten geschätzt, sodass alle Seiten denselben Mittelpunkt ergeben.
+    this.halbeKante = 0.625; this.skala = 1; this.skalaProben = 0;
     // Selbstkalibrierung Sensor ↔ Kamera: 8 mögliche Zuordnungen (Richtung × Bildschirmdrehung)
     this.varianten = [];
     for (const inv of [false, true]) for (const k of [0, 1, 2, 3])
@@ -78,6 +81,20 @@ export class WuerfelTracker {
   _anwenden(v, G) {
     const g = v.inv ? G.clone().invert() : G.clone();
     return v.rz.clone().multiply(g).multiply(v.rz.clone().invert());
+  }
+
+  _skalaSchaetzen(gut) {
+    if (gut.length < 2) return;
+    const tb = new THREE.Vector3(), nb = new THREE.Vector3();
+    for (const k of gut) { tb.add(k.t); nb.add(k.n); }
+    tb.divideScalar(gut.length); nb.divideScalar(gut.length);
+    let z = 0, nn = 0;
+    for (const k of gut) { const dn = k.n.clone().sub(nb); z += k.t.clone().sub(tb).dot(dn); nn += dn.lengthSq(); }
+    if (nn < 0.3) return;                                  // Seiten zu ähnlich ausgerichtet
+    const h = z / nn, s = THREE.MathUtils.clamp(h / this.halbeKante, 0.5, 2.5);
+    this.skalaProben++;
+    const a = this.skalaProben < 20 ? 0.2 : 0.03;           // anfangs schnell, dann ruhig
+    this.skala += (s - this.skala) * a;
   }
 
   _kalibrieren(qRoh) {
@@ -107,7 +124,8 @@ export class WuerfelTracker {
       // Gewicht: Seiten, die zur Kamera zeigen, sind genauer
       const n = new THREE.Vector3().setFromMatrixColumn(m.root.matrix, 1).normalize();
       if (n.z < 0.05) continue;   // Seite zeigt angeblich von der Kamera weg → Fehlerkennung (Kipp-Mehrdeutigkeit)
-      kand.push({ id: m.id, p: v1.clone(), q: q1.clone(), w: 0.25 + Math.max(0, n.z), nz: n.z });
+      const t = new THREE.Vector3().setFromMatrixPosition(m.root.matrix);
+      kand.push({ id: m.id, t, n, p: t.clone().addScaledVector(n, -this.halbeKante * this.skala), q: q1.clone(), w: 0.25 + Math.max(0, n.z), nz: n.z });
     }
     this.anzahlSeiten = kand.length;
     this.diag = kand.map(k => [k.id, +k.nz.toFixed(2), +(THREE.MathUtils.radToDeg(k.q.angleTo(this.rot))).toFixed(0)]);
@@ -147,6 +165,8 @@ export class WuerfelTracker {
       wSum += k.w;
     }
     p.divideScalar(wSum); q.normalize();
+    this._skalaSchaetzen(gut);
+    this.streuung = gut.length > 1 ? Math.max(...gut.map(k => k.p.distanceTo(p))) / 1.25 : null;
     this._kalibrieren(q);
 
     if (!this.gueltig || this.verloren > 0.5) { this.p.reset(); this.q.reset(); }

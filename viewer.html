@@ -87,7 +87,19 @@ anker.add(hilfsWuerfel);
 
 // ---- AR.js ----
 const Q = new URLSearchParams(location.search);
-const AUFL = Q.get('aufl') === 'niedrig' ? [640, 480] : [800, 600];   // Auswerteauflösung
+const AUFL_BREITE = Q.get('aufl') === 'niedrig' ? 640 : 800;   // Breite des Auswertebilds (Höhe folgt dem Kamerabild)
+const AUFL = [AUFL_BREITE, AUFL_BREITE * 3 / 4];
+// Kameradaten passend zum tatsächlichen Kamerabild erzeugen (ARToolKit-Format, big-endian).
+// Ohne das wird z. B. ein 16:9-Bild als 4:3 ausgewertet → verzerrte Tiefe → Modell wandert im Bogen.
+function kameraDaten(w, h, hfovGrad) {
+  const f = (w / 2) / Math.tan(hfovGrad * Math.PI / 360), cx = w / 2, cy = h / 2;
+  const buf = new ArrayBuffer(176), dv = new DataView(buf);
+  dv.setInt32(0, w); dv.setInt32(4, h);
+  [f, 0, cx, 0, 0, f, cy, 0, 0, 0, 1, 0].forEach((v, i) => dv.setFloat64(8 + i * 8, v));
+  [0, 0, 0, 0, f, f, cx, cy, 1].forEach((v, i) => dv.setFloat64(104 + i * 8, v));   // keine Verzeichnung
+  return URL.createObjectURL(new Blob([buf], { type: 'application/octet-stream' }));
+}
+const HFOV = +(Q.get('fov') || 60);   // horizontaler Bildwinkel der Kamera (iPad-Rückkamera ≈ 60°)
 const source = new ArToolkitSource({ sourceType: 'webcam', sourceWidth: 1280, sourceHeight: 960, displayWidth: innerWidth, displayHeight: innerHeight });
 const context = new ArToolkitContext({
   cameraParametersUrl: 'data/camera_para.dat',
@@ -104,7 +116,13 @@ function onResize() {
   if (context.arController) source.copyElementSizeTo(context.arController.canvas);
 }
 source.init(() => {
+  let gestartet = false;
   source.domElement.addEventListener('canplay', () => {
+    if (gestartet) return; gestartet = true;
+    const v = source.domElement, vw = v.videoWidth || 4, vh = v.videoHeight || 3;
+    context.parameters.canvasWidth = AUFL_BREITE;
+    context.parameters.canvasHeight = Math.round(AUFL_BREITE * vh / vw);
+    if (Q.get('kamera') !== 'alt') context.parameters.cameraParametersUrl = kameraDaten(context.parameters.canvasWidth, context.parameters.canvasHeight, HFOV);
     onResize();
     context.init(() => {
       camera.projectionMatrix.copy(context.getProjectionMatrix());
@@ -278,7 +296,7 @@ renderer.setAnimationLoop(() => {
   }
   if (drehen) drehteller.rotation.y += dt * 0.6;
   renderer.render(scene, camera);
-  if (Q.get('debug')) window.DEBUG = { sichtbar: anker.visible, seiten: tracker.anzahlSeiten, pos: tracker.pos.toArray(), rot: tracker.rot.toArray(), verloren: tracker.verloren, diag: tracker.diag, kalib: tracker.variante ? (tracker.variante.inv ? 'inv' : 'dir') + tracker.varianten.indexOf(tracker.variante) % 4 : null, proben: tracker.kalibProben };
+  if (Q.get('debug')) window.DEBUG = { sichtbar: anker.visible, seiten: tracker.anzahlSeiten, pos: tracker.pos.toArray(), rot: tracker.rot.toArray(), verloren: tracker.verloren, diag: tracker.diag, kalib: tracker.variante ? (tracker.variante.inv ? 'inv' : 'dir') + tracker.varianten.indexOf(tracker.variante) % 4 : null, proben: tracker.kalibProben, streuung: tracker.streuung, k: +tracker.skala.toFixed(3), video: [source.domElement.videoWidth, source.domElement.videoHeight] };
 });
 const EINS = new THREE.Vector3(1, 1, 1);
 </script>
