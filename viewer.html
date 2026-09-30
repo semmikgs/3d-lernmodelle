@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>3D-Lernmodelle – AR-Viewer</title>
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: system-ui, sans-serif; }
-  video, canvas { position: absolute; top: 0; left: 0; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; font-family: system-ui, sans-serif; }
+  video { position: absolute; top: 0; left: 0; z-index: 0 !important; }
+  canvas { position: absolute; top: 0; left: 0; z-index: 1 !important; }
   #ui { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
         padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(0,0,0,.55); color: #fff; font-size: 15px; }
   #ui select, #ui button { font-size: 15px; padding: 6px 10px; border-radius: 8px; border: 0; }
@@ -90,6 +91,7 @@ source.init(() => {
   setTimeout(onResize, 1500);
 }, (err) => { status.textContent = 'Kamera-Fehler: ' + (err && err.message || err); });
 addEventListener('resize', onResize);
+document.addEventListener('click', () => { const v = source.domElement; if (v && v.paused) v.play().catch(() => {}); });
 
 // Pro Würfelseite ein Marker-Root + Offset-Matrix (Marker -> Würfelmitte)
 const marker = SEITEN.map(s => {
