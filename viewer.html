@@ -235,7 +235,7 @@ function einpassen(box, faktor) {
 function zeige(teil) {
   if (!inhalt) return;
   const t = cfg.teile && cfg.teile.find(x => x.id === teil);
-  if (t && knoten[teil]) {
+  if (t && (knoten[teil] || (t.detail && knoten[t.detail]))) {
     // nur diesen Raum zeigen, groß
     const ziel = (t.detail && knoten[t.detail]) ? t.detail : teil;
     for (const [id, k] of Object.entries(knoten)) k.visible = (id === ziel);
