@@ -13,6 +13,11 @@
   #ui select, #ui button { font-size: 15px; padding: 6px 10px; border-radius: 8px; border: 0; }
   #ui button.on { background: #3b82f6; color: #fff; }
   #ui label { display: flex; align-items: center; gap: 6px; }
+  #ui select#teil { max-width: 60vw; }
+  #info { position: fixed; top: 10px; right: 10px; left: 10px; max-width: 560px; margin-left: auto; z-index: 10; display: none;
+          background: rgba(255,255,255,.92); color: #111; padding: 10px 14px; border-radius: 10px; font-size: 16px; line-height: 1.4; }
+  #info b { display: block; margin-bottom: 2px; }
+  #info button { float: right; border: 0; background: none; font-size: 18px; margin: -4px -6px 0 6px; }
   #status { position: fixed; top: 10px; left: 10px; z-index: 10; color: #fff; background: rgba(0,0,0,.55); padding: 6px 10px; border-radius: 8px; font-size: 14px; }
 </style>
 <script type="importmap">{ "imports": { "three": "./lib/three.module.js" } }</script>
@@ -21,18 +26,20 @@
 <div id="status">Kamera wird gestartet …</div>
 <div id="ui">
   <select id="modell"></select>
+  <select id="teil" hidden></select>
   <label>Größe <input id="groesse" type="range" min="0.4" max="2.5" step="0.05" value="1"></label>
   <button id="drehen">Drehen</button>
+  <button id="dach" hidden>Dach</button>
+  <button id="infoBtn" hidden>Info</button>
   <button id="wuerfel">Würfel</button>
 </div>
+<div id="info"><button id="infoZu" aria-label="Schließen">✕</button><b id="infoTitel"></b><span id="infoText"></span></div>
 
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from './lib/GLTFLoader.js';
 import { ArToolkitSource, ArToolkitContext, ArMarkerControls } from './lib/ar-threex.mjs';
-
-// ---- Modellliste (Dateiname in /modelle ohne .glb : Anzeigename) ----
-const MODELLE = { zahnrad: 'Zahnradgetriebe', magnet: 'Stabmagnet mit Feldlinien', ikosaeder: 'Ikosaeder' };
+import { MODELLE } from './modelle/liste.js';
 
 // ---- Würfelgeometrie ----
 // Marker (inkl. schwarzem Rand) = 1 Einheit. Würfelkante = Kante / Markergröße (7 cm / 5,6 cm).
@@ -105,30 +112,89 @@ const marker = SEITEN.map(s => {
 
 // ---- Modell laden ----
 const loader = new GLTFLoader();
-let modell = null;
 const sel = document.getElementById('modell');
-for (const [k, v] of Object.entries(MODELLE)) sel.add(new Option(v, k));
-const start = new URLSearchParams(location.search).get('m');
-if (start && MODELLE[start]) sel.value = start;
-sel.onchange = () => { history.replaceState(null, '', '?m=' + sel.value); lade(sel.value); };
+const selTeil = document.getElementById('teil');
+const btnDach = document.getElementById('dach');
+const btnInfo = document.getElementById('infoBtn');
+const infoBox = document.getElementById('info');
+for (const [k, v] of Object.entries(MODELLE)) sel.add(new Option(v.name, k));
+const url = new URLSearchParams(location.search);
+if (url.get('m') && MODELLE[url.get('m')]) sel.value = url.get('m');
 
-function lade(name) {
-  loader.load('modelle/' + name + '.glb', (gltf) => {
-    if (modell) drehteller.remove(modell);
-    modell = gltf.scene;
-    // zentrieren und auf Würfelgröße skalieren
-    const box = new THREE.Box3().setFromObject(modell);
-    const size = box.getSize(new THREE.Vector3()).length();
-    const mitte = box.getCenter(new THREE.Vector3());
-    const hülle = new THREE.Group();
-    modell.position.sub(mitte);
-    hülle.add(modell);
-    hülle.scale.setScalar((E * 1.3) / size);
-    modell = hülle;
-    drehteller.add(modell);
-  }, undefined, () => { status.textContent = 'Modell nicht gefunden: ' + name; });
+const hülle = new THREE.Group();   // skaliert auf Würfelgröße
+drehteller.add(hülle);
+let inhalt = null, cfg = null, knoten = {}, boxen = {}, gesamtBox = null, dachAn = false, ladeNr = 0;
+
+function merkeUrl() {
+  history.replaceState(null, '', '?m=' + sel.value + (selTeil.value ? '&r=' + selTeil.value : ''));
 }
-lade(sel.value);
+sel.onchange = () => { selTeil.value = ''; lade(sel.value, ''); merkeUrl(); };
+selTeil.onchange = () => { zeige(selTeil.value); merkeUrl(); };
+
+function lade(name, teil) {
+  const nr = ++ladeNr;
+  cfg = MODELLE[name];
+  // Untermenü aufbauen
+  selTeil.innerHTML = '';
+  selTeil.hidden = !cfg.teile;
+  if (cfg.teile) {
+    selTeil.add(new Option(cfg.ganz || 'Ganzes Modell', ''));
+    for (const t of cfg.teile) selTeil.add(new Option(t.name, t.id));
+  }
+  loader.load('modelle/' + name + '.glb', (gltf) => {
+    if (nr !== ladeNr) return;
+    if (inhalt) hülle.remove(inhalt);
+    inhalt = gltf.scene;
+    inhalt.updateMatrixWorld(true);
+    gesamtBox = new THREE.Box3().setFromObject(inhalt);
+    knoten = {}; boxen = {};
+    for (const id of [...(cfg.teile || []).map(t => t.id), 'dach', 'umgebung']) {
+      const k = inhalt.getObjectByName(id);
+      if (k) { knoten[id] = k; boxen[id] = new THREE.Box3().setFromObject(k); }
+    }
+    dachAn = false;
+    hülle.add(inhalt);
+    selTeil.value = (teil && boxen[teil]) ? teil : '';
+    zeige(selTeil.value);
+  }, undefined, () => { status.textContent = 'Modell nicht gefunden: ' + name; status.style.display = ''; });
+}
+
+function einpassen(box, faktor) {
+  const size = box.getSize(new THREE.Vector3()).length();
+  inhalt.position.copy(box.getCenter(new THREE.Vector3())).negate();
+  hülle.scale.setScalar((E * faktor) / size);
+}
+
+function zeige(teil) {
+  if (!inhalt) return;
+  const t = cfg.teile && cfg.teile.find(x => x.id === teil);
+  if (t && knoten[teil]) {
+    // nur diesen Raum zeigen, groß
+    for (const [id, k] of Object.entries(knoten)) k.visible = (id === teil);
+    einpassen(boxen[teil], 1.5);
+    zeigeInfo(t.name, t.info);
+  } else {
+    for (const [id, k] of Object.entries(knoten)) k.visible = (id === 'dach') ? dachAn : true;
+    einpassen(gesamtBox, 1.3);
+    zeigeInfo(cfg.name, cfg.info);
+  }
+  btnDach.hidden = !knoten.dach || !!t;
+  btnDach.classList.toggle('on', dachAn);
+}
+
+let infoAn = true;
+function zeigeInfo(titel, text) {
+  document.getElementById('infoTitel').textContent = titel;
+  document.getElementById('infoText').textContent = text || '';
+  btnInfo.hidden = !text;
+  infoBox.style.display = (text && infoAn) ? 'block' : 'none';
+  btnInfo.classList.toggle('on', !!text && infoAn);
+}
+document.getElementById('infoZu').onclick = () => { infoAn = false; infoBox.style.display = 'none'; btnInfo.classList.remove('on'); };
+btnInfo.onclick = () => { infoAn = !infoAn; infoBox.style.display = infoAn ? 'block' : 'none'; btnInfo.classList.toggle('on', infoAn); };
+btnDach.onclick = () => { dachAn = !dachAn; if (knoten.dach) knoten.dach.visible = dachAn; btnDach.classList.toggle('on', dachAn); };
+
+lade(sel.value, url.get('r'));
 
 // ---- Bedienung ----
 const groesse = document.getElementById('groesse');
