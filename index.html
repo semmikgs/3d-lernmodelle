@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D-Lernmodelle</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #f3f4f6; color: #111827; }
+  h1 { margin: 0 0 4px; font-size: 24px; }
+  p { margin: 0 0 16px; color: #4b5563; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  a.karte { display: block; background: #fff; border-radius: 12px; padding: 14px; text-decoration: none; color: inherit; box-shadow: 0 1px 3px rgba(0,0,0,.1); text-align: center; }
+  a.karte img { width: 160px; height: 160px; }
+  .fach { font-size: 13px; color: #6b7280; }
+</style>
+</head>
+<body>
+<h1>3D-Lernmodelle</h1>
+<p>Modell antippen oder QR-Code scannen, Kamera erlauben, Markerwürfel vor die Kamera halten. <a href="marker/wuerfel-vorlage.pdf">Würfel-Vorlage (PDF)</a></p>
+<div class="grid">
+  <a class="karte" href="viewer.html?m=zahnrad"><img src="qr/zahnrad.png" alt=""><h3>Zahnradgetriebe</h3><div class="fach">Technik</div></a>
+  <a class="karte" href="viewer.html?m=magnet"><img src="qr/magnet.png" alt=""><h3>Stabmagnet mit Feldlinien</h3><div class="fach">Physik</div></a>
+  <a class="karte" href="viewer.html?m=ikosaeder"><img src="qr/ikosaeder.png" alt=""><h3>Ikosaeder</h3><div class="fach">Mathematik</div></a>
+</div>
+</body>
+</html>

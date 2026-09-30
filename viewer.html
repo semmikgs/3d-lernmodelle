@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>3D-Lernmodelle – AR-Viewer</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: system-ui, sans-serif; }
+  video, canvas { position: absolute; top: 0; left: 0; }
+  #ui { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(0,0,0,.55); color: #fff; font-size: 15px; }
+  #ui select, #ui button { font-size: 15px; padding: 6px 10px; border-radius: 8px; border: 0; }
+  #ui button.on { background: #3b82f6; color: #fff; }
+  #ui label { display: flex; align-items: center; gap: 6px; }
+  #status { position: fixed; top: 10px; left: 10px; z-index: 10; color: #fff; background: rgba(0,0,0,.55); padding: 6px 10px; border-radius: 8px; font-size: 14px; }
+</style>
+<script type="importmap">{ "imports": { "three": "./lib/three.module.js" } }</script>
+</head>
+<body>
+<div id="status">Kamera wird gestartet …</div>
+<div id="ui">
+  <select id="modell"></select>
+  <label>Größe <input id="groesse" type="range" min="0.4" max="2.5" step="0.05" value="1"></label>
+  <button id="drehen">Drehen</button>
+  <button id="wuerfel">Würfel</button>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './lib/GLTFLoader.js';
+import { ArToolkitSource, ArToolkitContext, ArMarkerControls } from './lib/ar-threex.mjs';
+
+// ---- Modellliste (Dateiname in /modelle ohne .glb : Anzeigename) ----
+const MODELLE = { zahnrad: 'Zahnradgetriebe', magnet: 'Stabmagnet mit Feldlinien', ikosaeder: 'Ikosaeder' };
+
+// ---- Würfelgeometrie ----
+// Marker (inkl. schwarzem Rand) = 1 Einheit. Würfelkante = Kante / Markergröße (7 cm / 5,6 cm).
+const E = 1.25;
+// Pro Seite: Barcode-ID, Achsen des Markers (X, Y = Normale, Z) im Würfelsystem – passend zur Faltvorlage.
+const SEITEN = [
+  { id: 1, name: 'oben',   x: [1,0,0],  y: [0,1,0],  z: [0,0,1]  },
+  { id: 2, name: 'vorne',  x: [1,0,0],  y: [0,0,1],  z: [0,-1,0] },
+  { id: 3, name: 'unten',  x: [1,0,0],  y: [0,-1,0], z: [0,0,-1] },
+  { id: 4, name: 'links',  x: [0,0,1],  y: [-1,0,0], z: [0,-1,0] },
+  { id: 5, name: 'rechts', x: [0,0,-1], y: [1,0,0],  z: [0,-1,0] },
+  { id: 6, name: 'hinten', x: [-1,0,0], y: [0,0,-1], z: [0,-1,0] },
+];
+
+const status = document.getElementById('status');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setClearColor(0x000000, 0);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.Camera();
+scene.add(camera);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.6));
+const sonne = new THREE.DirectionalLight(0xffffff, 1.4); sonne.position.set(1, 2, 1); scene.add(sonne);
+
+// Würfel-Anker: bekommt die geglättete Pose des Würfelmittelpunkts
+const anker = new THREE.Group();
+anker.matrixAutoUpdate = false;
+anker.visible = false;
+scene.add(anker);
+const drehteller = new THREE.Group();
+anker.add(drehteller);
+const hilfsWuerfel = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(E, E, E)), new THREE.LineBasicMaterial({ color: 0x22d3ee }));
+hilfsWuerfel.visible = false;
+anker.add(hilfsWuerfel);
+
+// ---- AR.js ----
+const source = new ArToolkitSource({ sourceType: 'webcam', sourceWidth: 1280, sourceHeight: 960, displayWidth: innerWidth, displayHeight: innerHeight });
+const context = new ArToolkitContext({
+  cameraParametersUrl: 'data/camera_para.dat',
+  detectionMode: 'mono_and_matrix', matrixCodeType: '3x3', patternRatio: 0.5,
+  maxDetectionRate: 30, canvasWidth: 640, canvasHeight: 480,
+});
+
+function onResize() {
+  source.onResizeElement();
+  source.copyElementSizeTo(renderer.domElement);
+  if (context.arController) source.copyElementSizeTo(context.arController.canvas);
+}
+source.init(() => {
+  source.domElement.addEventListener('canplay', () => {
+    onResize();
+    context.init(() => { camera.projectionMatrix.copy(context.getProjectionMatrix()); status.textContent = 'Würfel vor die Kamera halten'; });
+  });
+  setTimeout(onResize, 1500);
+}, (err) => { status.textContent = 'Kamera-Fehler: ' + (err && err.message || err); });
+addEventListener('resize', onResize);
+
+// Pro Würfelseite ein Marker-Root + Offset-Matrix (Marker -> Würfelmitte)
+const marker = SEITEN.map(s => {
+  const root = new THREE.Group();
+  scene.add(root);
+  new ArMarkerControls(context, root, { type: 'barcode', barcodeValue: s.id, changeMatrixMode: 'modelViewMatrix' });
+  const T = new THREE.Matrix4().makeBasis(new THREE.Vector3(...s.x), new THREE.Vector3(...s.y), new THREE.Vector3(...s.z));
+  T.setPosition(new THREE.Vector3(...s.y).multiplyScalar(E / 2));
+  return { ...s, root, inv: T.clone().invert() };
+});
+
+// ---- Modell laden ----
+const loader = new GLTFLoader();
+let modell = null;
+const sel = document.getElementById('modell');
+for (const [k, v] of Object.entries(MODELLE)) sel.add(new Option(v, k));
+const start = new URLSearchParams(location.search).get('m');
+if (start && MODELLE[start]) sel.value = start;
+sel.onchange = () => { history.replaceState(null, '', '?m=' + sel.value); lade(sel.value); };
+
+function lade(name) {
+  loader.load('modelle/' + name + '.glb', (gltf) => {
+    if (modell) drehteller.remove(modell);
+    modell = gltf.scene;
+    // zentrieren und auf Würfelgröße skalieren
+    const box = new THREE.Box3().setFromObject(modell);
+    const size = box.getSize(new THREE.Vector3()).length();
+    const mitte = box.getCenter(new THREE.Vector3());
+    const hülle = new THREE.Group();
+    modell.position.sub(mitte);
+    hülle.add(modell);
+    hülle.scale.setScalar((E * 1.3) / size);
+    modell = hülle;
+    drehteller.add(modell);
+  }, undefined, () => { status.textContent = 'Modell nicht gefunden: ' + name; });
+}
+lade(sel.value);
+
+// ---- Bedienung ----
+const groesse = document.getElementById('groesse');
+groesse.oninput = () => drehteller.scale.setScalar(+groesse.value);
+let drehen = false;
+const btnDrehen = document.getElementById('drehen');
+btnDrehen.onclick = () => { drehen = !drehen; btnDrehen.classList.toggle('on', drehen); };
+const btnWuerfel = document.getElementById('wuerfel');
+btnWuerfel.onclick = () => { hilfsWuerfel.visible = !hilfsWuerfel.visible; btnWuerfel.classList.toggle('on', hilfsWuerfel.visible); };
+
+// ---- Schleife: sichtbare Seite wählen, Pose glätten ----
+let aktiv = null, verloren = 0;
+const ziel = { p: new THREE.Vector3(), q: new THREE.Quaternion(), s: new THREE.Vector3() };
+const ist = { p: new THREE.Vector3(), q: new THREE.Quaternion(), s: new THREE.Vector3(1, 1, 1) };
+const tmp = new THREE.Matrix4();
+let letzte = performance.now();
+
+renderer.setAnimationLoop(() => {
+  const jetzt = performance.now(), dt = (jetzt - letzte) / 1000; letzte = jetzt;
+  if (source.ready && context.arController) context.update(source.domElement);
+
+  // aktive Seite behalten, solange sichtbar (verhindert Springen)
+  if (!(aktiv && aktiv.root.visible)) aktiv = marker.find(m => m.root.visible) || null;
+  if (aktiv) {
+    tmp.multiplyMatrices(aktiv.root.matrix, aktiv.inv);
+    tmp.decompose(ziel.p, ziel.q, ziel.s);
+    const a = anker.visible ? 0.35 : 1;
+    ist.p.lerp(ziel.p, a); ist.q.slerp(ziel.q, a);
+    anker.matrix.compose(ist.p, ist.q, ist.s);
+    anker.visible = true; verloren = 0;
+    status.style.display = 'none';
+  } else if (anker.visible && (verloren += dt) > 0.3) {
+    anker.visible = false;
+  }
+  if (drehen) drehteller.rotation.y += dt * 0.6;
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
