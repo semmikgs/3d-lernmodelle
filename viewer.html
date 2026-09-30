@@ -63,7 +63,7 @@ const SEITEN = [
 ];
 
 const status = document.getElementById('status');
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
 renderer.setClearColor(0x000000, 0);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.body.appendChild(renderer.domElement);
@@ -108,6 +108,11 @@ source.init(() => {
     onResize();
     context.init(() => {
       camera.projectionMatrix.copy(context.getProjectionMatrix());
+      // Nah-/Fernebene enger setzen → mehr Tiefengenauigkeit (gegen Flackern aufeinanderliegender Flächen)
+      const NAH = 0.3, FERN = 200, m = camera.projectionMatrix.elements;
+      m[10] = -(FERN + NAH) / (FERN - NAH); m[14] = -2 * FERN * NAH / (FERN - NAH);
+      camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+      camera.near = NAH; camera.far = FERN;   // für den logarithmischen Tiefenpuffer
       // Schwellwert passt sich an ungleichmäßiges Licht an (3 = adaptiv, 2 = Otsu)
       try { context.arController.setThresholdMode(Q.get('schwelle') === 'otsu' ? 2 : 3); } catch (e) {}
       status.textContent = 'Würfel vor die Kamera halten';

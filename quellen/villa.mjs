@@ -25,7 +25,8 @@ const matCache = {};
 function mat(k) {
   if (!matCache[k]) {
     const [c, o = {}] = FARBEN[k];
-    matCache[k] = new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, metalness: 0, side: THREE.DoubleSide, name: k, ...o });
+    // Nur Dachflächen beidseitig; sonst Vorderseiten (verhindert Flackern durch aufeinanderliegende Rückseiten)
+    matCache[k] = new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, metalness: 0, side: k === 'ziegel' ? THREE.DoubleSide : THREE.FrontSide, name: k, ...o });
   }
   return matCache[k];
 }
@@ -83,7 +84,7 @@ function mosaikRand(b, x0, x1, z0, z1, s = 0.5, ein = 0.45) {
   const nx = Math.floor((x1 - ein - X0) / s), nz = Math.floor((z1 - ein - Z0) / s);
   for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) {
     if (i > 0 && i < nx - 1 && j > 0 && j < nz - 1) continue;
-    b.box((i + j) % 2 ? 'mosaikS' : 'mosaikW', X0 + i * s, X0 + (i + 1) * s, 0.05, 0.07, Z0 + j * s, Z0 + (j + 1) * s);
+    b.box((i + j) % 2 ? 'mosaikS' : 'mosaikW', X0 + i * s, X0 + (i + 1) * s, 0.05, 0.1, Z0 + j * s, Z0 + (j + 1) * s);
   }
 }
 

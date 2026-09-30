@@ -64,7 +64,7 @@ const SEITEN = {
 };
 
 // ---- Szene ----
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 document.body.prepend(renderer.domElement);
 const scene = new THREE.Scene();
