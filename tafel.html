@@ -30,6 +30,8 @@
     <select id="modell"></select>
     <select id="teil" hidden></select>
     <button id="dach" hidden>Dach</button>
+    <button id="abspielen" hidden>⏸ Pause</button>
+    <input id="zeit" type="range" min="0" max="1" step="0.001" value="0" hidden style="width:220px">
   </div>
   <div class="trenner"></div>
   <div class="gruppe" id="ansichten">
@@ -51,6 +53,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from './lib/GLTFLoader.js';
 import { MODELLE } from './modelle/liste.js';
+import { Animation } from './js/animation.js';
 
 const E = 1.25;   // Würfelkante in Marker-Einheiten (wie im Viewer)
 // Faltvorlage: Seite → [rechts, oben (Bildrichtung), Normale] im Würfelsystem
@@ -112,6 +115,7 @@ bastel.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(
 
 // ---- Modell ----
 const hülle = new THREE.Group(); hülle.visible = false; wuerfel.add(hülle);
+const anim = new Animation(document.getElementById('abspielen'), document.getElementById('zeit'));
 const loader = new GLTFLoader();
 const sel = document.getElementById('modell'), selTeil = document.getElementById('teil'), btnDach = document.getElementById('dach');
 for (const [k, v] of Object.entries(MODELLE)) sel.add(new Option(v.name, k));
@@ -123,7 +127,7 @@ function lade(name) {
   const meine = ++nr; cfg = MODELLE[name];
   btnDach.textContent = (cfg.abdeckung && cfg.abdeckung.name) || 'Dach';
   selTeil.innerHTML = ''; selTeil.hidden = !cfg.teile;
-  if (cfg.teile) { selTeil.add(new Option(cfg.ganz || 'Ganzes Modell', '')); for (const t of cfg.teile) selTeil.add(new Option(t.name, t.id)); }
+  if (cfg.teile) { if (cfg.ganz !== false) selTeil.add(new Option(cfg.ganz || 'Ganzes Modell', '')); for (const t of cfg.teile) selTeil.add(new Option(t.name, t.id)); }
   loader.load('modelle/' + name + '.glb', (gltf) => {
     if (meine !== nr) return;
     if (inhalt) hülle.remove(inhalt);
@@ -134,7 +138,8 @@ function lade(name) {
       const k = inhalt.getObjectByName(id);
       if (k) { knoten[id] = k; boxen[id] = new THREE.Box3().setFromObject(k); }
     }
-    dachAn = false; hülle.add(inhalt); zeige('');
+    dachAn = false; hülle.add(inhalt); anim.setze(inhalt, gltf.animations);
+    zeige(cfg.ganz === false && cfg.teile ? (cfg.start || cfg.teile[0].id) : '');
   });
 }
 function zeige(teil) {
@@ -149,6 +154,7 @@ function zeige(teil) {
   selTeil.value = t ? teil : '';
   btnDach.hidden = !knoten[abd()] || !!t; btnDach.classList.toggle('on', dachAn);
   document.getElementById('titel').textContent = modellModus ? (t ? t.name : cfg.name) : 'Markerwürfel';
+  anim.starte(t ? t.animation : cfg.animation);
 }
 sel.onchange = () => lade(sel.value);
 selTeil.onchange = () => zeige(selTeil.value);
@@ -215,7 +221,9 @@ const Q = new URLSearchParams(location.search);
 if (Q.get('m') && MODELLE[Q.get('m')]) sel.value = Q.get('m');
 groesse();
 if (Q.get('m')) modus(true);
+let letzteZeit = performance.now();
 renderer.setAnimationLoop(() => {
+  const jetzt = performance.now(); anim.update(Math.min((jetzt - letzteZeit) / 1000, 0.1)); letzteZeit = jetzt;
   if (ziel) { wuerfel.quaternion.slerp(ziel, 0.12); if (wuerfel.quaternion.angleTo(ziel) < 0.002) { wuerfel.quaternion.copy(ziel); ziel = null; } }
   camera.position.set(0, 0, abstand); camera.lookAt(0, 0, 0);
   renderer.render(scene, camera);

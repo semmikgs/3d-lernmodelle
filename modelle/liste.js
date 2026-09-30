@@ -3,7 +3,8 @@
 // Optional: info (Text zum ganzen Modell), teile (Untermenü; id = Gruppenname im Modell;
 //           detail = eigene Gruppe, die statt des Teils groß gezeigt wird),
 //           thema (Hintergrundbild aus /hintergruende, Standard: blaupause),
-//           abdeckung ({ id, name } – abnehmbares Teil mit eigenem Knopf, Standard: Dach).
+//           abdeckung ({ id, name } – abnehmbares Teil mit eigenem Knopf, Standard: Dach),
+//           ganz: false (kein „Ganzes Modell“, erster Teil wird gezeigt), animation (Clipname, auch je Teil).
 export const MODELLE = {
   zahnrad: { name: 'Zahnradgetriebe' },
   magnet: { name: 'Stabmagnet mit Feldlinien' },
@@ -84,6 +85,23 @@ export const MODELLE = {
         info: 'Ein Stapel flacher Membransäckchen. Er verändert und verpackt Stoffe (z. B. Proteine) und verschickt sie in kleinen Bläschen (Vesikeln) – die Poststelle der Zelle.' },
       { id: 'ribosomen', detail: 'ribosomen_detail', name: 'Ribosomen',
         info: 'Winzige Körnchen, an denen Proteine zusammengebaut werden. Sie liegen frei im Cytoplasma oder sitzen auf dem rauen ER.' },
+    ],
+  },
+  plattentektonik: {
+    name: 'Plattentektonik (Kl. 6)',
+    ganz: false,
+    info: 'Zeitraffer: Was hier in Sekunden passiert, dauert in Wirklichkeit Millionen Jahre. Die Platten bewegen sich nur wenige Zentimeter pro Jahr – etwa so schnell, wie deine Fingernägel wachsen.',
+    teile: [
+      { id: 'erde', animation: 'erde', name: 'Aufbau der Erde',
+        info: 'Die Erde ist aufgebaut wie ein Pfirsich: Außen liegt die dünne, feste Erdkruste. Darunter folgt der heiße, zähflüssige Erdmantel (bis 2900 km tief). Innen liegt der Erdkern – außen flüssig, innen fest und über 5000 °C heiß. Die Kruste ist in große Platten zerbrochen. Die kreisenden Punkte zeigen die langsamen Strömungen im Mantel, die die Platten antreiben.' },
+      { id: 'divergenz', animation: 'divergenz', name: 'Auseinanderdriften',
+        info: 'Zwei Platten bewegen sich voneinander weg. In den Spalt steigt glühendes Magma aus dem Erdmantel auf. Es erstarrt zu neuem Meeresboden, in der Mitte entsteht ein Gebirge unter Wasser (Mittelozeanischer Rücken). So ist der Atlantik entstanden – er wird jedes Jahr etwa 2 cm breiter. Island liegt genau auf so einer Naht.' },
+      { id: 'subduktion', animation: 'subduktion', name: 'Abtauchen',
+        info: 'Die schwere Ozeanplatte schiebt sich unter die leichtere Kontinentplatte und taucht in den Erdmantel ab. Dort entsteht ein tiefer Graben im Meer. In der Tiefe schmilzt Gestein, das Magma steigt auf und bildet Vulkane. Weil sich die Platten dabei verhaken, gibt es hier oft Erdbeben. Beispiel: die Anden in Südamerika.' },
+      { id: 'kollision', animation: 'kollision', name: 'Zusammenstoßen',
+        info: 'Zwei Kontinentplatten stoßen zusammen. Keine taucht ab – das Gestein wird zusammengeschoben, gefaltet und in die Höhe gedrückt: Ein Faltengebirge entsteht. Beispiel: der Himalaya mit dem Mount Everest. Auch die Alpen sind so entstanden. Der Himalaya wächst noch heute.' },
+      { id: 'transform', animation: 'transform', name: 'Aneinander vorbeischieben',
+        info: 'Zwei Platten gleiten seitlich aneinander vorbei. Oft verhaken sie sich, und es baut sich Spannung auf – bis sie sich plötzlich ruckartig lösen: ein Erdbeben! Achte auf die Straße und den Zaun. Beispiel: der San-Andreas-Graben in Kalifornien.' },
     ],
   },
 };

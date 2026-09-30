@@ -33,6 +33,8 @@
   <select id="modell"></select>
   <select id="teil" hidden></select>
   <label>Größe <input id="groesse" type="range" min="0.4" max="2.5" step="0.05" value="1"></label>
+  <button id="abspielen" hidden>⏸ Pause</button>
+  <input id="zeit" type="range" min="0" max="1" step="0.001" value="0" hidden>
   <button id="drehen">Drehen</button>
   <button id="dach" hidden>Dach</button>
   <button id="infoBtn" hidden>Info</button>
@@ -48,6 +50,7 @@ import { GLTFLoader } from './lib/GLTFLoader.js';
 import { ArToolkitSource, ArToolkitContext, ArMarkerControls } from './lib/ar-threex.mjs';
 import { MODELLE } from './modelle/liste.js';
 import { WuerfelTracker, Lagesensor } from './js/tracker.js';
+import { Animation } from './js/animation.js';
 
 // ---- Würfelgeometrie ----
 // Marker (inkl. schwarzem Rand) = 1 Einheit. Würfelkante = Kante / Markergröße (7 cm / 5,6 cm).
@@ -177,6 +180,7 @@ for (const [k, v] of Object.entries(MODELLE)) sel.add(new Option(v.name, k));
 const url = new URLSearchParams(location.search);
 if (url.get('m') && MODELLE[url.get('m')]) sel.value = url.get('m');
 
+const anim = new Animation(document.getElementById('abspielen'), document.getElementById('zeit'));
 const hülle = new THREE.Group();   // skaliert auf Würfelgröße
 drehteller.add(hülle);
 let inhalt = null, cfg = null, knoten = {}, boxen = {}, gesamtBox = null, dachAn = false, ladeNr = 0;
@@ -197,7 +201,7 @@ function lade(name, teil) {
   selTeil.innerHTML = '';
   selTeil.hidden = !cfg.teile;
   if (cfg.teile) {
-    selTeil.add(new Option(cfg.ganz || 'Ganzes Modell', ''));
+    if (cfg.ganz !== false) selTeil.add(new Option(cfg.ganz || 'Ganzes Modell', ''));
     for (const t of cfg.teile) selTeil.add(new Option(t.name, t.id));
   }
   loader.load('modelle/' + name + '.glb', (gltf) => {
@@ -213,8 +217,11 @@ function lade(name, teil) {
     }
     dachAn = false;
     hülle.add(inhalt);
+    anim.setze(inhalt, gltf.animations);
     setzeAnsicht(ansicht);
-    selTeil.value = (teil && boxen[teil]) ? teil : '';
+    // ohne „Ganzes Modell“: ersten (oder vorgegebenen) Teil zeigen
+    const erster = cfg.ganz === false && cfg.teile ? (cfg.start || cfg.teile[0].id) : '';
+    selTeil.value = (teil && boxen[teil]) ? teil : erster;
     zeige(selTeil.value);
   }, undefined, () => { status.textContent = 'Modell nicht gefunden: ' + name; status.style.display = ''; });
 }
@@ -242,6 +249,7 @@ function zeige(teil) {
   }
   btnDach.hidden = !knoten[abd()] || !!t;
   btnDach.classList.toggle('on', dachAn);
+  anim.starte(t ? t.animation : cfg.animation);
 }
 
 let infoAn = true;
@@ -295,6 +303,7 @@ renderer.setAnimationLoop(() => {
     status.style.display = 'none';
   }
   if (drehen) drehteller.rotation.y += dt * 0.6;
+  anim.update(dt);
   renderer.render(scene, camera);
   if (Q.get('debug')) window.DEBUG = { sichtbar: anker.visible, seiten: tracker.anzahlSeiten, pos: tracker.pos.toArray(), rot: tracker.rot.toArray(), verloren: tracker.verloren, diag: tracker.diag, kalib: tracker.variante ? (tracker.variante.inv ? 'inv' : 'dir') + tracker.varianten.indexOf(tracker.variante) % 4 : null, proben: tracker.kalibProben, streuung: tracker.streuung, k: +tracker.skala.toFixed(3), video: [source.domElement.videoWidth, source.domElement.videoHeight] };
 });
