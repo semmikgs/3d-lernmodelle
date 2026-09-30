@@ -65,10 +65,40 @@ export class WuerfelTracker {
     this.kameraBeiLetzterSicht = new THREE.Quaternion(); this.poseBeiLetzterSicht = { p: new THREE.Vector3(), q: new THREE.Quaternion() };
     this.maxLuecke = 1.5;           // Sekunden, die mit dem Lagesensor überbrückt werden
     this.anzahlSeiten = 0;
+    // Selbstkalibrierung Sensor ↔ Kamera: 8 mögliche Zuordnungen (Richtung × Bildschirmdrehung)
+    this.varianten = [];
+    for (const inv of [false, true]) for (const k of [0, 1, 2, 3])
+      this.varianten.push({ inv, rz: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), k * Math.PI / 2), fehler: 0 });
+    this.kalibProben = 0; this.variante = null;
+    this._vorher = null;   // { q: rohe Lage, s: Sensor, t: Zeit }
+    this._zeit = 0;
+  }
+
+  // Sensor-Drehung G (Kameradrehung zwischen zwei Zeitpunkten) in Kamerakoordinaten gemäß Variante
+  _anwenden(v, G) {
+    const g = v.inv ? G.clone().invert() : G.clone();
+    return v.rz.clone().multiply(g).multiply(v.rz.clone().invert());
+  }
+
+  _kalibrieren(qRoh) {
+    const s = this.sensor && this.sensor.lesen();
+    if (!s) return;
+    const jetzt = { q: qRoh.clone(), s: s.clone(), t: this._zeit };
+    const v = this._vorher; this._vorher = jetzt;
+    if (!v || jetzt.t - v.t > 0.25) return;
+    const G = jetzt.s.clone().invert().multiply(v.s);               // Gerätedrehung
+    if (2 * Math.acos(Math.min(1, Math.abs(G.w))) < THREE.MathUtils.degToRad(1.5)) return;  // zu wenig Bewegung
+    const O = jetzt.q.clone().multiply(v.q.clone().invert());       // beobachtete Drehung im Bild
+    for (const va of this.varianten) va.fehler = va.fehler * 0.97 + this._anwenden(va, G).angleTo(O);
+    this.kalibProben++;
+    const sortiert = [...this.varianten].sort((a, b) => a.fehler - b.fehler);
+    // nur übernehmen, wenn eindeutig besser als alle anderen
+    this.variante = (this.kalibProben >= 12 && sortiert[0].fehler < 0.6 * sortiert[1].fehler) ? sortiert[0] : null;
   }
 
   // neueDaten = true, wenn in diesem Frame ein Kamerabild ausgewertet wurde
   update(dt, neueDaten) {
+    this._zeit += dt;
     if (!neueDaten) { this._ueberbruecken(dt, false); return; }
     const kand = [];
     for (const m of this.marker) {
@@ -117,6 +147,7 @@ export class WuerfelTracker {
       wSum += k.w;
     }
     p.divideScalar(wSum); q.normalize();
+    this._kalibrieren(q);
 
     if (!this.gueltig || this.verloren > 0.5) { this.p.reset(); this.q.reset(); }
     this.pos.copy(this.p.filter(p, Math.max(dt, 1 / 120)));
@@ -132,11 +163,14 @@ export class WuerfelTracker {
     if (zaehlen || this.verloren > 0) this.verloren += dt;
     if (this.verloren <= 0) return;
     // Drehung des Geräts seit der letzten Sicht herausrechnen: P_neu = (C_neu⁻¹ · C_alt) · P_alt
+    // nur mit sicher kalibriertem Sensor und bei plausibler Drehung (< 60°), sonst Modell einfach stehen lassen
     const s = this.sensor && this.sensor.lesen();
-    if (s && this.verloren < this.maxLuecke) {
-      const R = s.clone().invert().multiply(this.kameraBeiLetzterSicht);
-      this.pos.copy(this.poseBeiLetzterSicht.p).applyQuaternion(R);
-      this.rot.copy(R).multiply(this.poseBeiLetzterSicht.q);
+    if (s && this.variante && this.verloren < this.maxLuecke) {
+      const R = this._anwenden(this.variante, s.clone().invert().multiply(this.kameraBeiLetzterSicht));
+      if (2 * Math.acos(Math.min(1, Math.abs(R.w))) < THREE.MathUtils.degToRad(60)) {
+        this.pos.copy(this.poseBeiLetzterSicht.p).applyQuaternion(R);
+        this.rot.copy(R).multiply(this.poseBeiLetzterSicht.q);
+      }
     }
   }
 
@@ -144,7 +178,7 @@ export class WuerfelTracker {
   sichtbar(festhalten) {
     if (!this.gueltig) return false;
     if (festhalten) return true;
-    const grenze = (this.sensor && this.sensor.aktiv) ? this.maxLuecke : 0.3;
+    const grenze = this.variante ? this.maxLuecke : 0.3;
     return this.verloren < grenze;
   }
 }

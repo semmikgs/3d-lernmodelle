@@ -268,7 +268,7 @@ renderer.setAnimationLoop(() => {
   }
   if (drehen) drehteller.rotation.y += dt * 0.6;
   renderer.render(scene, camera);
-  if (Q.get('debug')) window.DEBUG = { sichtbar: anker.visible, seiten: tracker.anzahlSeiten, pos: tracker.pos.toArray(), rot: tracker.rot.toArray(), verloren: tracker.verloren, diag: tracker.diag };
+  if (Q.get('debug')) window.DEBUG = { sichtbar: anker.visible, seiten: tracker.anzahlSeiten, pos: tracker.pos.toArray(), rot: tracker.rot.toArray(), verloren: tracker.verloren, diag: tracker.diag, kalib: tracker.variante ? (tracker.variante.inv ? 'inv' : 'dir') + tracker.varianten.indexOf(tracker.variante) % 4 : null, proben: tracker.kalibProben };
 });
 const EINS = new THREE.Vector3(1, 1, 1);
 </script>
