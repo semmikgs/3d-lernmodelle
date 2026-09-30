@@ -2,16 +2,28 @@
 // Schlüssel = Dateiname in /modelle (ohne .glb).
 // Optional: info (Text zum ganzen Modell), teile (Untermenü; id = Gruppenname im Modell;
 //           detail = eigene Gruppe, die statt des Teils groß gezeigt wird),
-//           thema (Hintergrundbild aus /hintergruende, Standard: blaupause),
+//           hintergrund (Themenbild aus /hintergruende, Standard: blaupause),
 //           abdeckung ({ id, name } – abnehmbares Teil mit eigenem Knopf, Standard: Dach),
 //           ganz: false (kein „Ganzes Modell“, erster Teil wird gezeigt), animation (Clipname, auch je Teil).
+//
+// Einordnung (für die Übersicht, beliebig erweiterbar):
+//   fach: 'Biologie' · jahrgang: [5, 6] · thema: 'Zelle' · schulform: ['HS', 'RS', 'GY']
+//   schlagworte: ['Organellen', …] · kurz: ein Satz für die Karte · vorschau: false (nicht in der Übersicht)
+export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium' };
+const ALLE = ['HS', 'RS', 'GY'];
+
 export const MODELLE = {
-  zahnrad: { name: 'Zahnradgetriebe' },
-  magnet: { name: 'Stabmagnet mit Feldlinien' },
-  ikosaeder: { name: 'Ikosaeder' },
+  zahnrad: { name: 'Zahnradgetriebe', fach: 'Technik', jahrgang: [7, 8], thema: 'Getriebe', schulform: ALLE,
+    schlagworte: ['Zahnrad', 'Übersetzung', 'Maschinen'], kurz: 'Zwei Zahnräder mit Übersetzung 2 : 1.' },
+  magnet: { name: 'Stabmagnet mit Feldlinien', fach: 'Physik', jahrgang: [7], thema: 'Magnetismus', schulform: ALLE,
+    schlagworte: ['Magnetfeld', 'Nordpol', 'Südpol', 'Feldlinien'], kurz: 'Räumliches Magnetfeld eines Stabmagneten.' },
+  ikosaeder: { name: 'Ikosaeder', fach: 'Mathematik', jahrgang: [9], thema: 'Körper', schulform: ALLE,
+    schlagworte: ['Platonische Körper', 'Geometrie', 'Kanten', 'Flächen'], kurz: 'Platonischer Körper aus 20 gleichseitigen Dreiecken.' },
   villa: {
     name: 'Römische Villa (Stadthaus)',
-    thema: 'pompeji',
+    fach: 'Geschichte', jahrgang: [6], thema: 'Römer', schulform: ALLE,
+    schlagworte: ['Antike', 'Pompeji', 'Wohnen', 'Atrium', 'Domus'], kurz: 'Puppenhaus-Ansicht eines römischen Hauses, Räume einzeln wählbar.',
+    hintergrund: 'pompeji',
     ganz: 'Ganze Villa',
     info: 'So wohnte eine reiche Familie in einer römischen Stadt wie Pompeji. Von der Straße aus sieht das Haus fast fensterlos aus – das Leben spielte sich innen ab, rund um Atrium und Garten. Wähle unten einen Raum aus!',
     teile: [
@@ -37,7 +49,9 @@ export const MODELLE = {
   },
   zelle56: {
     name: 'Pflanzenzelle (Kl. 5–6)',
-    thema: 'blatt',
+    fach: 'Biologie', jahrgang: [5, 6], thema: 'Zelle', schulform: ALLE,
+    schlagworte: ['Zellwand', 'Zellkern', 'Chloroplasten', 'Vakuole', 'Mikroskopie'], kurz: 'Aufgeschnittene Blattzelle mit den Grundbausteinen.',
+    hintergrund: 'blatt',
     ganz: 'Ganze Zelle',
     abdeckung: { id: 'vorderseite', name: 'Hülle schließen' },
     info: 'Pflanzen bestehen aus vielen winzigen Zellen – eine Blattzelle ist nur etwa 0,05 mm groß. Die Zelle ist oben und vorne aufgeschnitten, damit du hineinschauen kannst. Wähle unten einen Zellbestandteil!',
@@ -58,7 +72,9 @@ export const MODELLE = {
   },
   zelle78: {
     name: 'Pflanzenzelle (Kl. 7–8)',
-    thema: 'blatt',
+    fach: 'Biologie', jahrgang: [7, 8], thema: 'Zelle', schulform: ALLE,
+    schlagworte: ['Organellen', 'Mitochondrien', 'ER', 'Golgi', 'Ribosomen', 'Fotosynthese'], kurz: 'Blattzelle mit allen Organellen, Einzelansichten mit Innenleben.',
+    hintergrund: 'blatt',
     ganz: 'Ganze Zelle',
     abdeckung: { id: 'vorderseite', name: 'Hülle schließen' },
     info: 'Schnitt durch eine Blattzelle (Palisadengewebe), etwa 0,05 mm groß. Kern, Chloroplasten und Mitochondrien sind aufgeschnitten, damit du ihren inneren Aufbau siehst. Wähle unten ein Zellorganell!',
@@ -89,6 +105,8 @@ export const MODELLE = {
   },
   plattentektonik: {
     name: 'Plattentektonik (Kl. 6)',
+    fach: 'Erdkunde', jahrgang: [6], thema: 'Plattentektonik', schulform: ALLE,
+    schlagworte: ['Erdaufbau', 'Vulkan', 'Erdbeben', 'Gebirgsbildung', 'Animation'], kurz: 'Fünf animierte Blockbilder: Erdaufbau und Plattenbewegungen.',
     ganz: false,
     info: 'Zeitraffer: Was hier in Sekunden passiert, dauert in Wirklichkeit Millionen Jahre. Die Platten bewegen sich nur wenige Zentimeter pro Jahr – etwa so schnell, wie deine Fingernägel wachsen.',
     teile: [

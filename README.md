@@ -8,7 +8,7 @@ AR-Anschauungsmodelle (Technik, Physik, Mathematik) auf einem selbst gebastelten
 2. Modell über die Startseite oder per QR-Code öffnen, Kamera erlauben.
 3. Würfel vor die Kamera halten.
 
-Neues Modell: `.glb` in `modelle/` ablegen und in `modelle/liste.js` eintragen (optional mit Untermenü `teile` – die IDs sind Gruppennamen im Modell).
+Neues Modell: `.glb` in `modelle/` ablegen und in `modelle/liste.js` eintragen – mit Einordnung `fach`, `jahrgang`, `thema`, `schulform`, `schlagworte`, `kurz`. Die Startseite (Übersicht mit Filtern, QR-Codes) aktualisiert sich daraus automatisch (optional mit Untermenü `teile` – die IDs sind Gruppennamen im Modell).
 
 Direktlink auf einen Raum: `viewer.html?m=villa&r=atrium`
 
@@ -27,3 +27,6 @@ Technik: three.js + AR.js (ARToolKit, 3×3-Barcode-Marker 1–6).
 
 ## Animationen
 Modelle können glTF-Animationsclips enthalten (z. B. `plattentektonik.glb`). In `modelle/liste.js` bekommt ein Teil `animation: '<Clipname>'`; Viewer und Tafel zeigen dann Abspielen/Pause und einen Zeitregler (`js/animation.js`). `ganz: false` blendet „Ganzes Modell“ aus.
+
+## Startseite
+`index.html`: Übersicht mit Suche und Filtern (Fach, Jahrgang, Schulform, Thema), QR-Codes (Hover vergrößert, Klick = Vollbild für die Tafel), Reiter Info, Würfel basteln, Tafel. Vorgefilterte Links: `?fach=Biologie`, `?jahrgang=6`. Verlinkt aus KGS-Digital.

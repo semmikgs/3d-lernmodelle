@@ -3,28 +3,287 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>3D-Lernmodelle</title>
+<title>3D-Lernmodelle · KGS Schwarmstedt</title>
+<meta name="description" content="3D-Lernmodelle für den Unterricht: mit dem Markerwürfel auf dem iPad ansehen, an der Tafel zeigen.">
 <style>
-  body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #f3f4f6; color: #111827; }
-  h1 { margin: 0 0 4px; font-size: 24px; }
-  p { margin: 0 0 16px; color: #4b5563; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  a.karte { display: block; background: #fff; border-radius: 12px; padding: 14px; text-decoration: none; color: inherit; box-shadow: 0 1px 3px rgba(0,0,0,.1); text-align: center; }
-  a.karte img { width: 160px; height: 160px; }
-  .fach { font-size: 13px; color: #6b7280; }
+  :root {
+    --bg: #2a2c8e; --karte: #fff; --tinte: #1f2430; --leise: #6b7280; --indigo: #312e91;
+    --navy: #1e2a78; --navy-hover: #16205c; --linie: #e3e6ee; --chip: #eef0f5; --badge: #e6e8fb;
+    --schatten: 0 1px 3px rgba(15, 20, 60, .12);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 16px 56px; background: var(--bg); color: var(--tinte);
+         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 16px; line-height: 1.5; }
+  .huelle { max-width: 1180px; margin: 0 auto; }
+  .karte { background: var(--karte); border-radius: 16px; padding: 24px 28px; margin-bottom: 22px; box-shadow: var(--schatten); }
+  h1 { display: flex; align-items: center; gap: 12px; margin: 0; font-size: 30px; color: var(--indigo); }
+  .unter { margin: 4px 0 0; color: var(--leise); }
+  h2 { color: var(--indigo); margin: 0 0 10px; font-size: 22px; }
+  h3 { color: var(--indigo); margin: 18px 0 6px; font-size: 17px; }
+  a { color: var(--navy); }
+  .reiter { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .reiter a, .knopf { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; border: 0; cursor: pointer;
+    background: var(--chip); color: var(--tinte); text-decoration: none; font-size: 15px; font-weight: 600; font-family: inherit; }
+  .reiter a.aktiv, .knopf.primaer { background: var(--navy); color: #fff; }
+  .knopf.primaer:hover { background: var(--navy-hover); }
+  .reiter .zurueck { margin-left: auto; background: transparent; color: var(--leise); font-weight: 500; }
+  section[hidden] { display: none; }
+  .filter { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 10px; margin-top: 4px; }
+  .filter input, .filter select { width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid var(--linie); border-radius: 10px; background: #fff; font-family: inherit; }
+  .zaehler { color: var(--leise); font-size: 14px; margin-top: 10px; }
+  @media (max-width: 760px) { .filter { grid-template-columns: 1fr 1fr; } .filter input { grid-column: 1 / -1; } .reiter .zurueck { margin-left: 0; } }
+  .raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .modell { background: #fff; border-radius: 16px; box-shadow: var(--schatten); display: flex; flex-direction: column; }
+  .modell .band { padding: 12px 16px; color: #fff; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; border-radius: 16px 16px 0 0; }
+  .modell .band .sym { font-size: 20px; }
+  .modell .inhalt { padding: 14px 16px 16px; display: flex; gap: 14px; flex: 1; }
+  .modell .text { flex: 1; min-width: 0; }
+  .modell h3 { margin: 0 0 4px; font-size: 18px; }
+  .modell p { margin: 0 0 8px; font-size: 14.5px; color: var(--leise); }
+  .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+  .badge { background: var(--badge); color: var(--indigo); border-radius: 999px; padding: 2px 9px; font-size: 12.5px; font-weight: 600; }
+  .wort { background: var(--chip); color: var(--tinte); border: 0; border-radius: 999px; padding: 2px 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .wort:hover { background: var(--badge); }
+  .qr { width: 104px; height: 104px; flex: none; cursor: zoom-in; border-radius: 8px; border: 1px solid var(--linie); padding: 4px; background: #fff;
+        transition: transform .18s ease, box-shadow .18s ease; transform-origin: top right; position: relative; z-index: 1; }
+  @media (hover: hover) { .qr:hover { transform: scale(2.3); box-shadow: 0 8px 30px rgba(0,0,0,.25); z-index: 5; } }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .aktionen { display: flex; gap: 8px; padding: 0 16px 16px; }
+  .aktionen .knopf { flex: 1; justify-content: center; font-size: 14px; padding: 9px 10px; }
+  .leer { color: #fff; opacity: .85; padding: 30px 0; text-align: center; grid-column: 1 / -1; }
+  #gross { position: fixed; inset: 0; background: rgba(255,255,255,.98); z-index: 50; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: zoom-out; padding: 20px; }
+  #gross.offen { display: flex; }
+  #gross .qrgross { width: min(74vh, 88vw); height: min(74vh, 88vw); }
+  #gross .qrgross svg { width: 100%; height: 100%; }
+  #gross .titel { font-size: clamp(22px, 3.2vw, 40px); font-weight: 700; color: var(--indigo); text-align: center; }
+  #gross .adresse { color: var(--leise); font-size: 15px; word-break: break-all; text-align: center; }
+  #gross .zu { position: absolute; top: 16px; right: 20px; font-size: 30px; background: none; border: 0; cursor: pointer; color: var(--tinte); }
+  .schritte { counter-reset: s; list-style: none; padding: 0; margin: 8px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .schritte li { background: var(--chip); border-radius: 12px; padding: 14px 14px 14px 52px; position: relative; font-size: 15px; }
+  .schritte li::before { counter-increment: s; content: counter(s); position: absolute; left: 14px; top: 12px; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--navy); color: #fff; font-weight: 700; display: grid; place-items: center; }
+  .zwei { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 760px) { .zwei { grid-template-columns: 1fr; } }
+  .vorschau { width: 100%; border: 1px solid var(--linie); border-radius: 12px; }
+  ul.tipps { padding-left: 20px; margin: 6px 0; } ul.tipps li { margin: 3px 0; }
+  .fuss { color: #fff; opacity: .75; text-align: center; font-size: 14px; }
 </style>
 </head>
 <body>
-<h1>3D-Lernmodelle</h1>
-<p>Modell antippen oder QR-Code scannen, Kamera erlauben, Markerwürfel vor die Kamera halten. <a href="marker/wuerfel-vorlage.pdf">Würfel-Vorlage (PDF)</a> · <a href="tafel.html">Tafelansicht (Würfel drehen, Perspektive zeigen)</a></p>
-<div class="grid">
-  <a class="karte" href="viewer.html?m=zahnrad"><img src="qr/zahnrad.png" alt=""><h3>Zahnradgetriebe</h3><div class="fach">Technik</div></a>
-  <a class="karte" href="viewer.html?m=magnet"><img src="qr/magnet.png" alt=""><h3>Stabmagnet mit Feldlinien</h3><div class="fach">Physik</div></a>
-  <a class="karte" href="viewer.html?m=ikosaeder"><img src="qr/ikosaeder.png" alt=""><h3>Ikosaeder</h3><div class="fach">Mathematik</div></a>
-  <a class="karte" href="viewer.html?m=villa"><img src="qr/villa.png" alt=""><h3>Römische Villa (Stadthaus)</h3><div class="fach">Geschichte · Räume einzeln wählbar</div></a>
-  <a class="karte" href="viewer.html?m=zelle56"><img src="qr/zelle56.png" alt=""><h3>Pflanzenzelle (Kl. 5–6)</h3><div class="fach">Biologie · Zellbestandteile wählbar</div></a>
-  <a class="karte" href="viewer.html?m=zelle78"><img src="qr/zelle78.png" alt=""><h3>Pflanzenzelle (Kl. 7–8)</h3><div class="fach">Biologie · Organellen wählbar</div></a>
-  <a class="karte" href="viewer.html?m=plattentektonik"><img src="qr/plattentektonik.png" alt=""><h3>Plattentektonik (Kl. 6)</h3><div class="fach">Erdkunde · Animationen</div></a>
+<div class="huelle">
+  <div class="karte">
+    <h1><span>🧊</span> 3D-Lernmodelle</h1>
+    <p class="unter">Modelle zum Anfassen: Markerwürfel in die Hand, iPad drauf halten – das Modell erscheint auf dem Würfel.</p>
+    <nav class="reiter">
+      <a href="#uebersicht" data-reiter="uebersicht">📚 Übersicht</a>
+      <a href="#info" data-reiter="info">ℹ️ So funktioniert's</a>
+      <a href="#bauplan" data-reiter="bauplan">✂️ Würfel basteln</a>
+      <a href="#tafel" data-reiter="tafel">🖥️ Würfel an der Tafel</a>
+      <a class="zurueck" href="https://semmikgs.github.io/kgs-digital/">← KGS - Digital</a>
+    </nav>
+  </div>
+
+  <!-- ===== Übersicht ===== -->
+  <section id="uebersicht">
+    <div class="karte">
+      <div class="filter">
+        <input type="search" id="suche" placeholder="Suchen: Titel, Thema, Schlagwort …" aria-label="Modelle durchsuchen">
+        <select id="fFach" aria-label="Fach"></select>
+        <select id="fJahrgang" aria-label="Jahrgang"></select>
+        <select id="fSchulform" aria-label="Schulform"></select>
+        <select id="fThema" aria-label="Thema"></select>
+      </div>
+      <div class="zaehler" id="zaehler"></div>
+    </div>
+    <div class="raster" id="raster"></div>
+  </section>
+
+  <!-- ===== Info ===== -->
+  <section id="info" hidden>
+    <div class="karte">
+      <h2>So funktioniert's</h2>
+      <ol class="schritte">
+        <li><b>Würfel basteln</b><br>Vorlage drucken, ausschneiden, falten, kleben (siehe „Würfel basteln“).</li>
+        <li><b>Modell öffnen</b><br>QR-Code mit dem iPad scannen oder in der Übersicht auf „Öffnen“ tippen.</li>
+        <li><b>Kamera erlauben</b><br>Beim ersten Mal fragt Safari nach der Kamera (und dem Lagesensor) – erlauben.</li>
+        <li><b>Würfel vor die Kamera</b><br>Würfel in die Hand nehmen und drehen – das Modell dreht sich mit.</li>
+      </ol>
+      <div class="zwei">
+        <div>
+          <h3>Bedienung im Modell</h3>
+          <ul class="tipps">
+            <li><b>Untermenü:</b> Räume, Zellbestandteile oder Vorgänge einzeln wählen – mit Infotext.</li>
+            <li><b>Größe</b> und <b>Drehen</b> (dreht das Modell automatisch).</li>
+            <li><b>Ansicht:</b> Kamera · Neutral · Themenbild – bei Neutral und Themenbild verschwinden Hand und Würfel.</li>
+            <li><b>Dach / Hülle</b> auf- und abnehmen, <b>Abspielen / Pause</b> und Zeitregler bei Animationen.</li>
+          </ul>
+          <h3>Tipps für gute Erkennung</h3>
+          <ul class="tipps">
+            <li>Gleichmäßiges Licht, keine Spiegelungen – mattes, festes Papier verwenden.</li>
+            <li>Abstand ca. 25–40 cm, der Würfel sollte gut sichtbar sein.</li>
+            <li>Am besten sind zwei oder drei Würfelseiten gleichzeitig im Bild.</li>
+            <li>Ruckelt es auf älteren iPads: an die Adresse <code>&amp;aufl=niedrig</code> anhängen.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Gut zu wissen</h3>
+          <ul class="tipps">
+            <li>Läuft direkt im Browser (Safari, Chrome) – keine App, kein Konto.</li>
+            <li><b>Datenschutz:</b> Das Kamerabild wird nur auf dem Gerät ausgewertet, es wird nichts gespeichert oder übertragen.</li>
+            <li>Ohne Würfel: die <a href="tafel.html">Tafelansicht</a> nutzen – dort lässt sich jedes Modell mit dem Finger drehen.</li>
+            <li>Direktlinks auf einen Teil, z. B. <code>viewer.html?m=villa&amp;r=atrium</code>.</li>
+            <li>Übersicht vorgefiltert verlinken, z. B. <code>?fach=Biologie</code> oder <code>?jahrgang=6</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Bauplan ===== -->
+  <section id="bauplan" hidden>
+    <div class="karte">
+      <h2>Würfel basteln</h2>
+      <div class="zwei">
+        <div>
+          <ol class="schritte" style="grid-template-columns: 1fr;">
+            <li><b>Drucken</b> auf festes, mattes Papier (160–200 g/m²), Einstellung <b>„Tatsächliche Größe“ / 100 %</b>. Kantenlänge 6,5 cm.</li>
+            <li><b>Ausschneiden</b> entlang der Außenkante, die grauen Klebelaschen dranlassen.</li>
+            <li><b>Falten</b> an allen grauen Linien, Laschen nach innen.</li>
+            <li><b>Kleben</b>: Laschen innen verkleben. Die Marker nicht knicken oder bekleben – sie müssen glatt und vollständig sichtbar sein.</li>
+          </ol>
+          <p style="margin-top:12px;"><a class="knopf primaer" href="marker/wuerfel-vorlage.pdf" download>📄 Vorlage herunterladen (PDF)</a></p>
+          <p style="color:var(--leise);font-size:14px;">Tipp: Für die Klasse auf dünnen Karton drucken oder mit matter Folie laminieren. Ein Würfel passt für alle Modelle.</p>
+        </div>
+        <img class="vorschau" src="marker/wuerfel-vorlage-vorschau.png" alt="Faltvorlage des Markerwürfels mit sechs Markern">
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Tafel ===== -->
+  <section id="tafel" hidden>
+    <div class="karte">
+      <h2>Würfel an der Tafel</h2>
+      <p>Die Tafelansicht zeigt den Bastelwürfel oder ein Modell zum Drehen mit Finger oder Maus – ideal fürs ActiveBoard, um eine Perspektive vorzugeben („Haltet den Würfel so!“) oder ein Modell ohne Würfel zu besprechen. Schnellknöpfe stellen Vorne, Oben, Schräg usw. ein.</p>
+      <p><a class="knopf primaer" href="tafel.html">🖥️ Tafelansicht öffnen</a></p>
+      <p style="color:var(--leise);font-size:14px;">In der Übersicht öffnet „Tafel“ direkt das jeweilige Modell.</p>
+    </div>
+  </section>
+
+  <p class="fuss">KGS Schwarmstedt · 3D-Lernmodelle</p>
 </div>
+
+<div id="gross" role="dialog" aria-modal="true" aria-label="QR-Code groß">
+  <button class="zu" aria-label="Schließen">✕</button>
+  <div class="titel" id="grossTitel"></div>
+  <div class="qrgross" id="grossQr"></div>
+  <div class="adresse" id="grossAdresse"></div>
+</div>
+
+<script type="module">
+import { MODELLE, SCHULFORMEN } from './modelle/liste.js';
+import qrcode from './lib/qrcode.mjs';
+
+// Fach → Symbol und Farbe der Karte (neue Fächer hier ergänzen)
+const FAECHER = {
+  Biologie: ['🌿', '#2e7d32'], Physik: ['🔭', '#1565c0'], Chemie: ['⚗️', '#6a1b9a'], Mathematik: ['📐', '#c62828'],
+  Informatik: ['⌨️', '#37474f'], Technik: ['⚙️', '#455a64'], Geschichte: ['🏛️', '#8d5524'], Erdkunde: ['🌍', '#00796b'],
+};
+const url = (datei) => new URL(datei, location.href).href;
+const qrSvg = (text) => { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); };
+const klassen = (j) => !j || !j.length ? '' : 'Kl. ' + (j.length > 1 ? `${Math.min(...j)}–${Math.max(...j)}` : j[0]);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+const liste = Object.entries(MODELLE).filter(([, m]) => m.vorschau !== false).map(([id, m]) => ({ id, ...m }));
+
+// ---------- Filter ----------
+const Q = new URLSearchParams(location.search);
+function optionen(select, titel, werte, beschriftung = (v) => v) {
+  select.innerHTML = ''; select.add(new Option(titel, ''));
+  for (const w of werte) select.add(new Option(beschriftung(w), w));
+}
+const fFach = document.getElementById('fFach'), fJahr = document.getElementById('fJahrgang'), fForm = document.getElementById('fSchulform'), fThema = document.getElementById('fThema'), suche = document.getElementById('suche');
+optionen(fFach, 'Alle Fächer', [...new Set(liste.map(m => m.fach).filter(Boolean))].sort());
+optionen(fJahr, 'Alle Jahrgänge', [...new Set(liste.flatMap(m => m.jahrgang || []))].sort((a, b) => a - b), (j) => 'Klasse ' + j);
+optionen(fForm, 'Alle Schulformen', Object.keys(SCHULFORMEN), (s) => SCHULFORMEN[s]);
+optionen(fThema, 'Alle Themen', [...new Set(liste.map(m => m.thema).filter(Boolean))].sort());
+const FILTER = [[fFach, 'fach'], [fJahr, 'jahrgang'], [fForm, 'schulform'], [fThema, 'thema']];
+for (const [sel, key] of FILTER) if (Q.get(key)) sel.value = Q.get(key);
+if (Q.get('suche')) suche.value = Q.get('suche');
+
+// ---------- Karten ----------
+const raster = document.getElementById('raster'), zaehler = document.getElementById('zaehler');
+function passt(m) {
+  if (fFach.value && m.fach !== fFach.value) return false;
+  if (fJahr.value && !(m.jahrgang || []).includes(+fJahr.value)) return false;
+  if (fForm.value && !(m.schulform || []).includes(fForm.value)) return false;
+  if (fThema.value && m.thema !== fThema.value) return false;
+  const s = suche.value.trim().toLowerCase();
+  if (s) {
+    const text = [m.name, m.fach, m.thema, m.kurz, m.info, ...(m.schlagworte || []), ...(m.teile || []).map(t => t.name)].join(' ').toLowerCase();
+    if (!s.split(/\s+/).every(w => text.includes(w))) return false;
+  }
+  return true;
+}
+function zeichnen() {
+  raster.innerHTML = '';
+  const treffer = liste.filter(passt);
+  zaehler.textContent = treffer.length === liste.length ? `${liste.length} Modelle` : `${treffer.length} von ${liste.length} Modellen`;
+  if (!treffer.length) raster.appendChild(el('div', 'leer', 'Keine Modelle für diese Auswahl.'));
+  for (const m of treffer) {
+    const [sym, farbe] = FAECHER[m.fach] || ['🧊', '#1e2a78'];
+    const k = el('article', 'modell');
+    const band = el('div', 'band'); band.style.background = farbe;
+    band.append(el('span', 'sym', sym), el('span', null, [m.fach, m.thema].filter(Boolean).join(' · ')));
+    k.appendChild(band);
+    const inhalt = el('div', 'inhalt'), text = el('div', 'text');
+    text.append(el('h3', null, m.name), el('p', null, m.kurz || ''));
+    const badges = el('div', 'badges');
+    if (m.jahrgang) badges.appendChild(el('span', 'badge', klassen(m.jahrgang)));
+    if (m.schulform) badges.appendChild(el('span', 'badge', m.schulform.length === Object.keys(SCHULFORMEN).length ? 'alle Schulformen' : m.schulform.map(s => SCHULFORMEN[s]).join(' · ')));
+    if (m.teile) { const anim = m.teile.some(t => t.animation); badges.appendChild(el('span', 'badge', (anim ? '🎬 ' : '🧩 ') + m.teile.length + (anim ? ' Animationen' : ' Teile'))); }
+    text.appendChild(badges);
+    const worte = el('div', 'badges');
+    for (const w of m.schlagworte || []) { const b = el('button', 'wort', w); b.onclick = () => { suche.value = w; zeichnen(); }; worte.appendChild(b); }
+    text.appendChild(worte);
+    const adresse = url('viewer.html?m=' + m.id);
+    const qr = el('div', 'qr'); qr.innerHTML = qrSvg(adresse); qr.title = 'Groß anzeigen'; qr.onclick = () => gross(m.name, adresse);
+    inhalt.append(text, qr); k.appendChild(inhalt);
+    const akt = el('div', 'aktionen');
+    const a1 = el('a', 'knopf primaer', '📱 Öffnen'); a1.href = adresse;
+    const a2 = el('a', 'knopf', '🖥️ Tafel'); a2.href = url('tafel.html?m=' + m.id);
+    const a3 = el('button', 'knopf', '🔳 QR groß'); a3.onclick = () => gross(m.name, adresse);
+    akt.append(a1, a2, a3); k.appendChild(akt);
+    raster.appendChild(k);
+  }
+  // Filter in der Adresse merken → vorgefilterte Links möglich (z. B. ?fach=Biologie)
+  const p = new URLSearchParams();
+  for (const [sel, key] of FILTER) if (sel.value) p.set(key, sel.value);
+  if (suche.value.trim()) p.set('suche', suche.value.trim());
+  history.replaceState(null, '', (p.toString() ? '?' + p : location.pathname) + location.hash);
+}
+for (const [sel] of FILTER) sel.onchange = zeichnen;
+suche.oninput = zeichnen;
+
+// ---------- QR-Großansicht (für die Tafel) ----------
+const box = document.getElementById('gross');
+function gross(titel, adresse) {
+  document.getElementById('grossTitel').textContent = titel;
+  document.getElementById('grossQr').innerHTML = qrSvg(adresse);
+  document.getElementById('grossAdresse').textContent = adresse;
+  box.classList.add('offen');
+}
+box.onclick = () => box.classList.remove('offen');
+addEventListener('keydown', (e) => { if (e.key === 'Escape') box.classList.remove('offen'); });
+
+// ---------- Reiter ----------
+function reiter() {
+  const ziel = (location.hash || '#uebersicht').slice(1);
+  for (const s of document.querySelectorAll('section')) s.hidden = s.id !== ziel;
+  for (const a of document.querySelectorAll('[data-reiter]')) a.classList.toggle('aktiv', a.dataset.reiter === ziel);
+}
+addEventListener('hashchange', reiter);
+reiter(); zeichnen();
+window.BEREIT = true;
+</script>
 </body>
 </html>

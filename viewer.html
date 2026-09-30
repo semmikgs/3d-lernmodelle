@@ -274,7 +274,7 @@ const btnAnsicht = document.getElementById('ansicht');
 function setzeAnsicht(a) {
   ansicht = a;
   document.body.dataset.ansicht = a;
-  document.body.style.backgroundImage = a === 'thema' ? `url(hintergruende/${(cfg && cfg.thema) || 'blaupause'}.svg)` : '';
+  document.body.style.backgroundImage = a === 'thema' ? `url(hintergruende/${(cfg && cfg.hintergrund) || 'blaupause'}.svg)` : '';
   btnAnsicht.textContent = 'Ansicht: ' + ANSICHT_TEXT[a];
   btnAnsicht.classList.toggle('on', a !== 'kamera');
 }
