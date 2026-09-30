@@ -117,8 +117,11 @@ const sel = document.getElementById('modell'), selTeil = document.getElementById
 for (const [k, v] of Object.entries(MODELLE)) sel.add(new Option(v.name, k));
 let inhalt = null, cfg = null, knoten = {}, boxen = {}, gesamtBox = null, dachAn = false, nr = 0;
 
+// Abnehmbares Teil (Dach, Vorderseite …) – aus der Modellliste, Standard: Dach
+const abd = () => (cfg && cfg.abdeckung && cfg.abdeckung.id) || 'dach';
 function lade(name) {
   const meine = ++nr; cfg = MODELLE[name];
+  btnDach.textContent = (cfg.abdeckung && cfg.abdeckung.name) || 'Dach';
   selTeil.innerHTML = ''; selTeil.hidden = !cfg.teile;
   if (cfg.teile) { selTeil.add(new Option(cfg.ganz || 'Ganzes Modell', '')); for (const t of cfg.teile) selTeil.add(new Option(t.name, t.id)); }
   loader.load('modelle/' + name + '.glb', (gltf) => {
@@ -127,7 +130,7 @@ function lade(name) {
     inhalt = gltf.scene; inhalt.updateMatrixWorld(true);
     gesamtBox = new THREE.Box3().setFromObject(inhalt);
     knoten = {}; boxen = {};
-    for (const id of [...(cfg.teile || []).map(t => t.id), 'dach', 'umgebung']) {
+    for (const id of [...(cfg.teile || []).flatMap(t => [t.id, t.detail]).filter(Boolean), abd(), 'umgebung']) {
       const k = inhalt.getObjectByName(id);
       if (k) { knoten[id] = k; boxen[id] = new THREE.Box3().setFromObject(k); }
     }
@@ -137,17 +140,19 @@ function lade(name) {
 function zeige(teil) {
   if (!inhalt) return;
   const t = cfg.teile && cfg.teile.find(x => x.id === teil);
-  for (const [id, k] of Object.entries(knoten)) k.visible = t ? id === teil : (id === 'dach' ? dachAn : true);
-  const box = t ? boxen[teil] : gesamtBox;
+  const details = new Set((cfg.teile || []).map(x => x.detail).filter(Boolean));
+  const ziel = t ? ((t.detail && knoten[t.detail]) ? t.detail : teil) : null;
+  for (const [id, k] of Object.entries(knoten)) k.visible = t ? id === ziel : (id === abd() ? dachAn : !details.has(id));
+  const box = t ? boxen[ziel] : gesamtBox;
   inhalt.position.copy(box.getCenter(new THREE.Vector3())).negate();
   hülle.scale.setScalar(E * (t ? 1.5 : 1.3) / box.getSize(new THREE.Vector3()).length());
   selTeil.value = t ? teil : '';
-  btnDach.hidden = !knoten.dach || !!t; btnDach.classList.toggle('on', dachAn);
+  btnDach.hidden = !knoten[abd()] || !!t; btnDach.classList.toggle('on', dachAn);
   document.getElementById('titel').textContent = modellModus ? (t ? t.name : cfg.name) : 'Markerwürfel';
 }
 sel.onchange = () => lade(sel.value);
 selTeil.onchange = () => zeige(selTeil.value);
-btnDach.onclick = () => { dachAn = !dachAn; if (knoten.dach) knoten.dach.visible = dachAn; btnDach.classList.toggle('on', dachAn); };
+btnDach.onclick = () => { dachAn = !dachAn; if (knoten[abd()]) knoten[abd()].visible = dachAn; btnDach.classList.toggle('on', dachAn); };
 
 // ---- Umschalten Würfel / Modell ----
 let modellModus = false;

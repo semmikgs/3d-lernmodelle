@@ -169,9 +169,12 @@ function merkeUrl() {
 sel.onchange = () => { selTeil.value = ''; lade(sel.value, ''); merkeUrl(); };
 selTeil.onchange = () => { zeige(selTeil.value); merkeUrl(); };
 
+// Abnehmbares Teil (Dach, Vorderseite …) – aus der Modellliste, Standard: Dach
+const abd = () => (cfg && cfg.abdeckung && cfg.abdeckung.id) || 'dach';
 function lade(name, teil) {
   const nr = ++ladeNr;
   cfg = MODELLE[name];
+  btnDach.textContent = (cfg.abdeckung && cfg.abdeckung.name) || 'Dach';
   // Untermenü aufbauen
   selTeil.innerHTML = '';
   selTeil.hidden = !cfg.teile;
@@ -186,7 +189,7 @@ function lade(name, teil) {
     inhalt.updateMatrixWorld(true);
     gesamtBox = new THREE.Box3().setFromObject(inhalt);
     knoten = {}; boxen = {};
-    for (const id of [...(cfg.teile || []).map(t => t.id), 'dach', 'umgebung']) {
+    for (const id of [...(cfg.teile || []).flatMap(t => [t.id, t.detail]).filter(Boolean), abd(), 'umgebung']) {
       const k = inhalt.getObjectByName(id);
       if (k) { knoten[id] = k; boxen[id] = new THREE.Box3().setFromObject(k); }
     }
@@ -209,15 +212,17 @@ function zeige(teil) {
   const t = cfg.teile && cfg.teile.find(x => x.id === teil);
   if (t && knoten[teil]) {
     // nur diesen Raum zeigen, groß
-    for (const [id, k] of Object.entries(knoten)) k.visible = (id === teil);
-    einpassen(boxen[teil], 1.5);
+    const ziel = (t.detail && knoten[t.detail]) ? t.detail : teil;
+    for (const [id, k] of Object.entries(knoten)) k.visible = (id === ziel);
+    einpassen(boxen[ziel], 1.5);
     zeigeInfo(t.name, t.info);
   } else {
-    for (const [id, k] of Object.entries(knoten)) k.visible = (id === 'dach') ? dachAn : true;
+    const details = new Set((cfg.teile || []).map(x => x.detail).filter(Boolean));
+    for (const [id, k] of Object.entries(knoten)) k.visible = (id === abd()) ? dachAn : !details.has(id);
     einpassen(gesamtBox, 1.3);
     zeigeInfo(cfg.name, cfg.info);
   }
-  btnDach.hidden = !knoten.dach || !!t;
+  btnDach.hidden = !knoten[abd()] || !!t;
   btnDach.classList.toggle('on', dachAn);
 }
 
@@ -231,7 +236,7 @@ function zeigeInfo(titel, text) {
 }
 document.getElementById('infoZu').onclick = () => { infoAn = false; infoBox.style.display = 'none'; btnInfo.classList.remove('on'); };
 btnInfo.onclick = () => { infoAn = !infoAn; infoBox.style.display = infoAn ? 'block' : 'none'; btnInfo.classList.toggle('on', infoAn); };
-btnDach.onclick = () => { dachAn = !dachAn; if (knoten.dach) knoten.dach.visible = dachAn; btnDach.classList.toggle('on', dachAn); };
+btnDach.onclick = () => { dachAn = !dachAn; if (knoten[abd()]) knoten[abd()].visible = dachAn; btnDach.classList.toggle('on', dachAn); };
 
 lade(sel.value, url.get('r'));
 
