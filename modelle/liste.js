@@ -142,4 +142,20 @@ export const MODELLE = {
         info: 'Das Auslassventil (rechts) öffnet sich. Der Kolben bewegt sich wieder nach oben und schiebt die verbrannten Abgase (grau-braun) durch den Auspuffkrümmer hinaus. Danach beginnt alles von vorn.' },
     ],
   },
+  zweitaktmotor: {
+    name: 'Zweitakt-Ottomotor',
+    fach: 'Technik', jahrgang: [8, 9], thema: 'Verbrennungsmotor', schulform: ALLE,
+    schlagworte: ['Zweitakter', 'Kolben', 'Schlitzsteuerung', 'Überströmkanal', 'Kurbelgehäuse', 'Animation'],
+    kurz: 'Aufgeschnittener Zweitakter: Der Kolben steuert selbst Einlass, Überströmen und Auslass.',
+    ganz: false,
+    info: 'Der Motor ist aufgeschnitten, damit du hineinsehen kannst.',
+    teile: [
+      { id: 'gesamt', detail: 'motor', animation: 'zweitakt', name: 'Gesamtablauf (2 Takte)',
+        info: 'Beim Zweitakter dauert ein Arbeitsspiel nur eine Umdrehung der Kurbelwelle. Dafür passiert oberhalb und unterhalb des Kolbens gleichzeitig etwas. Ventile gibt es nicht: Der Kolben gibt beim Auf- und Abgehen selbst die Schlitze in der Zylinderwand frei. Das Kurbelgehäuse dient als Pumpe für das Frischgas (blau). Weil das Öl mit dem Benzin gemischt wird, verbrennt es teilweise mit – Zweitakter sind einfach und leicht, aber laut und haben mehr Abgase (Mofa, Motorsäge, Rasenmäher).' },
+      { id: 'aufwaerts', detail: 'motor', animation: 'aufwaerts', name: '1. Takt: Kolben aufwärts',
+        info: 'Oberhalb des Kolbens: Überströmkanal und Auslass werden verschlossen, das Frischgas wird verdichtet (violett). Kurz vor dem oberen Totpunkt zündet die Zündkerze. Unterhalb des Kolbens: Im Kurbelgehäuse entsteht Unterdruck. Sobald der Kolbenschaft den Einlass freigibt, strömt neues Benzin-Luft-Gemisch aus dem Vergaser ins Kurbelgehäuse.' },
+      { id: 'abwaerts', detail: 'motor', animation: 'abwaerts', name: '2. Takt: Kolben abwärts',
+        info: 'Oberhalb des Kolbens: Die heißen Verbrennungsgase drücken den Kolben nach unten (Arbeitstakt, roter Pfeil). Dann gibt der Kolben zuerst den Auslass frei – die Abgase strömen in den Auspuff – und gleich danach den Überströmkanal: Frischgas strömt nach oben in den Zylinder und schiebt die restlichen Abgase hinaus (Spülung). Unterhalb des Kolbens: Der Einlass ist zu, das Frischgas im Kurbelgehäuse wird vorverdichtet (kräftiges Blau) und dadurch durch den Überströmkanal gedrückt.' },
+    ],
+  },
 };
