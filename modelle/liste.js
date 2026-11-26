@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  molekuel: { name: 'Moleküle und Gitter', generator: 'molekuel', fach: 'Chemie', jahrgang: [8, 9, 10, 11, 12, 13], thema: 'Chemische Bindung', schulform: ALLE,
+    schlagworte: ['Molekül', 'EPA-Modell', 'Elektronenpaarabstoßung', 'Bindungswinkel', 'Dipol', 'polar', 'Kugel-Stab-Modell', 'Kalottenmodell', 'Ionengitter', 'Natriumchlorid', 'Metallbindung', 'Diamant', 'Graphit', 'Alkane', 'Alkohole', 'Benzol'],
+    kurz: 'Generator: 25 Moleküle mit berechneter Raumstruktur, freien Elektronenpaaren und Dipol; Ionen-, Metall- und Atomgitter.' },
   motor: { name: 'Elektromotor (Gleichstrom)', generator: 'motor', fach: ['Physik', 'Technik'], jahrgang: [8, 9, 10], thema: 'Elektromagnetismus', schulform: ALLE,
     schlagworte: ['Elektromotor', 'Gleichstrommotor', 'Kommutator', 'Stromwender', 'Bürsten', 'Lorentzkraft', 'Magnetfeld', 'Spule', 'Drehmoment', 'Totpunkt', 'Schleifringe'],
     kurz: 'Generator: Leiterschleife im Magnetfeld, Strom- und Kraftpfeile, Drehung aus dem Drehmoment berechnet; mit und ohne Kommutator.' },

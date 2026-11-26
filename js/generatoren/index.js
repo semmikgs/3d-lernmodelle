@@ -9,4 +9,5 @@ export const GENERATOREN = {
   erdbahn: () => import('./erdbahn.js'),
   koerper: () => import('./koerper.js'),
   motor: () => import('./motor.js'),
+  molekuel: () => import('./molekuel.js'),
 };

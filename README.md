@@ -49,3 +49,5 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 **Körper** (`?m=koerper`): 8 Körper mit Maßen und Formeln, Netze animiert, Volumenvergleiche (`&k=quader&v=koerper|netz|volumen&a=4&b=3&c=2`).
 
 **Elektromotor** (`?m=motor`): Leiterschleife im Magnetfeld, Drehung aus dem Drehmoment berechnet, mit/ohne Kommutator (`&b=kommutator|schleifring&u=1…5`).
+
+**Moleküle und Gitter** (`?m=molekuel`): 25 Moleküle mit Raumstruktur nach dem EPA-Modell (Bindungslängen aus Tabellen, Winkel 104,5°/107°/109,5°/120°/180°), freie Elektronenpaare, Partialladungen und Dipol; Kugel-Stab- und Kalottenmodell. Gitter: NaCl, CsCl, Kupfer, Eisen, Diamant, Graphit (`&s=wasser|nacl|…&d=kugelstab|kalotte|kugeln|gitter&n=1…3`).
