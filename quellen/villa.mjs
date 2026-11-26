@@ -1,7 +1,8 @@
 // Erzeugt modelle/villa.glb – römisches Stadthaus (Domus), Maße in Metern.
 // Aufruf: node villa.mjs <Ausgabeordner>   (benötigt npm-Paket "three")
-// Oberste Gruppen = Raum-IDs für den Viewer: fauces, atrium, cubicula, latrina, tablinum,
-// triclinium, culina, peristyl, tabernae, sowie dach und umgebung.
+// Oberste Gruppen = Raum-IDs für den Viewer: fauces, atrium, alae, cubicula, tablinum, triclinium,
+// culina, latrina (Nische in der Küche), peristyl, tabernae, sowie dach und umgebung.
+// Grundriss nach dem Vorbild pompejanischer Atriumhäuser (Achse Fauces – Atrium – Tablinum – Peristyl).
 import * as THREE from 'three';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
@@ -146,7 +147,7 @@ function saeule(b, x, z, h = 3.0) {
 // =================== Räume ===================
 const teile = [];
 
-// Tabernae – zwei Läden zur Straße (links Weinladen, rechts Bäckerei)
+// Tabernae – zwei Läden zur Straße (links Thermopolium/Garküche, rechts Bäckerei)
 {
   const b = new Bau();
   raum(b, { x0: -8, x1: -1.5, z0: 11, z1: 15, boden: 'lehm', vorne: [[-7.2, -2.3]] });
@@ -184,7 +185,7 @@ const teile = [];
   const b = new Bau();
   raum(b, {
     x0: -5, x1: 5, z0: 1, z1: 11, boden: 'mosaikW', vorne: [[-1, 1]],
-    links: [[3, 4.5], [8, 9.5]], rechts: [[3, 4.5], [8, 9.5]],
+    links: [[1.4, 5.6], [8, 9.5]], rechts: [[1.4, 5.6], [8, 9.5]],      // hinten breit offen zu den Alae
     hinten: [[-4.5, -3.2], [-2, 2], [3.2, 4.5]],
   });
   mosaikRand(b, -5, 5, 1, 11);
@@ -205,27 +206,27 @@ const teile = [];
   teile.push(b.bauen('atrium'));
 }
 
-// Cubicula – drei Schlafzimmer
+// Alae – zwei zum Atrium offene Seitenflügel mit Schränken für die Ahnenmasken (imagines)
+{
+  const b = new Bau();
+  for (const [x0, x1, seite, xs] of [[-8, -5, 'rechts', -7.75], [5, 8, 'links', 7.15]]) {
+    raum(b, { x0, x1, z0: 1, z1: 6, boden: 'mosaikW', [seite]: [[1.4, 5.6]] });
+    b.box('putzGelb', xs, xs + 0.6, 0.05, 2.3, 2.0, 5.0);                      // Schrank (armarium)
+    b.box('holz', xs - 0.02, xs + 0.62, 2.3, 2.38, 1.95, 5.05);
+    for (const z of [2.5, 3.5, 4.5]) b.kugel('papyrus', xs + 0.3, 2.55, z, 0.16, 1);   // Wachsmasken der Vorfahren
+    b.box('putzRot', x0 + 0.2, x1 - 0.2, 1.0, 2.6, 1.08, 1.12);                // bemalte Wandfläche
+  }
+  teile.push(b.bauen('alae'));
+}
+
+// Cubicula – zwei Schlafzimmer am vorderen Atrium
 {
   const b = new Bau();
   raum(b, { x0: -8, x1: -5, z0: 6, z1: 11, rechts: [[8, 9.5]] });
   bett(b, -7.75, -6.55, 9.0, 10.75); truhe(b, -6.3, -5.6, 10.2, 10.75);
-  raum(b, { x0: -8, x1: -5, z0: 1, z1: 6, rechts: [[3, 4.5]] });
-  bett(b, -7.75, -6.55, 1.25, 3.0); truhe(b, -7.7, -7.0, 5.1, 5.75);
   raum(b, { x0: 5, x1: 8, z0: 6, z1: 11, links: [[8, 9.5]] });
   bett(b, 6.55, 7.75, 9.0, 10.75); b.zyl('holz', 6.0, 10.4, 0.2, 0.05, 0.45, 10); // Hocker
   teile.push(b.bauen('cubicula'));
-}
-
-// Latrina – Toilette
-{
-  const b = new Bau();
-  raum(b, { x0: 5, x1: 8, z0: 1, z1: 6, boden: 'stein', links: [[3, 4.5]] });
-  b.box('stein', 6.9, 7.8, 0.05, 0.5, 1.2, 5.8);               // Sitzbank
-  for (const z of [2.0, 3.2, 4.4]) b.zyl('dunkel', 7.3, z, 0.13, 0.5, 0.52, 12);
-  b.box('wasser', 6.6, 6.85, 0.05, 0.09, 1.2, 5.8);            // Wasserrinne
-  b.box('holz', 6.66, 6.7, 0.1, 0.8, 5.2, 5.24); b.kugel('papyrus', 6.68, 0.85, 5.22, 0.07, 0); // Schwamm am Stock
-  teile.push(b.bauen('latrina'));
 }
 
 // Tablinum – Arbeitszimmer des Hausherrn
@@ -240,8 +241,6 @@ const teile = [];
   b.box('holz', 0.6, 2.1, 0.05, 0.8, -2.8, -1.9);              // Schreibtisch
   b.box('papyrus', 1.0, 1.6, 0.8, 0.81, -2.5, -2.1);
   b.box('bronze', 1.1, 1.6, 0.05, 0.45, -1.5, -1.1);           // Klappstuhl
-  b.box('marmor', -0.3, 0.3, 0.05, 1.1, -3.7, -3.3);           // Ahnenbüste auf Sockel
-  b.kugel('bronze', 0, 1.35, -3.5, 0.22, 1);
   teile.push(b.bauen('tablinum'));
 }
 
@@ -268,10 +267,22 @@ const teile = [];
   b.zyl('bronze', 7.35, -1.6, 0.22, 1.25, 1.55, 14);           // Kessel
   for (const [dx, dz] of [[-0.2, -0.15], [0.2, -0.15], [0, 0.2]]) b.box('dunkel', 7.35 + dx - 0.02, 7.35 + dx + 0.02, 0.9, 1.25, -1.6 + dz - 0.02, -1.6 + dz + 0.02);
   b.zyl('bronze', 7.35, -3.0, 0.3, 1.2, 1.25, 14);             // Pfanne
-  for (const z of [-3.5, -3.0, -2.5, -2.0]) amphore(b, 3.0, z);
+  for (const z of [-1.4, -0.8, -0.2]) amphore(b, 3.0, z);
   b.box('holz', 4.4, 6.0, 0.05, 0.8, -2.3, -1.5);              // Arbeitstisch
   b.zyl('ton', 4.8, -1.9, 0.18, 0.8, 0.95, 12, 0.22); b.box('stoffRot', 5.3, 5.7, 0.8, 0.85, -2.1, -1.7);
   teile.push(b.bauen('culina'));
+}
+
+// Latrina – Toilettennische in der Küche (in Pompeji meist in oder neben der Küche, gemeinsamer Abfluss)
+{
+  const b = new Bau();
+  b.box('putzHell', 3.95, 4.1, 0.05, 1.9, -3.95, -2.35);       // Trennwand zur Küche
+  b.box('putzHell', 2.55, 3.3, 0.05, 1.9, -2.45, -2.35);       // kurze Wand, Durchgang 3,3 … 3,95
+  b.box('stein', 2.6, 3.9, 0.05, 0.5, -3.95, -3.35);           // Sitzbank
+  for (const x of [2.95, 3.55]) b.zyl('dunkel', x, -3.65, 0.13, 0.5, 0.52, 12);
+  b.box('wasser', 2.6, 3.9, 0.05, 0.09, -3.3, -3.1);           // Wasserrinne
+  b.box('holz', 3.75, 3.79, 0.1, 0.8, -3.0, -2.96); b.kugel('papyrus', 3.77, 0.85, -2.98, 0.07, 0); // Schwamm am Stock
+  teile.push(b.bauen('latrina'));
 }
 
 // Peristyl – Garten mit Säulengang
