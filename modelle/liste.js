@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  koerper: { name: 'Geometrische Körper – Netze und Volumen', generator: 'koerper', fach: 'Mathematik', jahrgang: [5, 6, 7, 8, 9, 10], thema: 'Körper', schulform: ALLE,
+    schlagworte: ['Würfel', 'Quader', 'Prisma', 'Zylinder', 'Pyramide', 'Kegel', 'Kugel', 'Netz', 'Abwicklung', 'Volumen', 'Oberfläche', 'Mantel', 'Cavalieri', 'Archimedes'],
+    kurz: 'Generator: 8 Körper mit einstellbaren Maßen, Netz animiert abwickeln, Volumenformeln anschaulich herleiten.' },
   erdbahn: { name: 'Jahreszeiten – Erde auf ihrer Bahn', generator: 'erdbahn', fach: ['Erdkunde', 'Physik'], jahrgang: [5, 6, 7, 8], thema: 'Erde im Sonnensystem', schulform: ALLE,
     schlagworte: ['Jahreszeiten', 'Erdachse', 'Neigung', 'Umlaufbahn', 'Tag und Nacht', 'Polartag', 'Polarnacht', 'Wendekreis', 'Polarkreis', 'Äquator', 'Sonnenstand', 'Tageslänge'],
     kurz: 'Generator: geneigte Erde auf ihrer Bahn, Beleuchtung an Stichtagen, Tageslänge und Sonnenhöhe für Schwarmstedt.' },

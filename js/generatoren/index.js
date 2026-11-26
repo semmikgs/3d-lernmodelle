@@ -7,4 +7,5 @@ export const GENERATOREN = {
   dna: () => import('./dna.js'),
   auge: () => import('./auge.js'),
   erdbahn: () => import('./erdbahn.js'),
+  koerper: () => import('./koerper.js'),
 };
