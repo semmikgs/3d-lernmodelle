@@ -181,6 +181,44 @@ function fibonacci(k, r) {
 const FARBE = { proton: 0xe53935, neutron: 0xb0b7c0, elektron: 0x1e63d6, aussen: 0xf59e0b };
 const R_NUKLEON = 0.06, R_ELEKTRON = 0.055;
 
+// Protonen und Neutronen gut durchmischen: Protonen stoßen sich ab, also soll ein Proton möglichst
+// wenige Protonen als direkte Nachbarn haben (und wenige in der zweiten Nachbarschaft). Start zufällig,
+// dann so lange Proton und Neutron tauschen, wie dadurch Proton-Proton-Berührungen verschwinden.
+// Bewusst nur Nachbarschaft: eine Abstoßung über den ganzen Kern würde die Protonen nach außen drängen.
+function protonenVerteilen(pos, z, zuf) {
+  const a = pos.length, art = Array.from({ length: a }, (_, i) => i < z);
+  for (let i = a - 1; i > 0; i--) { const j = Math.floor(zuf() * (i + 1)); [art[i], art[j]] = [art[j], art[i]]; }
+  if (z === 0 || z >= a) return art;
+  const d1 = (R_NUKLEON * 1.9 * 1.15) ** 2, d2 = (R_NUKLEON * 1.9 * 1.75) ** 2;
+  const nah = pos.map(() => []), weiter = pos.map(() => []);
+  for (let i = 0; i < a; i++) for (let j = i + 1; j < a; j++) {
+    const q = pos[i].distanceToSquared(pos[j]);
+    if (q < d1) { nah[i].push(j); nah[j].push(i); } else if (q < d2) { weiter[i].push(j); weiter[j].push(i); }
+  }
+  // Abstoßung, die ein Proton an Stelle x spüren würde (ohne Teilchen `ohne`)
+  // Anteil statt Anzahl: Teilchen an der Oberfläche haben weniger Nachbarn und wären sonst bevorzugt
+  const druck = (x, ohne) => {
+    let e = 0, w = 0;
+    for (const j of nah[x]) { if (j === ohne) continue; w += 1; if (art[j]) e += 1; }
+    for (const j of weiter[x]) { if (j === ohne) continue; w += 0.25; if (art[j]) e += 0.25; }
+    return w ? e / w : 0;
+  };
+  const prot = () => art.map((t, i) => t ? i : -1).filter(i => i >= 0), neut = () => art.map((t, i) => t ? -1 : i).filter(i => i >= 0);
+  for (let runde = 0; runde < 30; runde++) {
+    let getauscht = 0;
+    const P = prot().sort(() => zuf() - 0.5), N = neut();
+    for (const i of P) {
+      if (!art[i]) continue;
+      const hier = druck(i, i);
+      let best = -1, bestE = hier - 1e-6;
+      for (const j of N) { if (art[j]) continue; const e = druck(j, i); if (e < bestE) { bestE = e; best = j; } }
+      if (best >= 0) { art[i] = false; art[best] = true; N[N.indexOf(best)] = i; getauscht++; }
+    }
+    if (!getauscht) break;
+  }
+  return art;
+}
+
 // Atomkern aus einzelnen Protonen und Neutronen (dicht gepackt)
 function kern(z, n) {
   const a = z + n, gruppe = new THREE.Group();
@@ -194,8 +232,7 @@ function kern(z, n) {
   kandidaten.forEach(p => p.r = p.length() + zuf() * 1e-4);
   kandidaten.sort((p, q) => p.r - q.r);
   const pos = kandidaten.slice(0, a), mitte = pos.reduce((s, p) => s.add(p), new THREE.Vector3()).divideScalar(a);
-  const art = Array.from({ length: a }, (_, i) => i < z);           // true = Proton, dann mischen
-  for (let i = a - 1; i > 0; i--) { const j = Math.floor(zuf() * (i + 1)); [art[i], art[j]] = [art[j], art[i]]; }
+  const art = protonenVerteilen(pos, z, zuf);                       // true = Proton
   const geo = new THREE.SphereGeometry(R_NUKLEON, 20, 14);
   const mesh = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ roughness: 0.45, metalness: 0.05 }), a);
   const mat = new THREE.Matrix4(), col = new THREE.Color();
@@ -478,3 +515,4 @@ export function bedienung(ort, st, neu) {
   bBew.onclick = aendern(() => st.bewegung = !st.bewegung, false);
   auffrischen();
 }
+export { kern as _kern };   // für Tests
