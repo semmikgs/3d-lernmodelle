@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  mond: { name: 'Mondphasen und Finsternisse', generator: 'mond', fach: ['Physik', 'Erdkunde'], jahrgang: [5, 6, 7, 8], thema: 'Erde im Sonnensystem', schulform: ALLE,
+    schlagworte: ['Mond', 'Mondphasen', 'Neumond', 'Vollmond', 'Halbmond', 'Mondfinsternis', 'Sonnenfinsternis', 'Kernschatten', 'Halbschatten', 'Blutmond', 'Mondbahn'],
+    kurz: 'Generator: Mond auf seiner Bahn mit Blick von der Erde, acht Phasen, Mond- und Sonnenfinsternis mit berechneten Schatten.' },
   teilchen: { name: 'Teilchenmodell – Aggregatzustände', generator: 'teilchen', fach: ['Chemie', 'Physik'], jahrgang: [5, 6, 7, 8], thema: 'Stoffe und Teilchen', schulform: ALLE,
     schlagworte: ['Teilchenmodell', 'Aggregatzustand', 'fest', 'flüssig', 'gasförmig', 'Schmelzen', 'Sieden', 'Verdampfen', 'Kondensieren', 'Erstarren', 'Temperatur', 'Teilchenbewegung'],
     kurz: 'Generator: Teilchen-Simulation mit Temperaturregler – Kristall, Flüssigkeit und Gas entstehen von selbst.' },
