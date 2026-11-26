@@ -16,11 +16,16 @@
   .gruppe { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   .trenner { width: 1px; align-self: stretch; background: rgba(255,255,255,.25); }
   #titel { position: fixed; top: 14px; left: 16px; font-size: 22px; font-weight: 600; color: #1f2937; }
+  #gen { display: contents; }
+  #info { position: fixed; top: 12px; right: 12px; width: min(520px, 42vw); max-height: 60vh; overflow: auto; background: rgba(255,255,255,.93);
+          color: #111; padding: 12px 16px; border-radius: 12px; font-size: 18px; line-height: 1.45; box-shadow: 0 4px 18px rgba(0,0,0,.15); }
+  #info i { color: #374151; }
 </style>
 <script type="importmap">{ "imports": { "three": "./lib/three.module.js" } }</script>
 </head>
 <body>
 <div id="titel">Markerwürfel</div>
+<div id="info" hidden></div>
 <div id="leiste">
   <div class="gruppe">
     <button id="zeigWuerfel" class="on">Würfel</button>
@@ -29,6 +34,8 @@
   <div class="gruppe" id="modellWahl" hidden>
     <select id="modell"></select>
     <select id="teil" hidden></select>
+    <span id="gen" hidden></span>
+    <button id="infoBtn" hidden>Info</button>
     <button id="dach" hidden>Dach</button>
     <button id="abspielen" hidden>⏸ Pause</button>
     <input id="zeit" type="range" min="0" max="1" step="0.001" value="0" hidden style="width:220px">
@@ -59,6 +66,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from './lib/GLTFLoader.js';
 import { MODELLE } from './modelle/liste.js';
 import { Animation } from './js/animation.js';
+import { GENERATOREN } from './js/generatoren/index.js';
 
 const E = 1.25;   // Würfelkante in Marker-Einheiten (wie im Viewer)
 // Faltvorlage: Seite → [rechts, oben (Bildrichtung), Normale] im Würfelsystem
@@ -131,8 +139,33 @@ let inhalt = null, cfg = null, knoten = {}, boxen = {}, gesamtBox = null, dachAn
 
 // Abnehmbares Teil (Dach, Vorderseite …) – aus der Modellliste, Standard: Dach
 const abd = () => (cfg && cfg.abdeckung && cfg.abdeckung.id) || 'dach';
+// Generator-Modelle (z. B. Atom): im Browser erzeugt
+const genEl = document.getElementById('gen'), infoEl = document.getElementById('info'), btnInfo = document.getElementById('infoBtn');
+let gen = null, ersteUrl = true, infoAn = true;
+btnInfo.onclick = () => { infoAn = !infoAn; infoEl.hidden = !infoAn; btnInfo.classList.toggle('on', infoAn); };
+async function ladeGenerator(name, meine) {
+  const mod = await GENERATOREN[cfg.generator]();
+  if (meine !== nr) return;
+  const st = ersteUrl && Q.get('m') === name ? mod.ausUrl(Q) : mod.standard();
+  gen = { mod, st, erg: null };
+  const baue = () => {
+    if (inhalt) { hülle.remove(inhalt); if (gen.erg) mod.entsorge(gen.erg.objekt); }
+    gen.erg = mod.erzeuge(st); inhalt = gen.erg.objekt; inhalt.position.set(0, 0, 0);
+    hülle.add(inhalt); hülle.scale.setScalar(E * 0.62 / gen.erg.radius);
+    document.getElementById('titel').textContent = gen.erg.titel;
+    infoEl.innerHTML = gen.erg.info; infoEl.hidden = !infoAn; btnInfo.hidden = false; btnInfo.classList.toggle('on', infoAn);
+    history.replaceState(null, '', '?m=' + name + mod.zuUrl(st));
+  };
+  mod.bedienung(genEl, st, baue); genEl.hidden = false;
+  anim.setze(null, []); btnDach.hidden = true; fokus.set(0, 0, 0);
+  baue();
+}
 function lade(name) {
   const meine = ++nr; cfg = MODELLE[name];
+  if (gen) { if (inhalt) { hülle.remove(inhalt); gen.mod.entsorge(inhalt); inhalt = null; } gen = null; }
+  genEl.hidden = true; genEl.innerHTML = ''; infoEl.hidden = true; btnInfo.hidden = true;
+  if (cfg.generator) { selTeil.hidden = true; ladeGenerator(name, meine).finally(() => ersteUrl = false); return; }
+  ersteUrl = false; history.replaceState(null, '', '?m=' + name);
   btnDach.textContent = (cfg.abdeckung && cfg.abdeckung.name) || 'Dach';
   selTeil.innerHTML = ''; selTeil.hidden = !cfg.teile;
   if (cfg.teile) { if (cfg.ganz !== false) selTeil.add(new Option(cfg.ganz || 'Ganzes Modell', '')); for (const t of cfg.teile) selTeil.add(new Option(t.name, t.id)); }
@@ -152,6 +185,7 @@ function lade(name) {
 }
 function zeige(teil) {
   if (!inhalt) return;
+  if (gen) { document.getElementById('titel').textContent = modellModus ? gen.erg.titel : 'Markerwürfel'; infoEl.hidden = !(modellModus && infoAn); return; }
   const t = cfg.teile && cfg.teile.find(x => x.id === teil);
   const details = new Set((cfg.teile || []).map(x => x.detail).filter(Boolean));
   const ziel = t ? ((t.detail && knoten[t.detail]) ? t.detail : teil) : null;
@@ -176,6 +210,7 @@ function modus(m) {
   document.getElementById('zeigWuerfel').classList.toggle('on', !m);
   document.getElementById('zeigModell').classList.toggle('on', m);
   document.getElementById('modellWahl').hidden = !m;
+  if (!m) infoEl.hidden = true;
   if (m && !inhalt) lade(sel.value); else zeige(selTeil.value);
 }
 document.getElementById('zeigWuerfel').onclick = () => modus(false);
@@ -274,6 +309,7 @@ if (Q.get('m')) modus(true);
 let letzteZeit = performance.now();
 renderer.setAnimationLoop(() => {
   const jetzt = performance.now(); const dt = Math.min((jetzt - letzteZeit) / 1000, 0.1); anim.update(dt); letzteZeit = jetzt; steuerung(dt);
+  if (gen && gen.erg) gen.erg.update(dt);
   if (ziel) { wuerfel.quaternion.slerp(ziel, 0.12); if (wuerfel.quaternion.angleTo(ziel) < 0.002) { wuerfel.quaternion.copy(ziel); ziel = null; } }
   wuerfel.position.copy(fokus).applyQuaternion(wuerfel.quaternion).negate();   // Blickpunkt bleibt in der Bildmitte
   camera.near = abstand * 0.02; camera.updateProjectionMatrix();

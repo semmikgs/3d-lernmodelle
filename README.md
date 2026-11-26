@@ -30,3 +30,12 @@ Modelle können glTF-Animationsclips enthalten (z. B. `plattentektonik.glb`). In
 
 ## Startseite
 `index.html`: Übersicht mit Suche und Filtern (Fach, Jahrgang, Schulform, Thema), QR-Codes (Hover vergrößert, Klick = Vollbild für die Tafel), Reiter Info, Würfel basteln, Tafel. Vorgefilterte Links: `?fach=Biologie`, `?jahrgang=6`. Verlinkt aus KGS-Digital.
+
+## Generatoren
+Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine fremden Modelle (`js/generatoren/`). Eintrag in `modelle/liste.js` mit `generator: '<name>'`.
+
+**Atomgenerator** (`?m=atom`): alle 118 Elemente, Auswahl über ein Periodensystem.
+- Darstellungen: Kern-Hülle-Modell, Schalenmodell (Kugelschalen), Bohr’sches Atommodell (Kreisbahnen), Orbitalmodell (Unterschalen einzeln, Besetzung nach Hundscher Regel).
+- Isotope (Neutronen ±, Stabilität für Elemente 1–20 und Uran) und Ionen (Ladung ±).
+- Infotext mit Protonen/Neutronen/Elektronen, Schalenbesetzung, Außenelektronen, Elektronenkonfiguration (inkl. bekannter Ausnahmen wie Cr, Cu).
+- Direktlinks: `viewer.html?m=atom&z=11&a=23&q=1&d=bohr` (z = Ordnungszahl, a = Massenzahl, q = Ladung, d = kernhuelle|schalen|bohr|orbital, u = Unterschale z. B. 3d).

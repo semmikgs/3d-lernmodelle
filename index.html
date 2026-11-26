@@ -202,7 +202,8 @@ function optionen(select, titel, werte, beschriftung = (v) => v) {
   for (const w of werte) select.add(new Option(beschriftung(w), w));
 }
 const fFach = document.getElementById('fFach'), fJahr = document.getElementById('fJahrgang'), fForm = document.getElementById('fSchulform'), fThema = document.getElementById('fThema'), suche = document.getElementById('suche');
-optionen(fFach, 'Alle Fächer', [...new Set(liste.map(m => m.fach).filter(Boolean))].sort());
+const faecher = m => [].concat(m.fach || []);
+optionen(fFach, 'Alle Fächer', [...new Set(liste.flatMap(faecher))].sort());
 optionen(fJahr, 'Alle Jahrgänge', [...new Set(liste.flatMap(m => m.jahrgang || []))].sort((a, b) => a - b), (j) => 'Klasse ' + j);
 optionen(fForm, 'Alle Schulformen', Object.keys(SCHULFORMEN), (s) => SCHULFORMEN[s]);
 optionen(fThema, 'Alle Themen', [...new Set(liste.map(m => m.thema).filter(Boolean))].sort());
@@ -213,13 +214,13 @@ if (Q.get('suche')) suche.value = Q.get('suche');
 // ---------- Karten ----------
 const raster = document.getElementById('raster'), zaehler = document.getElementById('zaehler');
 function passt(m) {
-  if (fFach.value && m.fach !== fFach.value) return false;
+  if (fFach.value && !faecher(m).includes(fFach.value)) return false;
   if (fJahr.value && !(m.jahrgang || []).includes(+fJahr.value)) return false;
   if (fForm.value && !(m.schulform || []).includes(fForm.value)) return false;
   if (fThema.value && m.thema !== fThema.value) return false;
   const s = suche.value.trim().toLowerCase();
   if (s) {
-    const text = [m.name, m.fach, m.thema, m.kurz, m.info, ...(m.schlagworte || []), ...(m.teile || []).map(t => t.name)].join(' ').toLowerCase();
+    const text = [m.name, ...faecher(m), m.thema, m.kurz, m.info, ...(m.schlagworte || []), ...(m.teile || []).map(t => t.name)].join(' ').toLowerCase();
     if (!s.split(/\s+/).every(w => text.includes(w))) return false;
   }
   return true;
@@ -230,16 +231,17 @@ function zeichnen() {
   zaehler.textContent = treffer.length === liste.length ? `${liste.length} Modelle` : `${treffer.length} von ${liste.length} Modellen`;
   if (!treffer.length) raster.appendChild(el('div', 'leer', 'Keine Modelle für diese Auswahl.'));
   for (const m of treffer) {
-    const [sym, farbe] = FAECHER[m.fach] || ['🧊', '#1e2a78'];
+    const [sym, farbe] = FAECHER[faecher(m)[0]] || ['🧊', '#1e2a78'];
     const k = el('article', 'modell');
     const band = el('div', 'band'); band.style.background = farbe;
-    band.append(el('span', 'sym', sym), el('span', null, [m.fach, m.thema].filter(Boolean).join(' · ')));
+    band.append(el('span', 'sym', sym), el('span', null, [faecher(m).join(' / '), m.thema].filter(Boolean).join(' · ')));
     k.appendChild(band);
     const inhalt = el('div', 'inhalt'), text = el('div', 'text');
     text.append(el('h3', null, m.name), el('p', null, m.kurz || ''));
     const badges = el('div', 'badges');
     if (m.jahrgang) badges.appendChild(el('span', 'badge', klassen(m.jahrgang)));
     if (m.schulform) badges.appendChild(el('span', 'badge', m.schulform.length === Object.keys(SCHULFORMEN).length ? 'alle Schulformen' : m.schulform.map(s => SCHULFORMEN[s]).join(' · ')));
+    if (m.generator) badges.appendChild(el('span', 'badge', '⚙️ Generator'));
     if (m.teile) { const anim = m.teile.some(t => t.animation); badges.appendChild(el('span', 'badge', (anim ? '🎬 ' : '🧩 ') + m.teile.length + (anim ? ' Animationen' : ' Teile'))); }
     text.appendChild(badges);
     const worte = el('div', 'badges');

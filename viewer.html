@@ -14,7 +14,9 @@
   #ui button.on { background: #3b82f6; color: #fff; }
   #ui label { display: flex; align-items: center; gap: 6px; }
   #ui select#teil { max-width: 60vw; }
-  #info { position: fixed; top: 10px; right: 10px; left: 10px; max-width: 560px; margin-left: auto; z-index: 10; display: none;
+  #gen { display: contents; }
+  [hidden] { display: none !important; }
+  #info { position: fixed; top: 10px; right: 10px; left: 10px; max-width: 560px; max-height: 55vh; overflow: auto; margin-left: auto; z-index: 10; display: none;
           background: rgba(255,255,255,.92); color: #111; padding: 10px 14px; border-radius: 10px; font-size: 16px; line-height: 1.4; }
   #info b { display: block; margin-bottom: 2px; }
   #info button { float: right; border: 0; background: none; font-size: 18px; margin: -4px -6px 0 6px; }
@@ -32,6 +34,7 @@
 <div id="ui">
   <select id="modell"></select>
   <select id="teil" hidden></select>
+  <span id="gen" hidden></span>
   <label>Größe <input id="groesse" type="range" min="0.4" max="2.5" step="0.05" value="1"></label>
   <button id="abspielen" hidden>⏸ Pause</button>
   <input id="zeit" type="range" min="0" max="1" step="0.001" value="0" hidden>
@@ -51,6 +54,7 @@ import { ArToolkitSource, ArToolkitContext, ArMarkerControls } from './lib/ar-th
 import { MODELLE } from './modelle/liste.js';
 import { WuerfelTracker, Lagesensor } from './js/tracker.js';
 import { Animation } from './js/animation.js';
+import { GENERATOREN } from './js/generatoren/index.js';
 
 // ---- Würfelgeometrie ----
 // Marker (inkl. schwarzem Rand) = 1 Einheit. Würfelkante = Kante / Markergröße (7 cm / 5,6 cm).
@@ -184,9 +188,27 @@ const anim = new Animation(document.getElementById('abspielen'), document.getEle
 const hülle = new THREE.Group();   // skaliert auf Würfelgröße
 drehteller.add(hülle);
 let inhalt = null, cfg = null, knoten = {}, boxen = {}, gesamtBox = null, dachAn = false, ladeNr = 0;
+// Generator-Modelle (z. B. Atom): werden im Browser erzeugt statt geladen
+const genEl = document.getElementById('gen');
+let gen = null, ersteUrl = true;
+async function ladeGenerator(name, nr) {
+  const mod = await GENERATOREN[cfg.generator]();
+  if (nr !== ladeNr) return;
+  const st = ersteUrl && url.get('m') === name ? mod.ausUrl(url) : mod.standard();
+  gen = { mod, st, erg: null };
+  const baue = () => {
+    if (inhalt) { hülle.remove(inhalt); if (gen.erg) mod.entsorge(gen.erg.objekt); }
+    gen.erg = mod.erzeuge(st); inhalt = gen.erg.objekt; inhalt.position.set(0, 0, 0);
+    hülle.add(inhalt); hülle.scale.setScalar(E * 0.62 / gen.erg.radius);
+    zeigeInfo(gen.erg.titel, gen.erg.info, true); merkeUrl();
+  };
+  mod.bedienung(genEl, st, baue); genEl.hidden = false;
+  anim.setze(null, []); btnDach.hidden = true; setzeAnsicht(ansicht);
+  baue();
+}
 
 function merkeUrl() {
-  history.replaceState(null, '', '?m=' + sel.value + (selTeil.value ? '&r=' + selTeil.value : ''));
+  history.replaceState(null, '', '?m=' + sel.value + (selTeil.value ? '&r=' + selTeil.value : '') + (gen ? gen.mod.zuUrl(gen.st) : ''));
 }
 sel.onchange = () => { selTeil.value = ''; lade(sel.value, ''); merkeUrl(); };
 selTeil.onchange = () => { zeige(selTeil.value); merkeUrl(); };
@@ -196,6 +218,10 @@ const abd = () => (cfg && cfg.abdeckung && cfg.abdeckung.id) || 'dach';
 function lade(name, teil) {
   const nr = ++ladeNr;
   cfg = MODELLE[name];
+  if (gen) { if (inhalt) { hülle.remove(inhalt); gen.mod.entsorge(inhalt); inhalt = null; } gen = null; }
+  genEl.hidden = true; genEl.innerHTML = '';
+  if (cfg.generator) { selTeil.hidden = true; ladeGenerator(name, nr).finally(() => ersteUrl = false); return; }
+  ersteUrl = false;
   btnDach.textContent = (cfg.abdeckung && cfg.abdeckung.name) || 'Dach';
   // Untermenü aufbauen
   selTeil.innerHTML = '';
@@ -253,9 +279,9 @@ function zeige(teil) {
 }
 
 let infoAn = true;
-function zeigeInfo(titel, text) {
+function zeigeInfo(titel, text, html) {
   document.getElementById('infoTitel').textContent = titel;
-  document.getElementById('infoText').textContent = text || '';
+  document.getElementById('infoText')[html ? 'innerHTML' : 'textContent'] = text || '';
   btnInfo.hidden = !text;
   infoBox.style.display = (text && infoAn) ? 'block' : 'none';
   btnInfo.classList.toggle('on', !!text && infoAn);
@@ -304,6 +330,7 @@ renderer.setAnimationLoop(() => {
   }
   if (drehen) drehteller.rotation.y += dt * 0.6;
   anim.update(dt);
+  if (gen && gen.erg) gen.erg.update(dt);
   renderer.render(scene, camera);
   if (Q.get('debug')) window.DEBUG = { sichtbar: anker.visible, seiten: tracker.anzahlSeiten, pos: tracker.pos.toArray(), rot: tracker.rot.toArray(), verloren: tracker.verloren, diag: tracker.diag, kalib: tracker.variante ? (tracker.variante.inv ? 'inv' : 'dir') + tracker.varianten.indexOf(tracker.variante) % 4 : null, proben: tracker.kalibProben, streuung: tracker.streuung, k: +tracker.skala.toFixed(3), video: [source.domElement.videoWidth, source.domElement.videoHeight] };
 });

@@ -9,10 +9,16 @@
 // Einordnung (für die Übersicht, beliebig erweiterbar):
 //   fach: 'Biologie' · jahrgang: [5, 6] · thema: 'Zelle' · schulform: ['HS', 'RS', 'GY']
 //   schlagworte: ['Organellen', …] · kurz: ein Satz für die Karte · vorschau: false (nicht in der Übersicht)
+//   fach darf auch eine Liste sein: ['Chemie', 'Physik']
+//
+// Generator-Modelle: generator: '<name>' (js/generatoren/) – keine .glb-Datei, das Modell entsteht im Browser.
 export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium' };
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  atom: { name: 'Atommodelle – alle Elemente', generator: 'atom', fach: ['Chemie', 'Physik'], jahrgang: [8, 9, 10, 11, 12, 13], thema: 'Atombau', schulform: ALLE,
+    schlagworte: ['Periodensystem', 'Proton', 'Neutron', 'Elektron', 'Isotop', 'Ion', 'Kern-Hülle-Modell', 'Schalenmodell', 'Bohr', 'Orbital', 'Elektronenkonfiguration', 'Außenelektronen'],
+    kurz: 'Generator für alle 118 Elemente: Kern-Hülle-, Schalen-, Bohr- und Orbitalmodell, mit Isotopen und Ionen.' },
   zahnrad: { name: 'Zahnradgetriebe', fach: 'Technik', jahrgang: [7, 8], thema: 'Getriebe', schulform: ALLE,
     schlagworte: ['Zahnrad', 'Übersetzung', 'Maschinen'], kurz: 'Zwei Zahnräder mit Übersetzung 2 : 1.' },
   magnet: { name: 'Stabmagnet mit Feldlinien', fach: 'Physik', jahrgang: [7], thema: 'Magnetismus', schulform: ALLE,
