@@ -10,4 +10,5 @@ export const GENERATOREN = {
   koerper: () => import('./koerper.js'),
   motor: () => import('./motor.js'),
   molekuel: () => import('./molekuel.js'),
+  teilchen: () => import('./teilchen.js'),
 };

@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  teilchen: { name: 'Teilchenmodell – Aggregatzustände', generator: 'teilchen', fach: ['Chemie', 'Physik'], jahrgang: [5, 6, 7, 8], thema: 'Stoffe und Teilchen', schulform: ALLE,
+    schlagworte: ['Teilchenmodell', 'Aggregatzustand', 'fest', 'flüssig', 'gasförmig', 'Schmelzen', 'Sieden', 'Verdampfen', 'Kondensieren', 'Erstarren', 'Temperatur', 'Teilchenbewegung'],
+    kurz: 'Generator: Teilchen-Simulation mit Temperaturregler – Kristall, Flüssigkeit und Gas entstehen von selbst.' },
   molekuel: { name: 'Moleküle und Gitter', generator: 'molekuel', fach: 'Chemie', jahrgang: [8, 9, 10, 11, 12, 13], thema: 'Chemische Bindung', schulform: ALLE,
     schlagworte: ['Molekül', 'EPA-Modell', 'Elektronenpaarabstoßung', 'Bindungswinkel', 'Dipol', 'polar', 'Kugel-Stab-Modell', 'Kalottenmodell', 'Ionengitter', 'Natriumchlorid', 'Metallbindung', 'Diamant', 'Graphit', 'Alkane', 'Alkohole', 'Benzol'],
     kurz: 'Generator: 25 Moleküle mit berechneter Raumstruktur, freien Elektronenpaaren und Dipol; Ionen-, Metall- und Atomgitter.' },
