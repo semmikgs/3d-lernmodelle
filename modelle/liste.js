@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  erdbahn: { name: 'Jahreszeiten – Erde auf ihrer Bahn', generator: 'erdbahn', fach: ['Erdkunde', 'Physik'], jahrgang: [5, 6, 7, 8], thema: 'Erde im Sonnensystem', schulform: ALLE,
+    schlagworte: ['Jahreszeiten', 'Erdachse', 'Neigung', 'Umlaufbahn', 'Tag und Nacht', 'Polartag', 'Polarnacht', 'Wendekreis', 'Polarkreis', 'Äquator', 'Sonnenstand', 'Tageslänge'],
+    kurz: 'Generator: geneigte Erde auf ihrer Bahn, Beleuchtung an Stichtagen, Tageslänge und Sonnenhöhe für Schwarmstedt.' },
   auge: { name: 'Auge – Aufbau, Akkommodation, Sehfehler', generator: 'auge', fach: ['Biologie', 'Physik'], jahrgang: [7, 8, 9, 10], thema: 'Sinnesorgane / Optik', schulform: ALLE,
     schlagworte: ['Auge', 'Linse', 'Netzhaut', 'Akkommodation', 'Ziliarmuskel', 'Pupille', 'Kurzsichtigkeit', 'Weitsichtigkeit', 'Brille', 'Brechung', 'Sammellinse', 'Zerstreuungslinse'],
     kurz: 'Waagerechter Schnitt mit berechneten Lichtstrahlen: Fern-/Nahsehen, Kurz- und Weitsichtigkeit mit Brille.' },

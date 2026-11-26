@@ -6,4 +6,5 @@ export const GENERATOREN = {
   atom: () => import('./atom.js'),
   dna: () => import('./dna.js'),
   auge: () => import('./auge.js'),
+  erdbahn: () => import('./erdbahn.js'),
 };
