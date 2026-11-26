@@ -4,4 +4,5 @@
 //   entsorge(objekt), bedienung(container, zustand, neu)
 export const GENERATOREN = {
   atom: () => import('./atom.js'),
+  dna: () => import('./dna.js'),
 };

@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  dna: { name: 'DNA – Doppelhelix und Replikation', generator: 'dna', fach: 'Biologie', jahrgang: [9, 10, 11, 12, 13], thema: 'Genetik', schulform: ALLE,
+    schlagworte: ['DNA', 'Doppelhelix', 'Basenpaarung', 'Nukleotid', 'komplementär', 'antiparallel', 'Replikation', 'Helikase', 'Polymerase', 'Okazaki', 'semikonservativ', 'Watson', 'Crick', 'Franklin'],
+    kurz: 'Generator: maßstäbliche Doppelhelix mit eigener Basenfolge, entdrillte Strickleiter und animierte Replikation.' },
   atom: { name: 'Atommodelle – alle Elemente', generator: 'atom', fach: ['Chemie', 'Physik'], jahrgang: [8, 9, 10, 11, 12, 13], thema: 'Atombau', schulform: ALLE,
     schlagworte: ['Periodensystem', 'Proton', 'Neutron', 'Elektron', 'Isotop', 'Ion', 'Kern-Hülle-Modell', 'Schalenmodell', 'Bohr', 'Orbital', 'Elektronenkonfiguration', 'Außenelektronen'],
     kurz: 'Generator für alle 118 Elemente: Kern-Hülle-, Schalen-, Bohr- und Orbitalmodell, mit Isotopen und Ionen.' },
