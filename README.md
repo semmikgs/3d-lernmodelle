@@ -39,3 +39,13 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 - Isotope (Neutronen ±, Stabilität für Elemente 1–20 und Uran) und Ionen (Ladung ±).
 - Infotext mit Protonen/Neutronen/Elektronen, Schalenbesetzung, Außenelektronen, Elektronenkonfiguration (inkl. bekannter Ausnahmen wie Cr, Cu).
 - Direktlinks: `viewer.html?m=atom&z=11&a=23&q=1&d=bohr` (z = Ordnungszahl, a = Massenzahl, q = Ladung, d = kernhuelle|schalen|bohr|orbital, u = Unterschale z. B. 3d).
+
+**DNA** (`?m=dna`): maßstäbliche B-DNA – Doppelhelix (Furchen, 2 nm, 3,4 nm/Windung), Strickleiter, animierte Replikation; eigene Basenfolge (`&s=ATGC…`, `&d=helix|leiter|replikation`).
+
+**Auge** (`?m=auge`): waagerechter Schnitt in mm, Lichtstrahlen nach dem Brechungsgesetz, Akkommodation animiert, Kurz-/Weitsichtigkeit mit berechneter Brille (`&b=fern|nah|nahStarr&a=normal|kurz|weit&br=1`).
+
+**Jahreszeiten** (`?m=erdbahn`): geneigte Erde auf ihrer Bahn bzw. im Sonnenlicht, Tageslänge und Sonnenhöhe für Schwarmstedt (`&d=bahn|nah&t=jahr|alle|m03|m06|m09|m12`). Erdkarte `hintergruende/erde.jpg` aus Natural Earth (gemeinfrei).
+
+**Körper** (`?m=koerper`): 8 Körper mit Maßen und Formeln, Netze animiert, Volumenvergleiche (`&k=quader&v=koerper|netz|volumen&a=4&b=3&c=2`).
+
+**Elektromotor** (`?m=motor`): Leiterschleife im Magnetfeld, Drehung aus dem Drehmoment berechnet, mit/ohne Kommutator (`&b=kommutator|schleifring&u=1…5`).

@@ -8,4 +8,5 @@ export const GENERATOREN = {
   auge: () => import('./auge.js'),
   erdbahn: () => import('./erdbahn.js'),
   koerper: () => import('./koerper.js'),
+  motor: () => import('./motor.js'),
 };
