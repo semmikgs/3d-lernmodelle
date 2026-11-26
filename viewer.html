@@ -201,6 +201,7 @@ async function ladeGenerator(name, nr) {
     gen.erg = mod.erzeuge(st); inhalt = gen.erg.objekt; inhalt.position.set(0, 0, 0);
     hülle.add(inhalt); hülle.scale.setScalar(E * 0.62 / gen.erg.radius);
     zeigeInfo(gen.erg.titel, gen.erg.info, true); merkeUrl();
+    gen.erg.beiInfo = h => zeigeInfo(gen.erg.titel, h, true);
   };
   mod.bedienung(genEl, st, baue); genEl.hidden = false;
   anim.setze(null, []); btnDach.hidden = true; setzeAnsicht(ansicht);

@@ -153,7 +153,8 @@ async function ladeGenerator(name, meine) {
     gen.erg = mod.erzeuge(st); inhalt = gen.erg.objekt; inhalt.position.set(0, 0, 0);
     hülle.add(inhalt); hülle.scale.setScalar(E * 0.62 / gen.erg.radius);
     document.getElementById('titel').textContent = gen.erg.titel;
-    infoEl.innerHTML = gen.erg.info; infoEl.hidden = !infoAn; btnInfo.hidden = false; btnInfo.classList.toggle('on', infoAn);
+    infoEl.innerHTML = gen.erg.info; infoEl.hidden = !infoAn;
+    gen.erg.beiInfo = h => { infoEl.innerHTML = h; }; btnInfo.hidden = false; btnInfo.classList.toggle('on', infoAn);
     history.replaceState(null, '', '?m=' + name + mod.zuUrl(st));
   };
   mod.bedienung(genEl, st, baue); genEl.hidden = false;

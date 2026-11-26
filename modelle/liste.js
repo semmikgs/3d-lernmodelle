@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  auge: { name: 'Auge – Aufbau, Akkommodation, Sehfehler', generator: 'auge', fach: ['Biologie', 'Physik'], jahrgang: [7, 8, 9, 10], thema: 'Sinnesorgane / Optik', schulform: ALLE,
+    schlagworte: ['Auge', 'Linse', 'Netzhaut', 'Akkommodation', 'Ziliarmuskel', 'Pupille', 'Kurzsichtigkeit', 'Weitsichtigkeit', 'Brille', 'Brechung', 'Sammellinse', 'Zerstreuungslinse'],
+    kurz: 'Waagerechter Schnitt mit berechneten Lichtstrahlen: Fern-/Nahsehen, Kurz- und Weitsichtigkeit mit Brille.' },
   dna: { name: 'DNA – Doppelhelix und Replikation', generator: 'dna', fach: 'Biologie', jahrgang: [9, 10, 11, 12, 13], thema: 'Genetik', schulform: ALLE,
     schlagworte: ['DNA', 'Doppelhelix', 'Basenpaarung', 'Nukleotid', 'komplementär', 'antiparallel', 'Replikation', 'Helikase', 'Polymerase', 'Okazaki', 'semikonservativ', 'Watson', 'Crick', 'Franklin'],
     kurz: 'Generator: maßstäbliche Doppelhelix mit eigener Basenfolge, entdrillte Strickleiter und animierte Replikation.' },
