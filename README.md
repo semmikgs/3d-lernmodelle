@@ -23,7 +23,7 @@ Technik: three.js + AR.js (ARToolKit, 3×3-Barcode-Marker 1–6).
 - URL-Parameter: `ansicht=neutral|thema`, `fov=60`, `aufl=niedrig` (schnellere Auswertung für ältere Geräte), `schwelle=otsu`, `gyro=0`, `debug=1`.
 
 ## Tafelansicht
-`tafel.html` – Bastelwürfel bzw. Modell zum Drehen am ActiveBoard (Finger/Maus, Pinch/Mausrad), Schnellknöpfe für Standardansichten. Direkt mit Modell: `tafel.html?m=villa`.
+`tafel.html` – Bastelwürfel bzw. Modell zum Drehen am ActiveBoard (Finger/Maus, Pinch/Mausrad), Schnellknöpfe für Standardansichten. Zoom bis tief ins Modell; Verschieben mit den Pfeilknöpfen (gedrückt halten), Pfeiltasten, zwei Fingern oder rechter Maustaste – gedreht wird immer um den Punkt in der Bildmitte, „Mitte“ setzt zurück. Direkt mit Modell: `tafel.html?m=villa`.
 
 ## Animationen
 Modelle können glTF-Animationsclips enthalten (z. B. `plattentektonik.glb`). In `modelle/liste.js` bekommt ein Teil `animation: '<Clipname>'`; Viewer und Tafel zeigen dann Abspielen/Pause und einen Zeitregler (`js/animation.js`). `ganz: false` blendet „Ganzes Modell“ aus.

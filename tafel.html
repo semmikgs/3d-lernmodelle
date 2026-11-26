@@ -45,7 +45,12 @@
   </div>
   <div class="trenner"></div>
   <div class="gruppe">
-    <button id="kleiner">−</button><button id="groesser">+</button>
+    <button id="kleiner" title="Verkleinern">−</button><button id="groesser" title="Vergrößern">+</button>
+  </div>
+  <div class="trenner"></div>
+  <div class="gruppe" id="schieben" title="Modell verschieben (auch Pfeiltasten oder mit zwei Fingern ziehen)">
+    <button data-p="-1,0">◀</button><button data-p="0,1">▲</button><button data-p="0,-1">▼</button><button data-p="1,0">▶</button>
+    <button id="mitte" title="Wieder zur Mitte">⌖ Mitte</button>
   </div>
 </div>
 
@@ -71,8 +76,11 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarit
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 document.body.prepend(renderer.domElement);
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
 let abstand = 4.8;
+const NAH = 0.25, FERN = 15;          // Zoomgrenzen (NAH ≈ 10-mal näher als früher)
+// Blickpunkt im Würfelsystem: dieser Punkt liegt immer in der Bildmitte, um ihn wird gedreht und gezoomt
+const fokus = new THREE.Vector3();
 scene.add(new THREE.HemisphereLight(0xffffff, 0x555555, 1.6));
 const sonne = new THREE.DirectionalLight(0xffffff, 1.4); sonne.position.set(2, 4, 3); scene.add(sonne);
 
@@ -151,7 +159,7 @@ function zeige(teil) {
   const box = t ? boxen[ziel] : gesamtBox;
   inhalt.position.copy(box.getCenter(new THREE.Vector3())).negate();
   hülle.scale.setScalar(E * (t ? 1.5 : 1.3) / box.getSize(new THREE.Vector3()).length());
-  selTeil.value = t ? teil : '';
+  selTeil.value = t ? teil : ''; fokus.set(0, 0, 0);
   btnDach.hidden = !knoten[abd()] || !!t; btnDach.classList.toggle('on', dachAn);
   document.getElementById('titel').textContent = modellModus ? (t ? t.name : cfg.name) : 'Markerwürfel';
   anim.starte(t ? t.animation : cfg.animation);
@@ -193,28 +201,70 @@ wuerfel.quaternion.setFromEuler(ANSICHTEN.schraeg);
 document.querySelector('[data-v="schraeg"]').classList.add('on');
 
 // ---- Drehen mit Finger/Maus (wie einen echten Würfel), Zoom mit Pinch/Mausrad ----
-const zeiger = new Map(); let pinchStart = 0, abstandStart = abstand;
+const zeiger = new Map(); let pinchStart = 0, abstandStart = abstand, mitteAlt = null, schiebeMaus = false;
+const zoome = f => abstand = THREE.MathUtils.clamp(abstand * f, NAH, FERN);
+// Verschieben um Bildpunkte (dx nach rechts, dy nach unten) – Weltmaß passend zur Zoomstufe
+function schiebe(dx, dy) {
+  const proPixel = 2 * abstand * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / el.clientHeight;
+  const d = new THREE.Vector3(dx * proPixel, -dy * proPixel, 0).applyQuaternion(wuerfel.quaternion.clone().invert());
+  fokus.sub(d);
+}
 const el = renderer.domElement;
-el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); zeiger.set(e.pointerId, { x: e.clientX, y: e.clientY }); ziel = null;
-  document.querySelectorAll('#ansichten button').forEach(b => b.classList.remove('on'));
-  if (zeiger.size === 2) { const [a, b] = [...zeiger.values()]; pinchStart = Math.hypot(a.x - b.x, a.y - b.y); abstandStart = abstand; } });
+el.addEventListener('contextmenu', e => e.preventDefault());
+el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); zeiger.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  schiebeMaus = e.pointerType === 'mouse' && (e.button === 1 || e.button === 2 || e.shiftKey);
+  if (!schiebeMaus) { ziel = null; document.querySelectorAll('#ansichten button').forEach(b => b.classList.remove('on')); }
+  if (zeiger.size === 2) { const [a, b] = [...zeiger.values()]; pinchStart = Math.hypot(a.x - b.x, a.y - b.y); abstandStart = abstand;
+    mitteAlt = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; } });
 el.addEventListener('pointermove', e => {
   const alt = zeiger.get(e.pointerId); if (!alt) return;
   const neu = { x: e.clientX, y: e.clientY }; zeiger.set(e.pointerId, neu);
-  if (zeiger.size === 1) {
+  if (zeiger.size === 1 && schiebeMaus) {
+    schiebe(neu.x - alt.x, neu.y - alt.y);
+  } else if (zeiger.size === 1) {
     const k = 3.5 / Math.min(innerWidth, innerHeight);
     const dq = new THREE.Quaternion().setFromEuler(new THREE.Euler((neu.y - alt.y) * k, (neu.x - alt.x) * k, 0, 'XYZ'));
     wuerfel.quaternion.premultiply(dq);
   } else if (zeiger.size === 2 && pinchStart) {
     const [a, b] = [...zeiger.values()];
-    abstand = THREE.MathUtils.clamp(abstandStart * pinchStart / Math.hypot(a.x - b.x, a.y - b.y), 2.5, 15);
+    abstand = THREE.MathUtils.clamp(abstandStart * pinchStart / Math.hypot(a.x - b.x, a.y - b.y), NAH, FERN);
+    const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    if (mitteAlt) schiebe(m.x - mitteAlt.x, m.y - mitteAlt.y);
+    mitteAlt = m;
   }
 });
-const los = e => { zeiger.delete(e.pointerId); if (zeiger.size < 2) pinchStart = 0; };
+const los = e => { zeiger.delete(e.pointerId); if (zeiger.size < 2) { pinchStart = 0; mitteAlt = null; } };
 el.addEventListener('pointerup', los); el.addEventListener('pointercancel', los);
-el.addEventListener('wheel', e => { e.preventDefault(); abstand = THREE.MathUtils.clamp(abstand * (1 + e.deltaY * 0.001), 2.5, 15); }, { passive: false });
-document.getElementById('groesser').onclick = () => abstand = Math.max(2.5, abstand / 1.2);
-document.getElementById('kleiner').onclick = () => abstand = Math.min(15, abstand * 1.2);
+el.addEventListener('wheel', e => { e.preventDefault(); zoome(Math.exp(e.deltaY * 0.0015)); }, { passive: false });
+// +/− und Pfeile: gedrückt halten = weiterlaufen
+let zoomRichtung = 0; const schub = { x: 0, y: 0 };
+function halten(knopf, an, aus) {
+  knopf.addEventListener('pointerdown', e => { e.preventDefault(); an(); });
+  for (const t of ['pointerup', 'pointerleave', 'pointercancel']) knopf.addEventListener(t, aus);
+}
+halten(document.getElementById('groesser'), () => { zoome(1 / 1.15); zoomRichtung = -1; }, () => zoomRichtung = 0);
+halten(document.getElementById('kleiner'), () => { zoome(1.15); zoomRichtung = 1; }, () => zoomRichtung = 0);
+document.querySelectorAll('#schieben [data-p]').forEach(b => {
+  const [x, y] = b.dataset.p.split(',').map(Number);
+  halten(b, () => { schub.x = x; schub.y = y; }, () => { schub.x = schub.y = 0; });
+});
+document.getElementById('mitte').onclick = () => fokus.set(0, 0, 0);
+const tasten = new Set();
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '-', '='].includes(e.key)) { e.preventDefault(); tasten.add(e.key); }
+});
+addEventListener('keyup', e => tasten.delete(e.key));
+addEventListener('blur', () => tasten.clear());
+function steuerung(dt) {
+  let sx = schub.x, sy = schub.y, z = zoomRichtung;
+  if (tasten.has('ArrowLeft')) sx -= 1; if (tasten.has('ArrowRight')) sx += 1;
+  if (tasten.has('ArrowUp')) sy += 1; if (tasten.has('ArrowDown')) sy -= 1;
+  if (tasten.has('+') || tasten.has('=')) z -= 1; if (tasten.has('-')) z += 1;
+  // Pfeil = Modell wandert in diese Richtung, ca. 40 % der Bildhöhe pro Sekunde
+  if (sx || sy) schiebe(sx * el.clientHeight * 0.4 * dt, -sy * el.clientHeight * 0.4 * dt);
+  if (z) zoome(Math.exp(z * 1.2 * dt));
+}
 
 // ---- Start ----
 const Q = new URLSearchParams(location.search);
@@ -223,12 +273,14 @@ groesse();
 if (Q.get('m')) modus(true);
 let letzteZeit = performance.now();
 renderer.setAnimationLoop(() => {
-  const jetzt = performance.now(); anim.update(Math.min((jetzt - letzteZeit) / 1000, 0.1)); letzteZeit = jetzt;
+  const jetzt = performance.now(); const dt = Math.min((jetzt - letzteZeit) / 1000, 0.1); anim.update(dt); letzteZeit = jetzt; steuerung(dt);
   if (ziel) { wuerfel.quaternion.slerp(ziel, 0.12); if (wuerfel.quaternion.angleTo(ziel) < 0.002) { wuerfel.quaternion.copy(ziel); ziel = null; } }
+  wuerfel.position.copy(fokus).applyQuaternion(wuerfel.quaternion).negate();   // Blickpunkt bleibt in der Bildmitte
+  camera.near = abstand * 0.02; camera.updateProjectionMatrix();
   camera.position.set(0, 0, abstand); camera.lookAt(0, 0, 0);
   renderer.render(scene, camera);
 });
-window.TEST = { ansicht, modus, wuerfel, bereit: () => !!inhalt };
+window.TEST = { ansicht, modus, wuerfel, fokus, schiebe, zoome, abstand: () => abstand, bereit: () => !!inhalt };
 </script>
 </body>
 </html>
