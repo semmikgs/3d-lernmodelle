@@ -12,7 +12,7 @@ Neues Modell: `.glb` in `modelle/` ablegen und in `modelle/liste.js` eintragen �
 
 Direktlink auf einen Raum: `viewer.html?m=villa&r=atrium`
 
-Die Modelle werden per Skript erzeugt (`quellen/`, benötigt Node + `npm i three`, für die Pflanzenzelle zusätzlich `npm i --legacy-peer-deps three-bvh-csg three-mesh-bvh`): `node quellen/villa.mjs modelle`
+Die Modelle werden per Skript erzeugt (`quellen/`, benötigt Node + `npm i three`, für die Pflanzenzelle zusätzlich `npm i --legacy-peer-deps three@0.160 three-bvh-csg three-mesh-bvh @gltf-transform/core @gltf-transform/extensions @gltf-transform/functions`): `node quellen/villa.mjs modelle`
 
 Technik: three.js + AR.js (ARToolKit, 3×3-Barcode-Marker 1–6).
 
