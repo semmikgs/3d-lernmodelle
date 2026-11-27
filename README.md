@@ -93,3 +93,7 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 **Computer** (`?m=computer&v=pc|eva&o=alle|cpu|ram|ssd|gpu|…`): geöffneter Tower mit ATX-Mainboard (Leiterbahn-Textur), CPU mit Kühler und drehendem Lüfter, RAM-Modulen, M.2- und 2,5"-SSD, Grafikkarte, Netzteil mit Kabel, I/O-Anschlüssen; jedes Bauteil hervorhebbar mit Erklärung. EVA-Prinzip: Taste „A“ → Bitfolge 01000001 über den Bus zu CPU/RAM, SSD und Monitor, Schritte als Anzeige.
 
 **Codierung** (`?m=codierung&v=binaer|text|bild&z=42&t=KGS&f=0|1`): 8 Lampen mit Stellenwerten 128…1 und Summenzeile (Zählen 0–255), eigener Text als ASCII-Lampenreihen mit Dezimalcode (Nicht-ASCII markiert), 16 × 16-Pixelbild schwarz-weiß (1 Bit, 0/1 auf den Pixeln) oder RGB (24 Bit) mit auseinandergezogenen Farbebenen und Speicherbedarf.
+
+**Tropischer Regenwald** (`?m=regenwald&o=alle|riesen|krone|unten|strauch|kraut`): Waldstück 50 × 24 m mit Höhen 1 : 1 (Urwaldriesen bis 62 m mit Brettwurzeln und Schirmkronen, geschlossenes Kronendach 30–40 m, untere Baumschicht mit Palmen, Strauchschicht mit Baumfarnen, spärliche Krautschicht), Lianen, Epiphyten, Lichtsäulen mit abnehmender Helligkeit, Tiersymbole je Stockwerk, Höhenskala mit Lichtanteil; Boden im Schnitt mit dünner Humusschicht über rotem Latosol und flachen Wurzeln; Stockwerke einzeln hervorhebbar.
+
+Hinweis: Die Gastseiten (Tafel, Viewer) setzen die Position des Generator-Objekts nicht mehr zurück, damit Verschiebungen aus den Generatoren wirken.

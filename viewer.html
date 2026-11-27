@@ -198,7 +198,7 @@ async function ladeGenerator(name, nr) {
   gen = { mod, st, erg: null };
   const baue = () => {
     if (inhalt) { hülle.remove(inhalt); if (gen.erg) mod.entsorge(gen.erg.objekt); }
-    gen.erg = mod.erzeuge(st); inhalt = gen.erg.objekt; inhalt.position.set(0, 0, 0);
+    gen.erg = mod.erzeuge(st); inhalt = gen.erg.objekt;
     hülle.add(inhalt); hülle.scale.setScalar(E * 0.62 / gen.erg.radius);
     zeigeInfo(gen.erg.titel, gen.erg.info, true); merkeUrl();
     gen.erg.beiInfo = h => zeigeInfo(gen.erg.titel, h, true);

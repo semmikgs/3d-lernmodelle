@@ -30,4 +30,5 @@ export const GENERATOREN = {
   limes: () => import('./limes.js'),
   computer: () => import('./computer.js'),
   codierung: () => import('./codierung.js'),
+  regenwald: () => import('./regenwald.js'),
 };

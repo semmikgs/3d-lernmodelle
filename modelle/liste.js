@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  regenwald: { name: 'Tropischer Regenwald: Stockwerke', generator: 'regenwald', fach: ['Erdkunde', 'Biologie'], jahrgang: [7, 8], thema: 'Tropischer Regenwald', schulform: ALLE,
+    schlagworte: ['Regenwald', 'Tropen', 'Stockwerkbau', 'Urwaldriesen', 'Kronendach', 'Strauchschicht', 'Krautschicht', 'Brettwurzeln', 'Lianen', 'Epiphyten', 'Licht', 'Nährstoffkreislauf', 'Humus', 'Latosol', 'Brandrodung'],
+    kurz: 'Generator: Regenwald im Schnitt mit fünf Stockwerken bis 60 m (maßstäblich), Lichtabnahme, Tieren, Lianen, Epiphyten, Brettwurzeln und nährstoffarmem Boden.' },
   codierung: { name: 'Codierung: Bits, Text und Bilder', generator: 'codierung', fach: 'Informatik', jahrgang: [5, 6, 7, 8, 9, 10], thema: 'Daten und Codierung', schulform: ALLE,
     schlagworte: ['Bit', 'Byte', 'Binärzahl', 'Dualsystem', 'Stellenwert', 'ASCII', 'Unicode', 'Codierung', 'Pixel', 'RGB', 'Farbtiefe', 'Speicherbedarf', 'Daten'],
     kurz: 'Generator: 8 Bit als Lampen mit Stellenwerten (zählt bis 255), eigener Text im ASCII-Code, Pixelbild schwarz-weiß oder RGB mit Farbebenen.' },
