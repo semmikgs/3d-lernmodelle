@@ -217,8 +217,15 @@ function kreislauf(wurzel, st, schild, linie) {
   org(V(-3.4, 5.6), 1.8, 0xf4a3a8, [0.9, 1.35, 0.8]); org(V(3.4, 5.6), 1.8, 0xf4a3a8, [0.9, 1.35, 0.8]);
   org(V(0, 11.2), 1.4, 0xe9c9a6); org(V(0, -7.6), 2.2, 0xc98b6b, [1.5, 0.8, 0.9]);
   // Herz: vier Räume
-  const raum = (x, y, farbe) => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.75, 24, 16), new THREE.MeshStandardMaterial({ color: farbe, roughness: 0.5 })); m.position.set(x, y, 0); wurzel.add(m); return m; };
-  const herz = [raum(-0.85, 0.6, BLAU), raum(-0.85, -0.8, BLAU), raum(0.85, 0.6, ROT), raum(0.85, -0.8, ROT)];
+  // kleines Herz: rechte Hälfte (im Bild links) blau, linke rot, Herzscheidewand hell
+  const herzGr = new THREE.Group(); herzGr.position.set(0, 0.3, 0); wurzel.add(herzGr);
+  { const k = 0.25, umr = glattZu(UMRISS, 120).map(([x, y]) => new THREE.Vector2((x - 0.3) * k, (y + 1.6) * k));
+    const g = new THREE.ExtrudeGeometry(new THREE.Shape(umr), { depth: 0.9, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.12, bevelSegments: 3 }); g.translate(0, 0, -0.45);
+    const P = g.attributes.position, col = [], b = new THREE.Color(BLAU), r = new THREE.Color(ROT), w = new THREE.Color(0xf5e6e6);
+    for (let i = 0; i < P.count; i++) { const x = P.getX(i), c = Math.abs(x) < 0.06 ? w : x < 0 ? b : r; col.push(c.r, c.g, c.b); }
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    herzGr.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.45 }))); }
+  const herz = [herzGr, herzGr, herzGr, herzGr];
   const blauC = new THREE.Color(BLAU), rotC = new THREE.Color(ROT);
   // Wege: [Punkte, Farbe am Anfang, Farbe am Ende] – Haargefäße (Kapillaren) wechseln die Farbe
   const W = {
@@ -258,7 +265,7 @@ function kreislauf(wurzel, st, schild, linie) {
       const kk = kurven[p.weg]; p.m.position.copy(kk.c.getPointAt(p.u));
       p.m.material.color.copy(kk.a === kk.b ? (kk.a ? rotC : blauC) : blauC.clone().lerp(rotC, kk.a < kk.b ? p.u : 1 - p.u));
     }
-    const s = 1 - 0.12 * (1 - z.c) / 0.26; herz[1].scale.setScalar(s); herz[3].scale.setScalar(s);
+    const s = 1 - 0.08 * (1 - z.c) / 0.26; herzGr.scale.setScalar(s);
   }
   linie('Lunge', V(-3.4, 7.6, 0), V(-7.2, 9.4, 0)); linie('Lunge', V(3.4, 7.6, 0), V(7.2, 9.4, 0));
   linie('Kopf und Gehirn', V(0, 12.4, 0), V(4.6, 13.2, 0)); linie('Körperorgane\nund Muskeln', V(-2.6, -8.4, 0), V(-6.8, -9.6, 0));
