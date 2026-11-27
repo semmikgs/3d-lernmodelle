@@ -18,4 +18,5 @@ export const GENERATOREN = {
   getriebe: () => import('./getriebe.js'),
   platonisch: () => import('./platonisch.js'),
   tierzelle: () => import('./tierzelle.js'),
+  langhaus: () => import('./langhaus.js'),
 };

@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  langhaus: { name: 'Steinzeitliches Langhaus', generator: 'langhaus', fach: 'Geschichte', jahrgang: [5, 6], thema: 'Jungsteinzeit', schulform: ALLE,
+    schlagworte: ['Steinzeit', 'Jungsteinzeit', 'Neolithikum', 'Bandkeramik', 'Langhaus', 'erste Bauern', 'Sesshaftigkeit', 'Pfostenbau', 'Flechtwerk', 'Lehm', 'Archäologie', 'Pfostenlöcher'],
+    kurz: 'Generator: Langhaus der ersten Bauern (Bandkeramik) – außen, innen, Bau in fünf Schritten und Grabungsbefund mit Pfostenlöchern.' },
   tierzelle: { name: 'Tierzelle', generator: 'tierzelle', fach: 'Biologie', jahrgang: [5, 6, 7, 8, 9, 10], thema: 'Zelle', schulform: ALLE,
     schlagworte: ['Zelle', 'Tierzelle', 'Zellkern', 'Zellmembran', 'Zellplasma', 'Mitochondrien', 'ER', 'Golgi-Apparat', 'Ribosomen', 'Lysosomen', 'Zentriolen', 'Organellen', 'Elektronenmikroskop', 'Lichtmikroskop'],
     kurz: 'Generator: aufgeschnittene Tierzelle in zwei Stufen (Licht-/Elektronenmikroskop), jeder Bestandteil einzeln hervorhebbar, mit Vergleich zur Pflanzenzelle.' },
