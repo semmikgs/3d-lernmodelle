@@ -27,4 +27,5 @@ export const GENERATOREN = {
   pythagoras: () => import('./pythagoras.js'),
   kueste: () => import('./kueste.js'),
   klima: () => import('./klima.js'),
+  limes: () => import('./limes.js'),
 };

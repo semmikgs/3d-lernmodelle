@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  limes: { name: 'Limes und Römerkastell', generator: 'limes', fach: 'Geschichte', jahrgang: [6], thema: 'Römer und Germanen', schulform: ALLE,
+    schlagworte: ['Römer', 'Germanen', 'Limes', 'Grenze', 'Wachturm', 'Palisade', 'Kastell', 'Saalburg', 'Legion', 'Soldaten', 'Antike', 'UNESCO-Welterbe', 'Handel'],
+    kurz: 'Generator: Limesabschnitt mit Palisade, Graben, Wall, Wachtürmen und Durchgang; Kohortenkastell wie die Saalburg mit Lagerdorf.' },
   klima: { name: 'Klimazonen und Höhenstufen', generator: 'klima', fach: 'Erdkunde', jahrgang: [7, 8], thema: 'Klima- und Vegetationszonen', schulform: ALLE,
     schlagworte: ['Klima', 'Klimazonen', 'Tropen', 'Subtropen', 'gemäßigte Zone', 'Polarzone', 'Einstrahlungswinkel', 'Beleuchtungszonen', 'Wendekreis', 'Polarkreis', 'Höhenstufen', 'Alpen', 'Anden', 'Waldgrenze', 'Schneegrenze', 'Tierra caliente'],
     kurz: 'Generator: Klimazonen am Globus mit Lichtbündeln (Einstrahlungswinkel); Höhenstufen der Vegetation in Alpen und Anden mit Temperaturskala.' },
