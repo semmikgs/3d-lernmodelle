@@ -212,12 +212,12 @@ const teile = [], clips = [];
   const keil = () => { const s = new THREE.BoxGeometry(5, 5, 5); s.translate(2.5, 0, 2.5); s.deleteAttribute('uv'); const b = new Brush(s); b.updateMatrixWorld(); return b; };
   const schichtFarbe = {
     kruste: p => C(0x8b6b4a).multiplyScalar(1 + 0.1 * rausch(p.x * 5, p.y * 5, p.z * 5)),
-    mantel: p => { const r = p.length(); return mix(C(0xf0903a), C(0xb3321a), (1.9 - r) / 0.8).multiplyScalar(1 + 0.05 * rausch(p.x * 3, p.y * 3, p.z * 3)); },
-    kernA: p => { const r = p.length(); return mix(C(0xffb03a), C(0xf28c28), (1.12 - r) / 0.5); },
-    kernI: p => mix(C(0xfff59d), C(0xffd54f), p.length() / 0.62),
+    mantel: p => { const r = p.length(); return mix(C(0xf0903a), C(0xb3321a), (1.93 - r) / 0.83).multiplyScalar(1 + 0.05 * rausch(p.x * 3, p.y * 3, p.z * 3)); },
+    kernA: p => { const r = p.length(); return mix(C(0xffb03a), C(0xf28c28), (1.10 - r) / 0.72); },
+    kernI: p => mix(C(0xfff59d), C(0xffd54f), p.length() / 0.38),
   };
   const b = new Bau();
-  for (const [ra, ri, k] of [[2.0, 1.9, 'kruste'], [1.9, 1.12, 'mantel'], [1.12, 0.62, 'kernA'], [0.62, 0, 'kernI']]) {
+  for (const [ra, ri, k] of [[2.0, 1.93, 'kruste'], [1.93, 1.10, 'mantel'], [1.10, 0.38, 'kernA'], [0.38, 0, 'kernI']]) {
     let s = kugel(ra); if (ri > 0) s = csg.evaluate(s, kugel(ri), SUBTRACTION); s = csg.evaluate(s, keil(), SUBTRACTION);
     const quelle = s.geometry.index ? s.geometry.toNonIndexed() : s.geometry;
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', quelle.attributes.position); geo.setAttribute('normal', quelle.attributes.normal);
@@ -311,14 +311,18 @@ function baum(b, x, y, z, s = 1) {
   {
     const b = new Bau();
     // Kontinentkruste: Relief über Block, unten schräg über der abtauchenden Platte
-    for (const t of relief(0.9, 5.5, -2, 2, -0.45, 0.3, hK, { hMax: 1.9, schneeAb: 0.72, dichte: 8 })) b.add('gelaende', t);
-    b.add('kontinent', prisma([[0.55, 0.3], [0.9, 0.3], [0.9, -0.45], [5.5, -0.45], [5.5, -1.5], [2.3, -1.5], [0.55, -0.5]], -2, 2));
+    for (const t of relief(1.3, 5.5, -2, 2, -0.45, 0.3, hK, { hMax: 1.9, schneeAb: 0.72, dichte: 8 })) b.add('gelaende', t);
+    b.add('kontinent', prisma([[1.0, 0.3], [1.3, 0.3], [1.3, -0.45], [5.5, -0.45], [5.5, -1.5], [2.3, -1.5], [1.12, -0.7]], -2, 2));
     // Magmakammer und Schlot im Querschnitt (vorne)
     b.add('magma', prisma([[VX - 0.55, -0.95], [VX + 0.55, -0.95], [VX + 0.45, -0.65], [VX + 0.12, -0.55], [VX + 0.08, 0.3 + 1.55], [VX - 0.08, 0.3 + 1.55], [VX - 0.12, -0.55], [VX - 0.45, -0.65]], VZ - 0.03, VZ + 0.025));
     b.add('magma', prisma([[VX - 0.15, -1.55], [VX + 0.15, -1.55], [VX + 0.1, -0.95], [VX - 0.1, -0.95]], VZ - 0.03, VZ + 0.025));
     g.add(b.bauen('sub_kontinent'));
   }
-  { const b = new Bau(); b.box('wasser', -5.5, 0.9, -0.45, 0.22, -2, 2, 2); g.add(b.bauen('sub_wasser')); }
+  { // Meer bis in den Tiefseegraben: unten begrenzt von der Ozeanplatte, rechts vom Kontinentrand
+    const pts = [[-5.5, 0.22], [-5.5, -0.45], [0.4, -0.45]];
+    for (let i = 1; i <= 16; i++) { const p = kurve.getPoint(0.25 * i / 16); pts.push([p.x, p.y]); }
+    const ende = kurve.getPoint(0.25); pts.push([ende.x - 0.06, 0.22]);
+    const b = new Bau(); b.add('wasser', prisma(pts, -2, 2)); g.add(b.bauen('sub_wasser')); }
   // Pfeile im Querschnitt der Ozeanplatte zeigen das Abtauchen
   for (let j = 0; j < 5; j++) {
     const name = 'sub_pfeil' + j, b = new Bau(); blockpfeil(b, 'pfeil', 0, 0, 0, [1, 0], 0.7, false, 0.12); g.add(b.bauen(name));
@@ -327,7 +331,7 @@ function baum(b, x, y, z, s = 1) {
   // Magma steigt von der Platte zur Kammer: Pfeile nach oben
   for (let j = 0; j < 3; j++) {
     const name = 'sub_aufstieg' + j, b = new Bau(); blockpfeil(b, 'magma', 0, 0, 0, [1, 0], 0.45, false, 0.1); g.add(b.bauen(name));
-    laeufer(name, u => V(VX + 0.1 * Math.sin(u * 6), -2.1 + u * 1.25, 2.1), 2.5, j / 3);
+    laeufer(name, u => V(VX + 0.08 * Math.sin(u * 6), -1.55 + u * 0.75, 2.1), 2.5, j / 3);
   }
   // Ausbruch: Lavafontäne und Aschewolke über dem Krater
   { const b = new Bau(); for (const [x, y, s] of [[0, 0, 1], [-0.12, 0.05, 0.7], [0.13, 0.03, 0.8]]) { const k = new THREE.ConeGeometry(0.09 * s, 0.5 * s, 10); k.translate(x, y + 0.25 * s, 0); b.add('magma', k); } const n = b.bauen('sub_lava'); n.position.set(VX, 0.3 + 1.52, VZ - 0.05); g.add(n); }
@@ -336,7 +340,7 @@ function baum(b, x, y, z, s = 1) {
   skal('sub_rauch', [0, 2, 3.5, 5, 7, 8.5, 10], [0.5, 1, 0.8, 1.1, 0.75, 1, 0.5]);
   pos('sub_rauch', [0, 5, 10], [[VX, 2.35, VZ - 0.3], [VX + 0.2, 2.5, VZ - 0.3], [VX, 2.35, VZ - 0.3]]);
   // Erdbeben: Blitz an der Nahtstelle + kurzes Ruckeln des Kontinents
-  { const b = new Bau(); blitz(b, 'beben', 1); const n = b.bauen('sub_beben'); n.position.set(1.0, -0.95, 2.1); g.add(n); }
+  { const b = new Bau(); blitz(b, 'beben', 1); const n = b.bauen('sub_beben'); n.position.set(1.7, -1.0, 2.1); g.add(n); }
   skal('sub_beben', [0, 2.9, 3.0, 3.6, 3.7, 7.4, 7.5, 8.1, 8.2, 10], [0.001, 0.001, 1.2, 1.2, 0.001, 0.001, 1.2, 1.2, 0.001, 0.001]);
   { const t = [0, 2.95, 3.0, 3.05, 3.1, 3.15, 3.2, 7.45, 7.5, 7.55, 7.6, 7.65, 7.7, 10], d = [0, 0, 0.05, -0.05, 0.04, -0.03, 0, 0, 0.05, -0.05, 0.04, -0.03, 0, 0];
     pos('sub_kontinent', t, d.map(v => [v, 0, 0])); }

@@ -60,4 +60,8 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 
 **Herz** (`?m=herz&v=herz|kreislauf`): Frontalschnitt mit vier Räumen, Segel- und Taschenklappen, Sehnenfäden und Gefäßen; Herzzyklus (Diastole/Systole, verlangsamt) mit Klappenbewegung und Blutteilchen, die nur bei offener Klappe weiterfließen; doppelter Blutkreislauf mit Farbwechsel in den Kapillaren.
 
-**Magnetfeld** (`?m=magnetfeld&q=stab|hufeisen|anziehen|abstossen|spule|erde&r=0|1`): Feldlinien numerisch aus dem Feld verfolgt (Magnete und Spule über Biot-Savart, Erde als geneigter Dipol), Pfeile in Feldrichtung, geschlossene Linien durch das Magnetinnere; Kompassnadeln richten sich nach dem berechneten Feld; „Räumlich“ zeigt Linien rundum statt nur in der Bildebene.
+**Magnetfeld** (`?m=magnet&q=stab|hufeisen|anziehen|abstossen|spule|erde&r=0|1`): Feldlinien numerisch aus dem Feld verfolgt (Magnete und Spule über Biot-Savart, Erde als geneigter Dipol), Pfeile in Feldrichtung, geschlossene Linien durch das Magnetinnere; Kompassnadeln richten sich nach dem berechneten Feld; „Räumlich“ zeigt Linien rundum statt nur in der Bildebene.
+
+**Getriebe** (`?m=zahnrad&a=paar|zwischen|stufen&z=z1-z2-z3-z4`): Stirnräder mit Evolventenverzahnung (20°, Modul 1), exakt kämmend über die Phasenbedingung je Eingriff; Zähnezahlen 8–60 wählbar; Drehzahlen, Drehrichtungen und Übersetzung werden berechnet; Teilkreise mit Wälzpunkt zuschaltbar.
+
+**Platonische Körper** (`?m=ikosaeder&k=tetraeder|hexaeder|oktaeder|dodekaeder|ikosaeder&v=koerper|netz&a=4`): Ecken, Kanten, Flächen, Euler-Formel, Oberfläche und Volumen; das Netz wird als überlappungsfreier Spannbaum der Flächen berechnet und klappt an den Kanten auf und zu.
