@@ -14,4 +14,5 @@ export const GENERATOREN = {
   mond: () => import('./mond.js'),
   pyramide: () => import('./pyramide.js'),
   herz: () => import('./herz.js'),
+  magnetfeld: () => import('./magnetfeld.js'),
 };

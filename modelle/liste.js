@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  magnetfeld: { name: 'Magnetfeld', generator: 'magnetfeld', fach: 'Physik', jahrgang: [7, 8, 9], thema: 'Magnetismus und Elektromagnetismus', schulform: ALLE,
+    schlagworte: ['Magnetfeld', 'Feldlinien', 'Stabmagnet', 'Hufeisenmagnet', 'Nordpol', 'Südpol', 'Kompass', 'Spule', 'Elektromagnet', 'Erdmagnetfeld', 'Anziehung', 'Abstoßung'],
+    kurz: 'Generator: berechnete Feldlinien von Stab- und Hufeisenmagnet, zwei Magneten, stromdurchflossener Spule und Erde – mit Kompassnadeln.' },
   herz: { name: 'Herz und Blutkreislauf', generator: 'herz', fach: 'Biologie', jahrgang: [7, 8, 9, 10], thema: 'Blut und Kreislauf', schulform: ALLE,
     schlagworte: ['Herz', 'Herzschlag', 'Vorhof', 'Kammer', 'Herzklappen', 'Segelklappe', 'Taschenklappe', 'Systole', 'Diastole', 'Aorta', 'Blutkreislauf', 'Lungenkreislauf', 'Körperkreislauf', 'Arterie', 'Vene'],
     kurz: 'Generator: Herz im Schnitt mit schlagenden Kammern und Klappen, doppelter Blutkreislauf mit fließendem Blut.' },

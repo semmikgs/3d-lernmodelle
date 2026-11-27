@@ -59,3 +59,5 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 **Cheops-Pyramide** (`?m=pyramide&v=schnitt|damals|heute|bau`): Längsschnitt mit Gängen, Kammern, Schächten (Maße nach Vermessungen, Lage vereinfacht), damals mit Verkleidung, heute als Stufenkern, Bau nach der Theorie der umlaufenden Rampe (animiert).
 
 **Herz** (`?m=herz&v=herz|kreislauf`): Frontalschnitt mit vier Räumen, Segel- und Taschenklappen, Sehnenfäden und Gefäßen; Herzzyklus (Diastole/Systole, verlangsamt) mit Klappenbewegung und Blutteilchen, die nur bei offener Klappe weiterfließen; doppelter Blutkreislauf mit Farbwechsel in den Kapillaren.
+
+**Magnetfeld** (`?m=magnetfeld&q=stab|hufeisen|anziehen|abstossen|spule|erde&r=0|1`): Feldlinien numerisch aus dem Feld verfolgt (Magnete und Spule über Biot-Savart, Erde als geneigter Dipol), Pfeile in Feldrichtung, geschlossene Linien durch das Magnetinnere; Kompassnadeln richten sich nach dem berechneten Feld; „Räumlich“ zeigt Linien rundum statt nur in der Bildebene.
