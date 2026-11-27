@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zahlKnopf } from './hilfen.js';
 
 export const ANSICHTEN = { binaer: 'Binärzahlen (1 Byte)', text: 'Text im ASCII-Code', bild: 'Bild aus Pixeln' };
-export const standard = () => ({ ansicht: 'binaer', zahl: 42, text: 'KGS', farbe: true, zerlegt: false, bewegung: false, beschriftung: true });
+export const standard = () => ({ ansicht: 'binaer', zahl: 42, text: 'KGS', farbe: true, zerlegt: false, bewegung: false, beschriftung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const bits = (n, k = 8) => n.toString(2).padStart(k, '0');
 

@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zufall } from './hilfen.js';
 
 export const ANSICHTEN = { watt: 'Wattenmeer mit Ebbe und Flut', deich: 'Deich im Schnitt' };
-export const standard = () => ({ ansicht: 'watt', sturmflut: false, bewegung: true, beschriftung: true });
+export const standard = () => ({ ansicht: 'watt', sturmflut: false, bewegung: false, beschriftung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const MNW = -1.4, MHW = 1.5, STURM = 5.0, TIDE = 12 + 25 / 60;      // m NHN, Stunden
 const SEK_PRO_TIDE = 24;                                            // Animation: ein Tidezyklus in 24 s
@@ -105,7 +105,7 @@ export function erzeuge(st) {
     for (let i = 0; i < 40; i++) { const x = -20 - zf() * 9, z = -0.5 - zf() * 11, h = hoehe(x, z) * UEB, b = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.9, 7), mat({ color: 0x2f5a35 })); b.position.set(x, h + 0.45, z); wurzel.add(b); }
     { const siel = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.9, 0.9), mat({ color: 0x6b7280 })); siel.position.set(0, 0.6, -9.5); wurzel.add(siel); }
     // Gezeiten-Anzeige
-    const anzeige = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); anzeige.renderOrder = 12; anzeige.position.set(0, 11, -3); wurzel.add(anzeige);
+    const anzeige = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); anzeige.renderOrder = 12; anzeige.position.set(0, 11, -3); anzeige.visible = st.beschriftung; wurzel.add(anzeige);
     let letzte = '';
     bewegt.push(t => {
       const p = ((t / SEK_PRO_TIDE) % 1 + 1) % 1, h = p * TIDE, stunde = Math.floor(h), minute = Math.floor((h - stunde) * 60);

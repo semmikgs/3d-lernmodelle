@@ -12,7 +12,7 @@ export const STOCKWERKE = {
   strauch: ['Strauchschicht', 2, 10, 0x6aa04a, 'Sträucher, Jungbäume, Baumfarne und großblättrige Pflanzen. Große Blätter fangen möglichst viel des wenigen Lichts ein.', 'ca. 2–5 %', 'sehr feucht, kaum Wind'],
   kraut: ['Krautschicht und Boden', 0, 2, 0x8bb85a, 'Am Boden kommen nur 1–2 % des Sonnenlichts an – es wachsen nur wenige Kräuter, Farne und Pilze. Es ist das ganze Jahr etwa 25 °C warm und fast 100 % feucht. Laub fällt ständig und wird von Pilzen, Bakterien, Termiten und Ameisen sehr schnell zersetzt; die Nährstoffe werden sofort wieder von den Wurzeln aufgenommen. Deshalb ist die Humusschicht nur wenige Zentimeter dick, und der rote Boden darunter ist arm an Nährstoffen.', '1–2 %', '≈ 25 °C, fast 100 % Luftfeuchte'],
 };
-export const standard = () => ({ fokus: 'alle', licht: true, tiere: true, beschriftung: true });
+export const standard = () => ({ fokus: 'alle', licht: true, tiere: true, beschriftung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const LX = 50, LZ = 24, BODEN = -6;
 
@@ -22,7 +22,30 @@ export function erzeuge(st) {
   const mat = (farbe, o = {}) => new THREE.MeshStandardMaterial({ color: farbe, roughness: 0.85, ...o });
   const rinde = mat(0x6b5a45), rindeHell = mat(0x9a8a6e);
   const stamm = (x, z, h, r, g, m = rinde) => { const s = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.7, r, h, 10), m); s.position.set(x, h / 2, z); g.add(s); return s; };
-  const krone = (x, y, z, rx, ry, farbe, g) => { const n = 4 + Math.floor(zf() * 3); for (let i = 0; i < n; i++) { const k = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 1), mat(new THREE.Color(farbe).offsetHSL((zf() - 0.5) * 0.04, 0, (zf() - 0.5) * 0.1))); k.scale.set(rx * (0.55 + zf() * 0.35), ry * (0.6 + zf() * 0.3), rx * (0.55 + zf() * 0.35)); k.position.set(x + (zf() - 0.5) * rx * 0.9, y + (zf() - 0.5) * ry * 0.4, z + (zf() - 0.5) * rx * 0.9); g.add(k); } };
+  // Krone: Äste vom Stammende nach außen, an den Astenden Blattbüschel aus vielen kleinen, kantigen Blattklumpen (als Instanzen)
+  const blatt = new Map();                                        // Gruppe → [{ p, s, c }]
+  const krone = (x, y, z, rx, ry, farbe, g) => {
+    const basis = V(x, y - ry * 0.7, z), nAst = 5 + Math.floor(zf() * 3), liste = blatt.get(g) || []; blatt.set(g, liste);
+    const ziele = [V(x, y + ry * 0.35, z)];
+    for (let a = 0; a < nAst; a++) {
+      const w = a / nAst * Math.PI * 2 + zf() * 0.6, r = rx * (0.55 + 0.35 * zf()), ende = V(x + Math.cos(w) * r, y - ry * 0.15 + ry * 0.4 * zf(), z + Math.sin(w) * r);
+      const d = ende.clone().sub(basis), ast = new THREE.Mesh(new THREE.CylinderGeometry(rx * 0.018, rx * 0.04, d.length(), 6), rinde);
+      ast.position.copy(basis).addScaledVector(d, 0.5); ast.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize()); g.add(ast); ziele.push(ende);
+    }
+    for (const e of ziele) for (let k = 0; k < 9; k++) {
+      const p = e.clone().add(V((zf() - 0.5) * rx * 0.7, (zf() - 0.3) * ry * 0.55, (zf() - 0.5) * rx * 0.7));
+      const c = new THREE.Color(farbe).offsetHSL((zf() - 0.5) * 0.05, (zf() - 0.5) * 0.1, (zf() - 0.5) * 0.14);
+      liste.push({ p, s: rx * (0.16 + zf() * 0.14), c });
+    }
+  };
+  const blaetterBauen = () => {
+    const geo = new THREE.IcosahedronGeometry(1, 0), m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
+    for (const [g, liste] of blatt) {
+      const im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ roughness: 0.8, flatShading: true }), liste.length);
+      liste.forEach((b, i) => { q.setFromEuler(new THREE.Euler(zf() * 3, zf() * 3, zf() * 3)); im.setMatrixAt(i, m4.compose(b.p, q, V(b.s, b.s * 0.7, b.s))); im.setColorAt(i, b.c); });
+      g.add(im);
+    }
+  };
   const frei = (z) => z < -0.6;                                   // nur hinter der Schnittebene
   // ---------- Boden: Humus (dünn) und roter Latosol, vorne aufgeschnitten ----------
   {
@@ -54,6 +77,7 @@ export function erzeuge(st) {
   }
   // ---------- Krautschicht: wenige Kräuter, Farne, Pilze ----------
   for (let i = 0; i < 45; i++) { const x = (zf() - 0.5) * (LX - 1), z = -0.5 - zf() * (LZ - 1); const k = new THREE.Mesh(new THREE.ConeGeometry(0.3 + zf() * 0.3, 0.6 + zf() * 1.2, 6), mat(0x8bb85a)); k.position.set(x, 0.5, z); gr.kraut.add(k); }
+  blaetterBauen();
   // ---------- Lianen und Epiphyten ----------
   for (let i = 0; i < 14; i++) {
     const x = (zf() - 0.5) * (LX - 8), z = -2 - zf() * (LZ - 4), h = 30 + zf() * 8, pts = [];

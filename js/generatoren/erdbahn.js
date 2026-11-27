@@ -11,7 +11,7 @@ const TAGE = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 export const DATUM = { jahr: 'Jahreslauf (animiert)', alle: 'Vier Stellungen', m03: '21. März', m06: '21. Juni', m09: '23. September', m12: '21. Dezember' };
 const TAG_VON = { m03: 80, m06: 172, m09: 266, m12: 355 };
 export const DARSTELLUNGEN = { bahn: 'Umlaufbahn um die Sonne', nah: 'Erde im Sonnenlicht' };
-export const standard = () => ({ darstellung: 'bahn', datum: 'jahr', beschriftung: true, bewegung: true });
+export const standard = () => ({ darstellung: 'bahn', datum: 'jahr', beschriftung: false, bewegung: false });
 
 // Winkel θ auf der Bahn: 0 = Sommeranfang, gegen den Uhrzeigersinn (von Norden gesehen).
 // Aus dem Tag des Jahres über die ekliptikale Länge der Sonne (mit Mittelpunktsgleichung, Perihel Anfang Januar).

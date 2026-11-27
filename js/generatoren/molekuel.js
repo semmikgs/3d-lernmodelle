@@ -94,7 +94,7 @@ const GITTER = {
   graphit: { name: 'Graphit', f: 'C', g: 'atom', a0: 2.46 },
 };
 const GRUPPEN = { anorg: 'Moleküle – anorganisch', alkan: 'Alkane (homologe Reihe)', iso: 'Isomere', en: 'Alkene und Alkine', org: 'weitere organische Moleküle', ion: 'Ionengitter', met: 'Metallgitter', atom: 'Atomgitter' };
-export const standard = () => ({ stoff: 'wasser', darstellung: 'kugelstab', zellen: 2, symbole: true, paare: true, dipol: true, bewegung: true });
+export const standard = () => ({ stoff: 'wasser', darstellung: 'kugelstab', zellen: 2, symbole: false, paare: true, dipol: true, bewegung: false });
 
 // ---------- Molekülstruktur berechnen ----------
 function parse(m) {

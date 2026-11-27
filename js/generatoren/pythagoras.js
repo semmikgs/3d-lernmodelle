@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zahlKnopf } from './hilfen.js';
 
 export const ANSICHTEN = { quadrate: 'Quadrate über den Seiten', beweis: 'Beweis durch Umlegen', raum: 'Raumdiagonale im Quader' };
-export const standard = () => ({ ansicht: 'quadrate', a: 3, b: 4, h: 2, bewegung: true, beschriftung: true });
+export const standard = () => ({ ansicht: 'quadrate', a: 3, b: 4, h: 2, bewegung: false, beschriftung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const FA = 0x3b82f6, FB = 0x22c55e, FC = 0xf97316, FD = 0xfacc15;
 const zahl = x => (Math.round(x * 100) / 100).toLocaleString('de-DE');
@@ -111,7 +111,7 @@ export function erzeuge(st) {
     radius = d * 0.62 + 0.5;
     info = `<b>Pythagoras im Raum</b> · Quader ${zahl(a)} × ${zahl(b)} × ${zahl(h)} cm<br>1. Flächendiagonale der Grundfläche (orangefarbenes Dreieck): e² = a² + b² = ${zahl(a * a)} + ${zahl(b * b)} → <b>e = ${zahl(e)} cm</b><br>2. Raumdiagonale (gelbes Dreieck mit e und h): d² = e² + h² = ${zahl(e * e)} + ${zahl(h * h)} → <b>d = ${zahl(d)} cm</b> · kurz: d = √(a² + b² + h²)<br><i>Im Raum steckt der Satz des Pythagoras gleich zweimal: Man sucht ein rechtwinkliges Dreieck, in dem die gesuchte Strecke die Hypotenuse ist.</i>`;
   }
-  etik.visible = st.beschriftung || st.ansicht === 'beweis';
+  etik.visible = st.beschriftung;
   let t = st._zeit || 0; for (const f of bewegt) f(t);
   return { objekt: (() => { const h = new THREE.Group(); h.add(wurzel); return h; })(), radius, titel: `Pythagoras – ${titel}`, info, update: dt => { if (!st.bewegung) return; t += Math.min(dt, 0.1); st._zeit = t; for (const f of bewegt) f(t); } };
 }

@@ -11,7 +11,7 @@ export const KOERPER = {
 };
 export const ANSICHTEN = { koerper: 'Körper mit Maßen', netz: 'Netz abwickeln', volumen: 'Volumen verstehen' };
 const MIT_VOLUMEN = ['pyramide', 'kegel', 'kugel'];
-export const standard = () => ({ koerper: 'quader', ansicht: 'koerper', masse: { a: 4, b: 3, c: 2, h: 5, r: 2 }, beschriftung: true, bewegung: true });
+export const standard = () => ({ koerper: 'quader', ansicht: 'koerper', masse: { a: 4, b: 3, c: 2, h: 5, r: 2 }, beschriftung: false, bewegung: false });
 
 const FARBEN = [0x93c5fd, 0xfca5a5, 0x86efac, 0xfde68a, 0xc4b5fd, 0xf9a8d4, 0x99f6e4, 0xfdba74];
 const kante = new THREE.LineBasicMaterial({ color: 0x1e293b });

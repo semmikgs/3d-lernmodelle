@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zufall } from './hilfen.js';
 
 export const ANSICHTEN = { aussen: 'Außen', innen: 'Innen (aufgeschnitten)', bau: 'So wurde gebaut', befund: 'Was Archäologen finden' };
-export const standard = () => ({ ansicht: 'innen', beschriftung: true, bewegung: true });
+export const standard = () => ({ ansicht: 'innen', beschriftung: false, bewegung: false });
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const L = 30, W = 3.25, WAND = 2.0, FIRST = 6.5, X0 = -L / 2, X1 = L / 2;
 const JOCHE = [-13.2, -10.2, -7.2, -4.2, -1.2, 1.8, 4.8, 7.8, 10.8, 13.2];      // Querjoche (je drei Innenpfosten)

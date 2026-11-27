@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zufall } from './hilfen.js';
 
 export const TYPEN = { schicht: 'Schichtvulkan', schild: 'Schildvulkan' };
-export const standard = () => ({ typ: 'schicht', ausbruch: true, beschriftung: true });
+export const standard = () => ({ typ: 'schicht', ausbruch: false, beschriftung: false });
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const BX = 12.5, BZ = 8, UNTEN = -6.5;                       // Blockgröße (x: ±16 km, z: −9 … 0), Unterkante −8 km
 

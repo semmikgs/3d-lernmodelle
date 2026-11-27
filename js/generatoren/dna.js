@@ -13,7 +13,7 @@ const FARBE = {
 const NAME = { A: 'Adenin', T: 'Thymin', G: 'Guanin', C: 'Cytosin' };
 
 export const DARSTELLUNGEN = { helix: 'Doppelhelix', leiter: 'Strickleiter (entdrillt)', replikation: 'Replikation' };
-export const standard = () => ({ darstellung: 'helix', seq: 'ATGGCTAGCAATCGGTACGTA', beschriftung: true, bewegung: true });
+export const standard = () => ({ darstellung: 'helix', seq: 'ATGGCTAGCAATCGGTACGTA', beschriftung: false, bewegung: false });
 
 const smooth = u => u * u * (3 - 2 * u);
 const pol = (a, r, y) => new THREE.Vector3(r * Math.cos(a), y, r * Math.sin(a));

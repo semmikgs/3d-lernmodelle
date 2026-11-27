@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil } from './hilfen.js';
 
 export const QUELLEN = { stab: 'Stabmagnet', hufeisen: 'Hufeisenmagnet', anziehen: 'Zwei Magnete – Anziehung', abstossen: 'Zwei Magnete – Abstoßung', spule: 'Spule mit Strom', erde: 'Erde' };
-export const standard = () => ({ quelle: 'stab', raeumlich: false, kompass: true, beschriftung: true });
+export const standard = () => ({ quelle: 'stab', raeumlich: false, kompass: true, beschriftung: false });
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const NORD = 0xdc2626, SUED = 0x16a34a;
 

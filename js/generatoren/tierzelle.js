@@ -24,7 +24,7 @@ export const ORGANELLEN = {
   zentriol: { name: 'Zentriolen (Zentrosom)', stufe: 'em', info: 'Zwei kleine, rechtwinklig zueinander stehende Röhrchen aus je neun Dreiergruppen von Mikrotubuli (hier vergrößert). Von hier aus wächst das Zellskelett; bei der Zellteilung bilden sie die Pole des Spindelapparats. Pflanzenzellen haben keine Zentriolen.' },
   skelett: { name: 'Zellskelett (Mikrotubuli)', stufe: 'em', info: 'Feine Eiweißröhrchen, die vom Zentrosom aus durch die Zelle laufen. Sie geben der Zelle Halt und dienen als „Schienen“, auf denen Vesikel und Organellen transportiert werden.' },
 };
-export const standard = () => ({ stufe: 'em', fokus: 'alle', beschriftung: true });
+export const standard = () => ({ stufe: 'em', fokus: 'alle', beschriftung: false });
 
 // Zellform: Ellipsoid mit sanften Beulen
 const beule = (x, y, z) => 1 + 0.05 * Math.sin(x * 0.55 + 1.2) * Math.cos(y * 0.7) + 0.04 * Math.sin(y * 0.9 + z * 0.6 + 0.4) + 0.03 * Math.cos(x * 1.1 - z * 0.8);

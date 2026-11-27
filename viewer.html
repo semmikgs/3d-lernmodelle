@@ -279,7 +279,7 @@ function zeige(teil) {
   anim.starte(t ? t.animation : cfg.animation);
 }
 
-let infoAn = true;
+let infoAn = false;
 function zeigeInfo(titel, text, html) {
   document.getElementById('infoTitel').textContent = titel;
   document.getElementById('infoText')[html ? 'innerHTML' : 'textContent'] = text || '';

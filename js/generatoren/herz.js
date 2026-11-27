@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil } from './hilfen.js';
 
 export const ANSICHTEN = { herz: 'Herz im Schnitt', kreislauf: 'Blutkreislauf' };
-export const standard = () => ({ ansicht: 'herz', beschriftung: true, bewegung: true, tempo: 1 });
+export const standard = () => ({ ansicht: 'herz', beschriftung: false, bewegung: false, tempo: 1 });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const ROT = 0xd62828, BLAU = 0x2f5fd0, T = 3.2, DIA = 1.9;
 const glatt = u => u * u * (3 - 2 * u);
@@ -238,7 +238,7 @@ export function erzeuge(st) {
   const ans = st.ansicht === 'kreislauf' ? kreislauf(wurzel, st, schild, linie) : herzAnsicht(wurzel, st, schild, linie);
   etik.visible = st.beschriftung;
   const phaseSchild = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); phaseSchild.renderOrder = 12; wurzel.add(phaseSchild);
-  phaseSchild.position.set(0, st.ansicht === 'kreislauf' ? -11.4 : -12.2, 0);
+  phaseSchild.position.set(0, st.ansicht === 'kreislauf' ? -11.4 : -12.2, 0); phaseSchild.visible = st.beschriftung;
   let zeit = st._zeit || 0, letzte = null, erg;
   const PHASE = {
     true: ['Diastole: Die Kammern entspannen sich und füllen sich mit Blut', 'Segelklappen offen, Taschenklappen geschlossen'],

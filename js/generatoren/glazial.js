@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zufall } from './hilfen.js';
 
 export const ZEITEN = { eiszeit: 'Während der Eiszeit', heute: 'Heute' };
-export const standard = () => ({ zeit: 'eiszeit', bewegung: true, beschriftung: true });
+export const standard = () => ({ zeit: 'eiszeit', bewegung: false, beschriftung: false });
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const BX = 16, BZ = 10, UNTEN = -2.5, SEE = 1.15;
 

@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { textSprite, zylinderMatrix, entsorge as entsorgeObj, stil, zahlKnopf } from './hilfen.js';
 
 export const BAUART = { kommutator: 'mit Kommutator (Gleichstrommotor)', schleifring: 'ohne Kommutator (Schleifringe)' };
-export const standard = () => ({ bauart: 'kommutator', spannung: 3, feld: true, kraefte: true, beschriftung: true, bewegung: true });
+export const standard = () => ({ bauart: 'kommutator', spannung: 3, feld: true, kraefte: true, beschriftung: false, bewegung: false });
 
 const R = 1.0, L = 2.6, ZK = L / 2 + 0.75;          // Spulenradius, Länge der Leiterseiten, Lage des Kommutators
 const KUPFER = 0xc87533, STAHL = 0x9aa3ad;

@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zufall } from './hilfen.js';
 
 export const ANSICHTEN = { burg: 'Ganze Burg', bergfried: 'Bergfried im Schnitt', palas: 'Palas im Schnitt' };
-export const standard = () => ({ ansicht: 'burg', beschriftung: true });
+export const standard = () => ({ ansicht: 'burg', beschriftung: false });
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const H = 15;                                               // Höhe des Burgplateaus über dem Tal
 const PA = 42, PB = 18;                                     // Halbachsen des Plateaus

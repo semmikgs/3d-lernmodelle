@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zufall } from './hilfen.js';
 
 export const ANSICHTEN = { zonen: 'Klimazonen der Erde', alpen: 'Höhenstufen der Alpen', anden: 'Höhenstufen der Anden (Tropen)' };
-export const standard = () => ({ ansicht: 'zonen', strahlen: true, beschriftung: true, bewegung: true });
+export const standard = () => ({ ansicht: 'zonen', strahlen: true, beschriftung: false, bewegung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const RAD = THREE.MathUtils.degToRad;
 const ZONEN = [                                     // vereinfachte Gürtel (Breitengrade)

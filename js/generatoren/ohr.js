@@ -8,7 +8,7 @@ import { textSprite, entsorge as entsorgeObj, stil } from './hilfen.js';
 
 export const ANSICHTEN = { ohr: 'Ohr im Schnitt', schnecke: 'Schnecke abgerollt' };
 export const TOENE = { tief: ['tiefer Ton', 200], mittel: ['mittlerer Ton', 1000], hoch: ['hoher Ton', 8000] };
-export const standard = () => ({ ansicht: 'ohr', ton: 'mittel', bewegung: true, beschriftung: true });
+export const standard = () => ({ ansicht: 'ohr', ton: 'mittel', bewegung: false, beschriftung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const greenwood = f => Math.log10(f / 165.4 + 0.88) / 2.1;            // Anteil von der Spitze (0) bis zum Anfang (1)
 

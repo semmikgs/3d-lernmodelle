@@ -262,7 +262,7 @@ export const DARSTELLUNGEN = {
 };
 
 export function standard() {
-  return { z: 6, n: 6, ladung: 0, darstellung: 'schalen', unterschale: '', aussen: true, bewegung: true };
+  return { z: 6, n: 6, ladung: 0, darstellung: 'schalen', unterschale: '', aussen: true, bewegung: false };
 }
 
 // Erzeugt das 3D-Objekt zum Zustand. Rückgabe: { objekt, radius, update(dt), titel, info (HTML) }

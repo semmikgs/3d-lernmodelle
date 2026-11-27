@@ -15,7 +15,7 @@ export const TEILE = {
   kuehlung: ['Kühler und Lüfter', 'Prozessor und Grafikkarte wandeln viel elektrische Energie in Wärme um. Kühlkörper aus Metall nehmen sie auf, Lüfter blasen die warme Luft aus dem Gehäuse.'],
   anschluesse: ['Anschlüsse (Schnittstellen)', 'Über USB, HDMI, Netzwerk (LAN) und Audio werden Eingabe- und Ausgabegeräte wie Tastatur, Maus, Monitor und Lautsprecher angeschlossen.'],
 };
-export const standard = () => ({ ansicht: 'pc', fokus: 'alle', bewegung: true, beschriftung: true });
+export const standard = () => ({ ansicht: 'pc', fokus: 'alle', bewegung: false, beschriftung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 
 function leiterTex() {
@@ -103,7 +103,7 @@ function evaAnsicht(wurzel, st, schild, bewegt) {
   { const t = textSprite('Bus (Leitungen auf der Hauptplatine)', '#475569', 0.7); t.position.set(-12, -1.5, 2); wurzel.add(t); }
   // Datenpaket mit Bitfolge
   const paket = textSprite('01000001', '#fff', 0.9, 'rgba(37,99,235,0.95)'); wurzel.add(paket);
-  const phase = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); phase.renderOrder = 12; phase.position.set(0, -16, 0); wurzel.add(phase);
+  const phase = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); phase.renderOrder = 12; phase.position.set(0, -16, 0); phase.visible = st.beschriftung; wurzel.add(phase);
   const SCHRITTE = [
     ['1. Eingabe: Die Taste „A“ wird gedrückt. Die Tastatur sendet den Code 01000001 (Zahl 65).', 'ein'],
     ['2. Verarbeitung: Die CPU legt das Zeichen im Arbeitsspeicher (RAM) ab und verarbeitet es.', 'ram'],

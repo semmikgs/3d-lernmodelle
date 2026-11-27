@@ -6,7 +6,7 @@ import { textSprite, entsorge as entsorgeObj, stil } from './hilfen.js';
 
 const S = 230.33 / 2, H = 146.6, NEIG = Math.atan(H / S);     // halbe Grundseite, Höhe, Neigung (51,8°)
 export const ANSICHTEN = { schnitt: 'Längsschnitt – Gänge und Kammern', damals: 'Damals – mit weißer Verkleidung', heute: 'Heute – Stufenkern', bau: 'Bau (Theorie: umlaufende Rampe)' };
-export const standard = () => ({ ansicht: 'schnitt', beschriftung: true, bewegung: true });
+export const standard = () => ({ ansicht: 'schnitt', beschriftung: false, bewegung: false });
 const rad = THREE.MathUtils.degToRad;
 
 // ---------- Innenräume als Polygone im Schnitt (z, y) und halbe Breite in Ost-West-Richtung ----------

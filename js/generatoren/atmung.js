@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zufall } from './hilfen.js';
 
 export const ANSICHTEN = { lunge: 'Atemwege und Lunge', blaeschen: 'Lungenbläschen und Gasaustausch' };
-export const standard = () => ({ ansicht: 'lunge', bewegung: true, beschriftung: true, rippen: true });
+export const standard = () => ({ ansicht: 'lunge', bewegung: false, beschriftung: false, rippen: true });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const T = 5;                                               // Atemzug: 2 s ein, 3 s aus (verlangsamt)
 const atem = t => { t = ((t % T) + T) % T; return t < 2 ? 0.5 - 0.5 * Math.cos(Math.PI * t / 2) : 0.5 + 0.5 * Math.cos(Math.PI * (t - 2) / 3); };   // 0 = ausgeatmet, 1 = eingeatmet
@@ -151,7 +151,7 @@ export function erzeuge(st) {
   const bewegt = lunge ? lungeAnsicht(wurzel, st, schild, zf) : blaeschenAnsicht(wurzel, st, schild, zf);
   etik.visible = st.beschriftung;
   // Phasenanzeige
-  const phase = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); phase.renderOrder = 12; phase.position.set(0, lunge ? -19.5 : -10.5, 0); wurzel.add(phase);
+  const phase = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); phase.renderOrder = 12; phase.position.set(0, lunge ? -19.5 : -10.5, 0); phase.visible = st.beschriftung; wurzel.add(phase);
   let letzte = null;
   const zeigePhase = e => {
     if (e === letzte) return; letzte = e;

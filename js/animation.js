@@ -28,7 +28,7 @@ export class Animation {
     if (!clip) return this.anzeigen(false);
     this.aktion = this.mixer.clipAction(clip); this.aktion.reset().play();
     this.mixer.update(0);
-    this.anzeigen(true); this.umschalten(true);
+    this.anzeigen(true); this.umschalten(false);   // startet angehalten, Lehrkraft startet bei Bedarf
   }
   umschalten(an) { this.laeuft = an; this.knopf.textContent = an ? '⏸ Pause' : '▶ Abspielen'; this.knopf.classList.toggle('on', an); }
   anzeigen(an) { this.knopf.hidden = !an; this.regler.hidden = !an; if (!an) this.laeuft = false; }

@@ -7,7 +7,7 @@ import { textSprite, entsorge as entsorgeObj, stil } from './hilfen.js';
 
 const R_E = 1, R_M = 0.27, D = 6, KEGEL = (1 - 0.73) / 6, MONAT = 29.53;
 export const ANSICHTEN = { phasen: 'Mondphasen (animiert)', acht: 'Acht Mondphasen', mofi: 'Mondfinsternis', sofi: 'Sonnenfinsternis', neigung: 'Warum nicht jeden Monat?' };
-export const standard = () => ({ ansicht: 'phasen', beschriftung: true, bewegung: true });
+export const standard = () => ({ ansicht: 'phasen', beschriftung: false, bewegung: false });
 const PHASEN = ['Neumond', 'zunehmende Sichel', 'erstes Viertel (zunehmender Halbmond)', 'zunehmender Mond', 'Vollmond', 'abnehmender Mond', 'letztes Viertel (abnehmender Halbmond)', 'abnehmende Sichel'];
 const phasenName = th => PHASEN[Math.round(((th % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / (Math.PI / 4)) % 8];
 

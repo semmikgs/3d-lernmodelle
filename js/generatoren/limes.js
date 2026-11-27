@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zufall } from './hilfen.js';
 
 export const ANSICHTEN = { grenze: 'Grenze mit Wachtürmen', kastell: 'Kastell (wie die Saalburg)' };
-export const standard = () => ({ ansicht: 'grenze', beschriftung: true });
+export const standard = () => ({ ansicht: 'grenze', beschriftung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 
 function textur(zeichne, w = 256, h = 256) { const c = document.createElement('canvas'); c.width = w; c.height = h; zeichne(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; }

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { textSprite, entsorge as entsorgeObj, stil, zahlKnopf } from './hilfen.js';
 
 export const ARTEN = { paar: 'Zahnradpaar', zwischen: 'Mit Zwischenrad', stufen: 'Zweistufiges Getriebe' };
-export const standard = () => ({ art: 'paar', z: [20, 40, 12, 36], teilkreise: false, bewegung: true, beschriftung: true });
+export const standard = () => ({ art: 'paar', z: [20, 40, 12, 36], teilkreise: false, bewegung: false, beschriftung: false });
 const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const ALPHA = THREE.MathUtils.degToRad(20), inv = a => Math.tan(a) - a, B = 4;   // Zahnbreite 4 mm
 const FARBEN = [0x2563eb, 0xf59e0b, 0x16a34a, 0xdc2626];

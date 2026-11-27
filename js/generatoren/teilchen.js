@@ -9,7 +9,7 @@ const L = 9, H = 13, G = 0.06, RC = 2.5, DT = 0.004;
 // Umrechnung Modelltemperatur ↔ °C (kalibriert an der Simulation, siehe README)
 export const T_SCHMELZ = 0.44, T_SIEDE = 0.9;   // Ordnung bricht zwischen 0,35 und 0,5 ein; unter 50 % kondensiert ab ≈ 0,9
 const zuC = t => (t - T_SCHMELZ) / (T_SIEDE - T_SCHMELZ) * 100, vonC = c => T_SCHMELZ + c / 100 * (T_SIEDE - T_SCHMELZ);
-export const standard = () => ({ temp: 20, farbe: true, beschriftung: true, bewegung: true, auto: false });
+export const standard = () => ({ temp: 20, farbe: true, beschriftung: false, bewegung: false, auto: false });
 const zustand = c => c < 0 ? 'fest' : c < 100 ? 'flüssig' : 'gasförmig';
 
 export function simulation(n0 = 3) {

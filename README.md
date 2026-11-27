@@ -97,3 +97,5 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 **Tropischer Regenwald** (`?m=regenwald&o=alle|riesen|krone|unten|strauch|kraut`): Waldstück 50 × 24 m mit Höhen 1 : 1 (Urwaldriesen bis 62 m mit Brettwurzeln und Schirmkronen, geschlossenes Kronendach 30–40 m, untere Baumschicht mit Palmen, Strauchschicht mit Baumfarnen, spärliche Krautschicht), Lianen, Epiphyten, Lichtsäulen mit abnehmender Helligkeit, Tiersymbole je Stockwerk, Höhenskala mit Lichtanteil; Boden im Schnitt mit dünner Humusschicht über rotem Latosol und flachen Wurzeln; Stockwerke einzeln hervorhebbar.
 
 Hinweis: Die Gastseiten (Tafel, Viewer) setzen die Position des Generator-Objekts nicht mehr zurück, damit Verschiebungen aus den Generatoren wirken.
+
+**Tafel-Bedienleiste (überarbeitet):** eine Zeile; Modell-Einstellungen („⚙ Einstellungen“), Blickrichtungen („👁 Ansicht“) und Verschiebe-Pfeile („✥“) klappen als Felder über der Leiste auf und verdecken das Modell nur, solange sie offen sind. Standard beim Start: Info aus, Beschriftungen aus, Bewegung/Animationen angehalten (glTF-Animationen starten pausiert).

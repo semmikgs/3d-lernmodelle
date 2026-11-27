@@ -18,7 +18,7 @@ export const KOERPER = {
     O: '5√3 · a²', Ok: 5 * Math.sqrt(3), Vf: '5 · (3 + √5) / 12 · a³', Vk: 5 * (3 + Math.sqrt(5)) / 12 },
 };
 export const ANSICHTEN = { koerper: 'Körper', netz: 'Netz (auf- und zufalten)' };
-export const standard = () => ({ koerper: 'ikosaeder', ansicht: 'koerper', a: 4, ecken: true, beschriftung: true, bewegung: true });
+export const standard = () => ({ koerper: 'ikosaeder', ansicht: 'koerper', a: 4, ecken: true, beschriftung: false, bewegung: false });
 const KANTE = 4;                                     // Kantenlänge im Modell
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const zahl = x => (Math.round(x * 10) / 10).toLocaleString('de-DE');
@@ -143,7 +143,7 @@ export function erzeuge(st) {
   let zeit = st._zeit || 0;
   const setze = t => { const M = matrizen(poly, b, t); teile.forEach((g, i) => { g.matrix.copy(M[i]); g.matrixWorldNeedsUpdate = true; }); };
   const tVon = z => { const u = z % 10; return u < 2 ? 0 : u < 5 ? 0.5 - 0.5 * Math.cos(Math.PI * (u - 2) / 3) : u < 7.5 ? 1 : 0.5 + 0.5 * Math.cos(Math.PI * (u - 7.5) / 2.5); };
-  setze(st.ansicht === 'netz' ? tVon(zeit) : 0);
+  setze(st.ansicht === 'netz' ? (st.bewegung ? tVon(zeit) : 1) : 0);
   // Info
   const a = st.a, O = K.Ok * a * a, Vol = K.Vk * a ** 3;
   const vieleck = { 3: 'gleichseitigen Dreiecken', 4: 'Quadraten', 5: 'regelmäßigen Fünfecken' }[n];

@@ -102,7 +102,7 @@ function linsenProfil(L) {
 
 export const BLICK = { fern: 'Blick in die Ferne', nah: 'Blick in die Nähe (25 cm)', nahStarr: 'Nähe ohne Akkommodation' };
 export const AUGEN = { normal: 'normalsichtig', kurz: 'kurzsichtig', weit: 'weitsichtig' };
-export const standard = () => ({ blick: 'fern', auge: 'normal', brille: false, beschriftung: true, strahlen: true });
+export const standard = () => ({ blick: 'fern', auge: 'normal', brille: false, beschriftung: false, strahlen: true });
 
 // =====================================================================
 export function erzeuge(st) {
