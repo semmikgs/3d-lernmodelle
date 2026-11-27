@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  vulkan: { name: 'Vulkan im Schnitt', generator: 'vulkan', fach: ['Erdkunde', 'Physik'], jahrgang: [5, 6, 7, 8], thema: 'Vulkanismus', schulform: ALLE,
+    schlagworte: ['Vulkan', 'Schichtvulkan', 'Stratovulkan', 'Schildvulkan', 'Magma', 'Lava', 'Magmakammer', 'Schlot', 'Krater', 'Asche', 'Ausbruch', 'Eifel', 'Vogelsberg', 'Hawaii'],
+    kurz: 'Generator: Schicht- und Schildvulkan als aufgeschnittenes Blockbild mit Magmakammer, Schlot und Schichten – Ausbruch zuschaltbar.' },
   burg: { name: 'Mittelalterliche Burg', generator: 'burg', fach: 'Geschichte', jahrgang: [6, 7], thema: 'Mittelalter', schulform: ALLE,
     schlagworte: ['Mittelalter', 'Burg', 'Ritter', 'Bergfried', 'Palas', 'Vorburg', 'Halsgraben', 'Schildmauer', 'Zugbrücke', 'Fallgatter', 'Verlies', 'Kemenate', 'Rittersaal', 'Burgkapelle'],
     kurz: 'Generator: Spornburg um 1200 mit Halsgraben, Schildmauer, Bergfried, Palas, Kapelle und Vorburg – dazu Bergfried und Palas im Schnitt.' },

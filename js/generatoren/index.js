@@ -20,4 +20,5 @@ export const GENERATOREN = {
   tierzelle: () => import('./tierzelle.js'),
   langhaus: () => import('./langhaus.js'),
   burg: () => import('./burg.js'),
+  vulkan: () => import('./vulkan.js'),
 };
