@@ -1,13 +1,15 @@
 // Elektromotor-Generator: Gleichstrommotor mit Leiterschleife im Magnetfeld.
 // Die Drehung wird aus dem Drehmoment berechnet: Kraft auf die stromdurchflossenen Leiterseiten (F = I·l·B),
-// Drehmoment τ = 2·R·F·cos φ. Mit Kommutator wird der Strom bei senkrechter Spule umgepolt → τ = 2RF·|cos φ|.
+// Drehmoment τ = 2·R·F·cos φ. Mit Kommutator wird der Strom umgepolt, wenn die Leiterschleife senkrecht steht – dann zeigt
+// ihre Magnetachse (und der Eisenkern im Polmodell) waagerecht genau auf die Feldmagnete → τ = 2RF·|cos φ|.
 // Ohne Kommutator (Schleifringe) pendelt die Spule um die senkrechte Lage und bleibt stehen.
 // Achse = z (zum Betrachter), Feld von N (links, −x) nach S (rechts, +x). Technische Stromrichtung (+ → −).
 import * as THREE from 'three';
 import { textSprite, zylinderMatrix, entsorge as entsorgeObj, stil, zahlKnopf } from './hilfen.js';
 
 export const BAUART = { kommutator: 'mit Kommutator (Gleichstrommotor)', schleifring: 'ohne Kommutator (Schleifringe)' };
-export const standard = () => ({ bauart: 'kommutator', spannung: 3, feld: true, kraefte: true, beschriftung: false, bewegung: false });
+export const DARST = { pole: 'Spule mit Eisenkern (Pole)', leiter: 'Leiterschleife (Kräfte)' };
+export const standard = () => ({ bauart: 'kommutator', darstellung: 'pole', spannung: 3, feld: true, kraefte: true, beschriftung: false, bewegung: false });
 
 const R = 1.0, L = 2.6, ZK = L / 2 + 0.75;          // Spulenradius, Länge der Leiterseiten, Lage des Kommutators
 const KUPFER = 0xc87533, STAHL = 0x9aa3ad;
@@ -57,11 +59,24 @@ export function erzeuge(st) {
   const achse = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, L + 3.2, 16), mat(STAHL, { metalness: 0.7 })); achse.rotation.x = Math.PI / 2; achse.position.z = 0.6; rotor.add(achse);
   const kupfer = mat(KUPFER, { metalness: 0.6, roughness: 0.3 });
   const spule = new THREE.Group(); rotor.add(spule);
+  const pole = st.darstellung !== 'leiter';
+  // Polmodell: Eisenkern (Doppel-T-Anker) quer zur Leiterschleife – seine Achse ist die Magnetachse der Spule
+  const anker = new THREE.Group(); rotor.add(anker); anker.visible = pole;
+  const eisen = mat(0x8b949e, { metalness: 0.6, roughness: 0.35 });
+  { const b = new THREE.Mesh(new THREE.BoxGeometry(0.42, 2 * R - 0.25, L * 0.8), eisen); anker.add(b); }
+  const polEnden = [];
+  for (const s of [-1, 1]) {
+    const f = new THREE.Shape(); f.absarc(0, 0, R + 0.12, Math.PI / 2 - 0.55, Math.PI / 2 + 0.55, false); f.absarc(0, 0, R - 0.18, Math.PI / 2 + 0.55, Math.PI / 2 - 0.55, true);
+    const g = new THREE.ExtrudeGeometry(f, { depth: L * 0.8, bevelEnabled: false, curveSegments: 16 }); g.translate(0, 0, -L * 0.4); if (s < 0) g.rotateZ(Math.PI);
+    const m = new THREE.Mesh(g, mat(0xdc2626, { metalness: 0.3 })); anker.add(m); polEnden.push(m);
+  }
+  for (let i = 0; i < 9; i++) for (const s of [-1, 1]) { const w = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.05, 6, 20), kupfer); w.rotation.x = Math.PI / 2; w.scale.z = 1; w.position.y = s * (0.18 + i * 0.07); w.scale.set(1, L * 0.95, 1); anker.add(w); }
   for (let w = -1; w <= 1; w++) {
     const r = R + w * 0.07, z = L / 2 + w * 0.05, ecken = [
       new THREE.Vector3(r, 0, -z), new THREE.Vector3(r, 0, z), new THREE.Vector3(0.25, 0, z), new THREE.Vector3(-0.25, 0, z), new THREE.Vector3(-r, 0, z), new THREE.Vector3(-r, 0, -z), new THREE.Vector3(r, 0, -z)];
     const kurve = new THREE.CurvePath(); for (let i = 0; i < ecken.length - 1; i++) kurve.add(new THREE.LineCurve3(ecken[i], ecken[i + 1]));
     spule.add(new THREE.Mesh(new THREE.TubeGeometry(kurve, 120, 0.045, 8), kupfer));
+    spule.visible = !pole;
   }
   // Zuleitungen von der Spule zum Kommutator / zu den Schleifringen
   const zul = (a, b) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1, 8), kupfer); m.applyMatrix4(zylinderMatrix(a, b, 1)); rotor.add(m); };
@@ -99,19 +114,21 @@ export function erzeuge(st) {
   // ---------- Pfeile: Strom (orange, entlang der Leiterseiten) und Kraft (grün) ----------
   const strom = [pfeil(0xf59e0b, 0.05, 0.9), pfeil(0xf59e0b, 0.05, 0.9)], kraft = [pfeil(0x16a34a, 0.07, 1.0), pfeil(0x16a34a, 0.07, 1.0)];
   for (const p of [...strom, ...kraft]) wurzel.add(p);
+  const polPfeil = [pfeil(0xdc2626, 0.08, 0.9), pfeil(0xdc2626, 0.08, 0.9)]; for (const p of polPfeil) wurzel.add(p);
+  const polText = [textSprite('Anziehung', '#b91c1c', 0.26), textSprite('Abstoßung', '#15803d', 0.26)]; for (const t of polText) { t.visible = false; wurzel.add(t); }
   const umpol = textSprite('Kommutator polt um!', '#b45309', 0.32); umpol.position.set(1.4, 1.05, ZK + 0.2); wurzel.add(umpol); umpol.visible = false;
-  const steht = textSprite('Spule pendelt und bleibt\nsenkrecht stehen', '#b91c1c', 0.32); steht.position.set(0, 2.9, 0); wurzel.add(steht); steht.visible = false;
+  const steht = textSprite(pole ? 'Anker pendelt und bleibt\nwaagerecht stehen' : 'Spule pendelt und bleibt\nsenkrecht stehen', '#b91c1c', 0.32); steht.position.set(0, 2.9, 0); wurzel.add(steht); steht.visible = false;
 
   // ---------- Beschriftung ----------
   const schild = (t, pos, farbe = '#1f2937', h = 0.27) => { const s = textSprite(t, farbe, h); s.position.copy(pos); etik.add(s); };
   schild('Nordpol', new THREE.Vector3(-2.3, 1.75, -0.6), '#b91c1c'); schild('Südpol', new THREE.Vector3(2.3, 1.75, -0.6), '#15803d');
   schild(mit ? 'Kommutator\n(Stromwender)' : 'Schleifringe', new THREE.Vector3(1.35, -0.55, ZK + 0.4), '#92400e');
   schild('Bürsten', new THREE.Vector3(0.75, 0.95, ZK + 0.5));
-  schild('Spule\n(Leiterschleife)', new THREE.Vector3(1.6, -1.7, L / 2 + 0.2), '#9a3412');
+  schild(pole ? 'Spule mit Eisenkern\n(Anker)' : 'Spule\n(Leiterschleife)', new THREE.Vector3(1.6, -1.7, L / 2 + 0.2), '#9a3412');
   schild('Achse', new THREE.Vector3(0.6, 0.3, L / 2 + 2.3));
   schild('Batterie', new THREE.Vector3(-3.1, -1.25, ZK + 0.45));
   if (st.feld) schild('Magnetfeld', new THREE.Vector3(0, -1.15, -1.6), '#1d4ed8');
-  if (st.kraefte) schild('Strom', new THREE.Vector3(-1.75, 1.0, 0.9), '#b45309'), schild('Kraft', new THREE.Vector3(-1.75, -1.0, 0.9), '#15803d');
+  if (st.kraefte && !pole) schild('Strom', new THREE.Vector3(-1.75, 1.0, 0.9), '#b45309'), schild('Kraft', new THREE.Vector3(-1.75, -1.0, 0.9), '#15803d');
   etik.visible = st.beschriftung;
 
   // ---------- Bewegung: Drehmoment, Trägheit, Reibung ----------
@@ -130,15 +147,36 @@ export function erzeuge(st) {
       const f = new THREE.Vector3(0, i, 0);
       richte(kraft[s], pos.clone().add(new THREE.Vector3(0, 0, 0)), f);
       kraft[s].scale.setScalar(0.6 + 0.4 * T);
-      strom[s].visible = kraft[s].visible = st.kraefte;
+      strom[s].visible = kraft[s].visible = st.kraefte && !pole;
+    }
+    if (pole) {
+      // Magnetachse der Spule m = iA·(sin φ, −cos φ): dort liegt der Nordpol des Ankers
+      const m = new THREE.Vector3(Math.sin(phi), -Math.cos(phi), 0).multiplyScalar(iA);
+      // Polfarben: Ende in Richtung m ist Nordpol (rot), das andere Südpol (grün); polEnden[0] liegt lokal bei −y
+      const nordUnten = iA > 0;
+      polEnden[0].material.color.set(nordUnten ? 0xdc2626 : 0x16a34a); polEnden[1].material.color.set(nordUnten ? 0x16a34a : 0xdc2626);
+      // Kraft auf den Nordpol des Ankers: nahe dem Südpol des Feldmagneten (rechts) Anziehung, nahe dem Nordpol (links) Abstoßung
+      const anz = m.x > 0, farbe = anz ? 0xdc2626 : 0x16a34a;
+      for (const [k, s] of [[0, 1], [1, -1]]) {
+        const P = m.clone().multiplyScalar(s * (R + 0.2)), stator = new THREE.Vector3(Math.sign(P.x || 1) * 1.7, 0, 0);
+        const d = anz ? stator.clone().sub(P) : P.clone().sub(stator);        // Anziehung: zum Feldpol hin, Abstoßung: von ihm weg
+        richte(polPfeil[k], P.clone().setZ(L * 0.42), d);
+        polPfeil[k].traverse(o => { if (o.material) { o.material.color.set(farbe); o.material.emissive.set(farbe); } });
+        polPfeil[k].visible = st.kraefte;
+      }
+      polText[0].visible = st.kraefte && anz; polText[1].visible = st.kraefte && !anz;
+      for (const t of polText) t.position.copy(m.clone().multiplyScalar(R + 1.0)).setZ(L * 0.42).add(new THREE.Vector3(0, 0.25, 0));
     }
   }
   setze();
 
   const info = [
     `<b>${BAUART[st.bauart]}</b> · Spannung ${st.spannung} von 5`,
-    '<span style="color:#d97706">➜</span> Strom (technische Richtung + → −) · <span style="color:#16a34a">➜</span> Kraft auf den Leiter · <span style="color:#2563eb">➜</span> Magnetfeld von N nach S',
-    mit
+    pole ? '<span style="color:#dc2626">➜</span> Anziehung · <span style="color:#16a34a">➜</span> Abstoßung · Pole des Ankers: rot = Nordpol, grün = Südpol · <span style="color:#2563eb">➜</span> Magnetfeld von N nach S'
+      : '<span style="color:#d97706">➜</span> Strom (technische Richtung + → −) · <span style="color:#16a34a">➜</span> Kraft auf den Leiter · <span style="color:#2563eb">➜</span> Magnetfeld von N nach S',
+    pole && mit ? '<i>Die stromdurchflossene Spule mit Eisenkern ist ein Elektromagnet mit Nord- und Südpol. Ungleiche Pole ziehen sich an: Der Nordpol des Ankers wird vom Südpol des Feldmagneten angezogen (<span style="color:#dc2626">roter Pfeil</span>). Steht der Anker waagerecht genau zwischen den Magneten, würde er stehen bleiben – genau jetzt polt der Kommutator den Strom um. Der Anker hat plötzlich gleichnamige Pole gegenüber und wird abgestoßen (<span style="color:#16a34a">grüner Pfeil</span>); der Schwung trägt ihn weiter, bis ihn der andere Magnet wieder anzieht. So dreht er sich immer weiter.</i>'
+    : pole ? '<i>Ohne Kommutator bleibt der Elektromagnet immer gleich gepolt: Er dreht sich, bis seine Pole den ungleichnamigen Polen des Feldmagneten gegenüberstehen, pendelt etwas und bleibt waagerecht stehen.</i>'
+    : mit
       ? '<i>Fließt Strom durch einen Leiter im Magnetfeld, wirkt eine Kraft auf ihn (Lorentzkraft, Drei-Finger-Regel). Auf die beiden Seiten der Spule wirken entgegengesetzte Kräfte – die Spule dreht sich. Steht sie senkrecht, zeigen beide Kräfte genau nach außen und erzeugen keine Drehung (Totpunkt); der Schwung trägt sie weiter. Genau dann vertauscht der Kommutator die Anschlüsse: Der Strom in der Spule kehrt sich um, die Kräfte auch – so dreht sie immer in dieselbe Richtung. Mehr Spannung → mehr Strom → größere Kraft → schnellere Drehung.</i>'
       : '<i>Ohne Kommutator fließt der Strom immer gleich herum. Die Kräfte drehen die Spule bis in die senkrechte Lage – danach bremsen sie sie wieder. Die Spule pendelt hin und her und bleibt schließlich senkrecht stehen. Deshalb braucht ein Gleichstrommotor den Kommutator (Stromwender).</i>',
   ];
@@ -168,22 +206,25 @@ export function ausUrl(p) {
   const st = standard();
   if (BAUART[p.get('b')]) st.bauart = p.get('b');
   const u = +p.get('u'); if (u >= 1 && u <= 5) st.spannung = u;
+  if (DARST[p.get('d')]) st.darstellung = p.get('d');
   return st;
 }
-export const zuUrl = st => `&b=${st.bauart}&u=${st.spannung}`;
+export const zuUrl = st => `&b=${st.bauart}&d=${st.darstellung}&u=${st.spannung}`;
 
 export function bedienung(ort, st, neu) {
   stil(); ort.innerHTML = '';
   const s = document.createElement('select'); for (const [k, v] of Object.entries(BAUART)) s.add(new Option(v, k)); ort.appendChild(s);
+  const sD = document.createElement('select'); for (const [k, v] of Object.entries(DARST)) sD.add(new Option(v, k)); ort.appendChild(sD);
   const u = zahlKnopf(ort, 'Spannung der Batterie');
   const knopf = t => { const b = document.createElement('button'); b.textContent = t; ort.appendChild(b); return b; };
   const bFeld = knopf('Feldlinien'), bKraft = knopf('Strom & Kraft'), bSchild = knopf('Beschriftung'), bBew = knopf('Bewegung');
   function auffrischen() {
-    s.value = st.bauart; u.t.textContent = `Spannung ${st.spannung}`; u.m.disabled = st.spannung <= 1; u.p.disabled = st.spannung >= 5;
+    s.value = st.bauart; sD.value = st.darstellung; bKraft.textContent = st.darstellung === 'leiter' ? 'Strom & Kraft' : 'Anziehung/Abstoßung'; u.t.textContent = `Spannung ${st.spannung}`; u.m.disabled = st.spannung <= 1; u.p.disabled = st.spannung >= 5;
     bFeld.classList.toggle('on', st.feld); bKraft.classList.toggle('on', st.kraefte); bSchild.classList.toggle('on', st.beschriftung); bBew.classList.toggle('on', st.bewegung);
   }
   const aendern = (f, bauen = true) => () => { f(); auffrischen(); if (bauen) neu(); };
   s.onchange = aendern(() => st.bauart = s.value);
+  sD.onchange = aendern(() => st.darstellung = sD.value);
   u.m.onclick = aendern(() => st.spannung--); u.p.onclick = aendern(() => st.spannung++);
   bFeld.onclick = aendern(() => st.feld = !st.feld); bKraft.onclick = aendern(() => st.kraefte = !st.kraefte);
   bSchild.onclick = aendern(() => st.beschriftung = !st.beschriftung); bBew.onclick = aendern(() => st.bewegung = !st.bewegung, false);
