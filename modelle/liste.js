@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  glazial: { name: 'Glaziale Serie', generator: 'glazial', fach: 'Erdkunde', jahrgang: [5, 6, 7], thema: 'Eiszeit in Norddeutschland', schulform: ALLE,
+    schlagworte: ['Eiszeit', 'Glaziale Serie', 'Inlandeis', 'Gletscher', 'Grundmoräne', 'Endmoräne', 'Sander', 'Urstromtal', 'Zungenbecken', 'Findling', 'Geest', 'Heide', 'Aller', 'Niedersachsen'],
+    kurz: 'Generator: Blockbild der glazialen Serie – während der Eiszeit mit Inlandeis und Schmelzwasser, heute mit Nutzung; Schnitt zeigt die Ablagerungen.' },
   vulkan: { name: 'Vulkan im Schnitt', generator: 'vulkan', fach: ['Erdkunde', 'Physik'], jahrgang: [5, 6, 7, 8], thema: 'Vulkanismus', schulform: ALLE,
     schlagworte: ['Vulkan', 'Schichtvulkan', 'Stratovulkan', 'Schildvulkan', 'Magma', 'Lava', 'Magmakammer', 'Schlot', 'Krater', 'Asche', 'Ausbruch', 'Eifel', 'Vogelsberg', 'Hawaii'],
     kurz: 'Generator: Schicht- und Schildvulkan als aufgeschnittenes Blockbild mit Magmakammer, Schlot und Schichten – Ausbruch zuschaltbar.' },
