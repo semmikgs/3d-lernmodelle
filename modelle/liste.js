@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  computer: { name: 'Computer: Aufbau und EVA-Prinzip', generator: 'computer', fach: ['Informatik', 'Technik'], jahrgang: [5, 6, 7, 8, 9, 10], thema: 'Informatiksysteme', schulform: ALLE,
+    schlagworte: ['Computer', 'Hardware', 'Mainboard', 'Prozessor', 'CPU', 'Arbeitsspeicher', 'RAM', 'SSD', 'Grafikkarte', 'Netzteil', 'EVA-Prinzip', 'Eingabe', 'Verarbeitung', 'Ausgabe', 'Bus', 'ASCII'],
+    kurz: 'Generator: geöffneter PC mit hervorhebbaren Bauteilen; EVA-Prinzip mit einem Tastendruck, der als Bitfolge durch den Computer wandert.' },
   limes: { name: 'Limes und Römerkastell', generator: 'limes', fach: 'Geschichte', jahrgang: [6], thema: 'Römer und Germanen', schulform: ALLE,
     schlagworte: ['Römer', 'Germanen', 'Limes', 'Grenze', 'Wachturm', 'Palisade', 'Kastell', 'Saalburg', 'Legion', 'Soldaten', 'Antike', 'UNESCO-Welterbe', 'Handel'],
     kurz: 'Generator: Limesabschnitt mit Palisade, Graben, Wall, Wachtürmen und Durchgang; Kohortenkastell wie die Saalburg mit Lagerdorf.' },

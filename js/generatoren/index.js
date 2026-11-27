@@ -28,4 +28,5 @@ export const GENERATOREN = {
   kueste: () => import('./kueste.js'),
   klima: () => import('./klima.js'),
   limes: () => import('./limes.js'),
+  computer: () => import('./computer.js'),
 };
