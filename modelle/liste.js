@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  pythagoras: { name: 'Satz des Pythagoras', generator: 'pythagoras', fach: 'Mathematik', jahrgang: [8, 9, 10], thema: 'Satzgruppe des Pythagoras', schulform: ALLE,
+    schlagworte: ['Pythagoras', 'rechtwinkliges Dreieck', 'Kathete', 'Hypotenuse', 'a² + b² = c²', 'Beweis', 'Ergänzungsbeweis', 'pythagoreisches Zahlentripel', 'Raumdiagonale', 'Flächendiagonale', 'Quader'],
+    kurz: 'Generator: Quadrate über den Seiten mit Kästchen, animierter Ergänzungsbeweis, Flächen- und Raumdiagonale im Quader – Seiten frei wählbar.' },
   ohr: { name: 'Ohr und Hören', generator: 'ohr', fach: ['Biologie', 'Physik'], jahrgang: [7, 8], thema: 'Sinnesorgane', schulform: ALLE,
     schlagworte: ['Ohr', 'Hören', 'Schall', 'Trommelfell', 'Hammer', 'Amboss', 'Steigbügel', 'Gehörknöchelchen', 'Schnecke', 'Basilarmembran', 'Haarsinneszellen', 'Hörnerv', 'Bogengänge', 'Gleichgewicht', 'Tonhöhe', 'Frequenz'],
     kurz: 'Generator: Ohr im Schnitt mit animiertem Schallweg; abgerollte Schnecke mit Wanderwelle – Ort hängt von der Tonhöhe ab.' },

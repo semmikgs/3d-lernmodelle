@@ -24,4 +24,5 @@ export const GENERATOREN = {
   glazial: () => import('./glazial.js'),
   atmung: () => import('./atmung.js'),
   ohr: () => import('./ohr.js'),
+  pythagoras: () => import('./pythagoras.js'),
 };
