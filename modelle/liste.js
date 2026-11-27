@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  herz: { name: 'Herz und Blutkreislauf', generator: 'herz', fach: 'Biologie', jahrgang: [7, 8, 9, 10], thema: 'Blut und Kreislauf', schulform: ALLE,
+    schlagworte: ['Herz', 'Herzschlag', 'Vorhof', 'Kammer', 'Herzklappen', 'Segelklappe', 'Taschenklappe', 'Systole', 'Diastole', 'Aorta', 'Blutkreislauf', 'Lungenkreislauf', 'Körperkreislauf', 'Arterie', 'Vene'],
+    kurz: 'Generator: Herz im Schnitt mit schlagenden Kammern und Klappen, doppelter Blutkreislauf mit fließendem Blut.' },
   pyramide: { name: 'Cheops-Pyramide', generator: 'pyramide', fach: 'Geschichte', jahrgang: [5, 6], thema: 'Ägypten', schulform: ALLE,
     schlagworte: ['Ägypten', 'Pyramide', 'Cheops', 'Gizeh', 'Pharao', 'Grabkammer', 'Königskammer', 'Große Galerie', 'Antike', 'Bauwerk', 'Rampe'],
     kurz: 'Generator: Längsschnitt mit allen Gängen und Kammern, damals und heute, Bau mit umlaufender Rampe.' },

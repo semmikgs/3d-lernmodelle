@@ -13,4 +13,5 @@ export const GENERATOREN = {
   teilchen: () => import('./teilchen.js'),
   mond: () => import('./mond.js'),
   pyramide: () => import('./pyramide.js'),
+  herz: () => import('./herz.js'),
 };

@@ -57,3 +57,5 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 **Mond** (`?m=mond&v=phasen|acht|mofi|sofi|neigung`): Mondphasen mit „Blick von der Erde“, acht Phasen, Mond- und Sonnenfinsternis; Kern- und Halbschatten im Shader berechnet (Öffnung = scheinbare Sonnengröße), Erde und Mond im echten Größenverhältnis, Abstand auf 1/10 verkürzt.
 
 **Cheops-Pyramide** (`?m=pyramide&v=schnitt|damals|heute|bau`): Längsschnitt mit Gängen, Kammern, Schächten (Maße nach Vermessungen, Lage vereinfacht), damals mit Verkleidung, heute als Stufenkern, Bau nach der Theorie der umlaufenden Rampe (animiert).
+
+**Herz** (`?m=herz&v=herz|kreislauf`): Frontalschnitt mit vier Räumen, Segel- und Taschenklappen, Sehnenfäden und Gefäßen; Herzzyklus (Diastole/Systole, verlangsamt) mit Klappenbewegung und Blutteilchen, die nur bei offener Klappe weiterfließen; doppelter Blutkreislauf mit Farbwechsel in den Kapillaren.
