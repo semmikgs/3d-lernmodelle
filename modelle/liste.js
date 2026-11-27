@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  codierung: { name: 'Codierung: Bits, Text und Bilder', generator: 'codierung', fach: 'Informatik', jahrgang: [5, 6, 7, 8, 9, 10], thema: 'Daten und Codierung', schulform: ALLE,
+    schlagworte: ['Bit', 'Byte', 'Binärzahl', 'Dualsystem', 'Stellenwert', 'ASCII', 'Unicode', 'Codierung', 'Pixel', 'RGB', 'Farbtiefe', 'Speicherbedarf', 'Daten'],
+    kurz: 'Generator: 8 Bit als Lampen mit Stellenwerten (zählt bis 255), eigener Text im ASCII-Code, Pixelbild schwarz-weiß oder RGB mit Farbebenen.' },
   computer: { name: 'Computer: Aufbau und EVA-Prinzip', generator: 'computer', fach: ['Informatik', 'Technik'], jahrgang: [5, 6, 7, 8, 9, 10], thema: 'Informatiksysteme', schulform: ALLE,
     schlagworte: ['Computer', 'Hardware', 'Mainboard', 'Prozessor', 'CPU', 'Arbeitsspeicher', 'RAM', 'SSD', 'Grafikkarte', 'Netzteil', 'EVA-Prinzip', 'Eingabe', 'Verarbeitung', 'Ausgabe', 'Bus', 'ASCII'],
     kurz: 'Generator: geöffneter PC mit hervorhebbaren Bauteilen; EVA-Prinzip mit einem Tastendruck, der als Bitfolge durch den Computer wandert.' },
