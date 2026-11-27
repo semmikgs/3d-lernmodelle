@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  tierzelle: { name: 'Tierzelle', generator: 'tierzelle', fach: 'Biologie', jahrgang: [5, 6, 7, 8, 9, 10], thema: 'Zelle', schulform: ALLE,
+    schlagworte: ['Zelle', 'Tierzelle', 'Zellkern', 'Zellmembran', 'Zellplasma', 'Mitochondrien', 'ER', 'Golgi-Apparat', 'Ribosomen', 'Lysosomen', 'Zentriolen', 'Organellen', 'Elektronenmikroskop', 'Lichtmikroskop'],
+    kurz: 'Generator: aufgeschnittene Tierzelle in zwei Stufen (Licht-/Elektronenmikroskop), jeder Bestandteil einzeln hervorhebbar, mit Vergleich zur Pflanzenzelle.' },
   herz: { name: 'Herz und Blutkreislauf', generator: 'herz', fach: 'Biologie', jahrgang: [7, 8, 9, 10], thema: 'Blut und Kreislauf', schulform: ALLE,
     schlagworte: ['Herz', 'Herzschlag', 'Vorhof', 'Kammer', 'Herzklappen', 'Segelklappe', 'Taschenklappe', 'Systole', 'Diastole', 'Aorta', 'Blutkreislauf', 'Lungenkreislauf', 'Körperkreislauf', 'Arterie', 'Vene'],
     kurz: 'Generator: Herz im Schnitt mit schlagenden Kammern und Klappen, doppelter Blutkreislauf mit fließendem Blut.' },

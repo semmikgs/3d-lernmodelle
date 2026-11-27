@@ -17,4 +17,5 @@ export const GENERATOREN = {
   magnetfeld: () => import('./magnetfeld.js'),
   getriebe: () => import('./getriebe.js'),
   platonisch: () => import('./platonisch.js'),
+  tierzelle: () => import('./tierzelle.js'),
 };

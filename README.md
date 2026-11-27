@@ -65,3 +65,5 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 **Getriebe** (`?m=zahnrad&a=paar|zwischen|stufen&z=z1-z2-z3-z4`): Stirnräder mit Evolventenverzahnung (20°, Modul 1), exakt kämmend über die Phasenbedingung je Eingriff; Zähnezahlen 8–60 wählbar; Drehzahlen, Drehrichtungen und Übersetzung werden berechnet; Teilkreise mit Wälzpunkt zuschaltbar.
 
 **Platonische Körper** (`?m=ikosaeder&k=tetraeder|hexaeder|oktaeder|dodekaeder|ikosaeder&v=koerper|netz&a=4`): Ecken, Kanten, Flächen, Euler-Formel, Oberfläche und Volumen; das Netz wird als überlappungsfreier Spannbaum der Flächen berechnet und klappt an den Kanten auf und zu.
+
+**Tierzelle** (`?m=tierzelle&s=lm|em&o=alle|kern|mito|…`): vorne aufgeschnittene Tierzelle in µm (Ø ca. 22 µm, Kern 6 µm); Stufe Lichtmikroskop (Membran, Plasma, Kern) oder Elektronenmikroskop mit Kernhülle und -poren, Nukleolus, rauem ER mit Ribosomen (an die Kernhülle anschließend), glattem ER, Golgi-Apparat mit Vesikeln, Mitochondrien (teils aufgeschnitten mit Cristae), Lysosomen, Zentriolen (9 Tripletts) und Mikrotubuli; jedes Organell einzeln hervorhebbar; Vergleich zur Pflanzenzelle im Infotext.
