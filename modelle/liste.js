@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  pyramide: { name: 'Cheops-Pyramide', generator: 'pyramide', fach: 'Geschichte', jahrgang: [5, 6], thema: 'Ägypten', schulform: ALLE,
+    schlagworte: ['Ägypten', 'Pyramide', 'Cheops', 'Gizeh', 'Pharao', 'Grabkammer', 'Königskammer', 'Große Galerie', 'Antike', 'Bauwerk', 'Rampe'],
+    kurz: 'Generator: Längsschnitt mit allen Gängen und Kammern, damals und heute, Bau mit umlaufender Rampe.' },
   mond: { name: 'Mondphasen und Finsternisse', generator: 'mond', fach: ['Physik', 'Erdkunde'], jahrgang: [5, 6, 7, 8], thema: 'Erde im Sonnensystem', schulform: ALLE,
     schlagworte: ['Mond', 'Mondphasen', 'Neumond', 'Vollmond', 'Halbmond', 'Mondfinsternis', 'Sonnenfinsternis', 'Kernschatten', 'Halbschatten', 'Blutmond', 'Mondbahn'],
     kurz: 'Generator: Mond auf seiner Bahn mit Blick von der Erde, acht Phasen, Mond- und Sonnenfinsternis mit berechneten Schatten.' },

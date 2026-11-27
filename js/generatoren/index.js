@@ -12,4 +12,5 @@ export const GENERATOREN = {
   molekuel: () => import('./molekuel.js'),
   teilchen: () => import('./teilchen.js'),
   mond: () => import('./mond.js'),
+  pyramide: () => import('./pyramide.js'),
 };

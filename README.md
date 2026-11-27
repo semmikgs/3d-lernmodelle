@@ -55,3 +55,5 @@ Modelle, die direkt im Browser erzeugt werden – keine `.glb`-Datei, keine frem
 **Teilchenmodell** (`?m=teilchen&t=20`): Molekulardynamik mit 108 Lennard-Jones-Teilchen, Schwerkraft und Thermostat; fest/flüssig/gasförmig entstehen von selbst. Temperaturskala kalibriert: Ordnung (Teilchen mit ≥ 10 Nachbarn) bricht zwischen T* 0,35 und 0,5 ein → 0 °C bei T* 0,44; Anteil kondensierter Teilchen fällt bei T* ≈ 0,9 unter 50 % → 100 °C.
 
 **Mond** (`?m=mond&v=phasen|acht|mofi|sofi|neigung`): Mondphasen mit „Blick von der Erde“, acht Phasen, Mond- und Sonnenfinsternis; Kern- und Halbschatten im Shader berechnet (Öffnung = scheinbare Sonnengröße), Erde und Mond im echten Größenverhältnis, Abstand auf 1/10 verkürzt.
+
+**Cheops-Pyramide** (`?m=pyramide&v=schnitt|damals|heute|bau`): Längsschnitt mit Gängen, Kammern, Schächten (Maße nach Vermessungen, Lage vereinfacht), damals mit Verkleidung, heute als Stufenkern, Bau nach der Theorie der umlaufenden Rampe (animiert).
