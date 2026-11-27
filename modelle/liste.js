@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  atmung: { name: 'Atmung: Lunge und Lungenbläschen', generator: 'atmung', fach: 'Biologie', jahrgang: [7, 8], thema: 'Atmung', schulform: ALLE,
+    schlagworte: ['Atmung', 'Lunge', 'Luftröhre', 'Bronchien', 'Lungenbläschen', 'Alveolen', 'Zwerchfell', 'Brustatmung', 'Bauchatmung', 'Gasaustausch', 'Diffusion', 'Kapillaren', 'Sauerstoff', 'Kohlenstoffdioxid'],
+    kurz: 'Generator: Atemwege und Lunge mit Atembewegung von Zwerchfell und Rippen; Lungenbläschen mit Kapillarnetz und Gasaustausch.' },
   glazial: { name: 'Glaziale Serie', generator: 'glazial', fach: 'Erdkunde', jahrgang: [5, 6, 7], thema: 'Eiszeit in Norddeutschland', schulform: ALLE,
     schlagworte: ['Eiszeit', 'Glaziale Serie', 'Inlandeis', 'Gletscher', 'Grundmoräne', 'Endmoräne', 'Sander', 'Urstromtal', 'Zungenbecken', 'Findling', 'Geest', 'Heide', 'Aller', 'Niedersachsen'],
     kurz: 'Generator: Blockbild der glazialen Serie – während der Eiszeit mit Inlandeis und Schmelzwasser, heute mit Nutzung; Schnitt zeigt die Ablagerungen.' },
