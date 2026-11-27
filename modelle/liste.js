@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  ohr: { name: 'Ohr und Hören', generator: 'ohr', fach: ['Biologie', 'Physik'], jahrgang: [7, 8], thema: 'Sinnesorgane', schulform: ALLE,
+    schlagworte: ['Ohr', 'Hören', 'Schall', 'Trommelfell', 'Hammer', 'Amboss', 'Steigbügel', 'Gehörknöchelchen', 'Schnecke', 'Basilarmembran', 'Haarsinneszellen', 'Hörnerv', 'Bogengänge', 'Gleichgewicht', 'Tonhöhe', 'Frequenz'],
+    kurz: 'Generator: Ohr im Schnitt mit animiertem Schallweg; abgerollte Schnecke mit Wanderwelle – Ort hängt von der Tonhöhe ab.' },
   atmung: { name: 'Atmung: Lunge und Lungenbläschen', generator: 'atmung', fach: 'Biologie', jahrgang: [7, 8], thema: 'Atmung', schulform: ALLE,
     schlagworte: ['Atmung', 'Lunge', 'Luftröhre', 'Bronchien', 'Lungenbläschen', 'Alveolen', 'Zwerchfell', 'Brustatmung', 'Bauchatmung', 'Gasaustausch', 'Diffusion', 'Kapillaren', 'Sauerstoff', 'Kohlenstoffdioxid'],
     kurz: 'Generator: Atemwege und Lunge mit Atembewegung von Zwerchfell und Rippen; Lungenbläschen mit Kapillarnetz und Gasaustausch.' },
