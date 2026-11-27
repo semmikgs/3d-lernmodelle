@@ -26,4 +26,5 @@ export const GENERATOREN = {
   ohr: () => import('./ohr.js'),
   pythagoras: () => import('./pythagoras.js'),
   kueste: () => import('./kueste.js'),
+  klima: () => import('./klima.js'),
 };

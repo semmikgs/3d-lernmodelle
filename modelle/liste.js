@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  klima: { name: 'Klimazonen und Höhenstufen', generator: 'klima', fach: 'Erdkunde', jahrgang: [7, 8], thema: 'Klima- und Vegetationszonen', schulform: ALLE,
+    schlagworte: ['Klima', 'Klimazonen', 'Tropen', 'Subtropen', 'gemäßigte Zone', 'Polarzone', 'Einstrahlungswinkel', 'Beleuchtungszonen', 'Wendekreis', 'Polarkreis', 'Höhenstufen', 'Alpen', 'Anden', 'Waldgrenze', 'Schneegrenze', 'Tierra caliente'],
+    kurz: 'Generator: Klimazonen am Globus mit Lichtbündeln (Einstrahlungswinkel); Höhenstufen der Vegetation in Alpen und Anden mit Temperaturskala.' },
   kueste: { name: 'Küste: Wattenmeer und Deich', generator: 'kueste', fach: 'Erdkunde', jahrgang: [5, 6], thema: 'Leben an der Küste', schulform: ALLE,
     schlagworte: ['Nordsee', 'Küste', 'Wattenmeer', 'Gezeiten', 'Ebbe', 'Flut', 'Tidenhub', 'Priel', 'Deich', 'Sturmflut', 'Marsch', 'Geest', 'Warft', 'Siel', 'Salzwiese', 'Ostfriesische Inseln', 'Niedersachsen'],
     kurz: 'Generator: Blockbild Geest – Marsch – Deich – Watt – Insel mit Ebbe und Flut; Seedeich im Schnitt mit Wasserständen und Sturmflut.' },
