@@ -40,12 +40,6 @@ const MOL = {
   oxonium: { name: 'Oxonium-Ion', f: 'H₃O⁺', g: 'anorg', a: 'O+ H H H', b: '0-1 0-2 0-3', w: 113 },
   schwefeldioxid: { name: 'Schwefeldioxid', f: 'SO₂', g: 'anorg', a: 'S O O', b: '0=1 0=2', w: 119 },
   // organisch
-  methan: { name: 'Methan', f: 'CH₄', g: 'org', a: 'C H H H H', b: '0-1 0-2 0-3 0-4', w: 109.5 },
-  ethan: { name: 'Ethan', f: 'C₂H₆', g: 'org', a: 'C C H H H H H H', b: '0-1 0-2 0-3 0-4 1-5 1-6 1-7' },
-  propan: { name: 'Propan', f: 'C₃H₈', g: 'org', a: 'C C C H H H H H H H H', b: '0-1 1-2 0-3 0-4 0-5 1-6 1-7 2-8 2-9 2-10' },
-  butan: { name: 'Butan', f: 'C₄H₁₀', g: 'org', a: 'C C C C H H H H H H H H H H', b: '0-1 1-2 2-3 0-4 0-5 0-6 1-7 1-8 2-9 2-10 3-11 3-12 3-13' },
-  ethen: { name: 'Ethen', f: 'C₂H₄', g: 'org', a: 'C C H H H H', b: '0=1 0-2 0-3 1-4 1-5', w: 120 },
-  ethin: { name: 'Ethin', f: 'C₂H₂', g: 'org', a: 'C C H H', b: '0#1 0-2 1-3', w: 180 },
   methanol: { name: 'Methanol', f: 'CH₃OH', g: 'org', a: 'C O H H H H', b: '0-1 0-2 0-3 0-4 1-5' },
   ethanol: { name: 'Ethanol', f: 'C₂H₅OH', g: 'org', a: 'C C O H H H H H H', b: '0-1 1-2 0-3 0-4 0-5 1-6 1-7 2-8' },
   methanal: { name: 'Methanal (Formaldehyd)', f: 'HCHO', g: 'org', a: 'C O H H', b: '0=1 0-2 0-3', w: 120 },
@@ -56,6 +50,41 @@ const MOL = {
   tetrachlormethan: { name: 'Tetrachlormethan', f: 'CCl₄', g: 'org', a: 'C Cl Cl Cl Cl', b: '0-1 0-2 0-3 0-4', w: 109.5 },
 };
 // ---------- Gitter ----------
+// ---------- Kohlenwasserstoffe: aus dem Kohlenstoffgerüst erzeugt, Wasserstoff füllt auf 4 Bindungen auf ----------
+// Siedetemperaturen in °C bei Normaldruck (gerundet).
+const KW = [
+  ['methan', 'Methan', 'alkan', 1, '', 'CH₄', -162],
+  ['ethan', 'Ethan', 'alkan', 2, '0-1', 'CH₃–CH₃', -89],
+  ['propan', 'Propan', 'alkan', 3, '0-1 1-2', 'CH₃–CH₂–CH₃', -42],
+  ['butan', 'Butan', 'alkan', 4, '0-1 1-2 2-3', 'CH₃–(CH₂)₂–CH₃', -1],
+  ['pentan', 'Pentan', 'alkan', 5, '0-1 1-2 2-3 3-4', 'CH₃–(CH₂)₃–CH₃', 36],
+  ['hexan', 'Hexan', 'alkan', 6, '0-1 1-2 2-3 3-4 4-5', 'CH₃–(CH₂)₄–CH₃', 69],
+  ['heptan', 'Heptan', 'alkan', 7, '0-1 1-2 2-3 3-4 4-5 5-6', 'CH₃–(CH₂)₅–CH₃', 98],
+  ['octan', 'Octan', 'alkan', 8, '0-1 1-2 2-3 3-4 4-5 5-6 6-7', 'CH₃–(CH₂)₆–CH₃', 126],
+  ['nonan', 'Nonan', 'alkan', 9, '0-1 1-2 2-3 3-4 4-5 5-6 6-7 7-8', 'CH₃–(CH₂)₇–CH₃', 151],
+  ['decan', 'Decan', 'alkan', 10, '0-1 1-2 2-3 3-4 4-5 5-6 6-7 7-8 8-9', 'CH₃–(CH₂)₈–CH₃', 174],
+  ['methylpropan', '2-Methylpropan (Isobutan)', 'iso', 4, '0-1 1-2 1-3', 'CH₃–CH(CH₃)–CH₃', -12, 'butan'],
+  ['methylbutan', '2-Methylbutan (Isopentan)', 'iso', 5, '0-1 1-2 2-3 1-4', 'CH₃–CH(CH₃)–CH₂–CH₃', 28, 'pentan'],
+  ['dimethylpropan', '2,2-Dimethylpropan (Neopentan)', 'iso', 5, '0-1 1-2 1-3 1-4', 'C(CH₃)₄', 10, 'pentan'],
+  ['ethen', 'Ethen', 'en', 2, '0=1', 'CH₂=CH₂', -104],
+  ['propen', 'Propen', 'en', 3, '0=1 1-2', 'CH₂=CH–CH₃', -48],
+  ['but1en', 'But-1-en', 'en', 4, '0=1 1-2 2-3', 'CH₂=CH–CH₂–CH₃', -6, 'buten'],
+  ['cisbut2en', 'cis-But-2-en', 'en', 4, '0-1 1=2 2-3', 'CH₃–CH=CH–CH₃ (cis)', 4, 'buten', [2]],
+  ['transbut2en', 'trans-But-2-en', 'en', 4, '0-1 1=2 2-3', 'CH₃–CH=CH–CH₃ (trans)', 1, 'buten'],
+  ['ethin', 'Ethin (Acetylen)', 'en', 2, '0#1', 'CH≡CH', -84],
+  ['propin', 'Propin', 'en', 3, '0#1 1-2', 'CH≡C–CH₃', -23],
+];
+const TIEF = '₀₁₂₃₄₅₆₇₈₉', tief = n => n === 1 ? '' : String(n).split('').map(c => TIEF[c]).join('');
+for (const [k, name, g, nC, cc, halb, sdp, iso, cis] of KW) {
+  const bind = cc ? cc.split(' ') : [], frei = new Array(nC).fill(4);
+  for (const t of bind) { const [, i, op, j] = t.match(/(\d+)([-=#])(\d+)/); const o = { '-': 1, '=': 2, '#': 3 }[op]; frei[+i] -= o; frei[+j] -= o; }
+  const a = new Array(nC).fill('C'); let nH = 0;
+  frei.forEach((f, i) => { for (let h = 0; h < f; h++) { bind.push(`${i}-${nC + nH}`); a.push('H'); nH++; } });
+  const m = { name, f: `C${tief(nC)}H${tief(nH)}`, g, a: a.join(' '), b: bind.join(' '), halb, sdp, iso, cis, nC, nH };
+  if (k === 'methan') m.w = 109.5;
+  MOL[k] = m;
+}
+
 const GITTER = {
   nacl: { name: 'Natriumchlorid (Kochsalz)', f: 'NaCl', g: 'ion', a0: 5.64 },
   cscl: { name: 'Caesiumchlorid', f: 'CsCl', g: 'ion', a0: 4.12 },
@@ -64,7 +93,7 @@ const GITTER = {
   diamant: { name: 'Diamant', f: 'C', g: 'atom', a0: 3.57 },
   graphit: { name: 'Graphit', f: 'C', g: 'atom', a0: 2.46 },
 };
-const GRUPPEN = { anorg: 'Moleküle – anorganisch', org: 'Moleküle – organisch', ion: 'Ionengitter', met: 'Metallgitter', atom: 'Atomgitter' };
+const GRUPPEN = { anorg: 'Moleküle – anorganisch', alkan: 'Alkane (homologe Reihe)', iso: 'Isomere', en: 'Alkene und Alkine', org: 'weitere organische Moleküle', ion: 'Ionengitter', met: 'Metallgitter', atom: 'Atomgitter' };
 export const standard = () => ({ stoff: 'wasser', darstellung: 'kugelstab', zellen: 2, symbole: true, paare: true, dipol: true, bewegung: true });
 
 // ---------- Molekülstruktur berechnen ----------
@@ -119,7 +148,7 @@ function struktur(m) {
       const G = atome[B].nb.find(x => x !== A && P[x]);
       let v = G !== undefined ? new THREE.Vector3().subVectors(P[G], P[B]) : new THREE.Vector3(0, 1, 0);
       v.addScaledVector(u, -v.dot(u)); if (v.lengthSq() < 1e-6) v = new THREE.Vector3(1, 0, 0).addScaledVector(u, -u.x);
-      X = v.normalize().negate();                                               // gestaffelt / in der Ebene gegenüber
+      X = (m.cis && m.cis.includes(A)) ? v.normalize() : v.normalize().negate();   // gestaffelt / in der Ebene gegenüber (cis: gleiche Seite)
       Y = new THREE.Vector3().crossVectors(Z, X);
     }
     const welt = l => X.clone().multiplyScalar(l[0]).addScaledVector(Y, l[1]).addScaledVector(Z, l[2]).normalize();
@@ -137,6 +166,17 @@ const DARST_MOL = { kugelstab: 'Kugel-Stab-Modell', kalotte: 'Kalottenmodell' };
 const DARST_GIT = { kugeln: 'Kugelpackung', gitter: 'Gitter mit Elementarzelle' };
 const geom = (b, lp) => ({ '1,0': 'linear', '1,1': 'linear', '1,2': 'linear', '1,3': 'linear', '2,0': 'linear', '3,0': 'trigonal-planar', '2,1': 'gewinkelt', '4,0': 'tetraedrisch', '3,1': 'trigonal-pyramidal', '2,2': 'gewinkelt' })[`${b},${lp}`] || '–';
 const zahl = (x, d = 1) => x.toFixed(d).replace('.', ',');
+
+function kwInfo(m) {
+  const allg = m.g === 'en' ? (m.b.includes('#') ? 'Alkin: C<sub>n</sub>H<sub>2n−2</sub>, eine Dreifachbindung' : 'Alken: C<sub>n</sub>H<sub>2n</sub>, eine Doppelbindung') : 'Alkan: C<sub>n</sub>H<sub>2n+2</sub>, nur Einfachbindungen';
+  const zustand = m.sdp < 20 ? 'gasförmig' : m.sdp < 300 ? 'flüssig' : 'fest';
+  const geschwister = Object.values(MOL).filter(x => m.iso && x !== m && (x.iso === m.iso || (m.iso && x.name.toLowerCase() === m.iso)));
+  let t = `Halbstrukturformel: <b>${m.halb}</b> · ${allg} · Siedetemperatur <b>${m.sdp.toLocaleString('de-DE')} °C</b> → bei 20 °C ${zustand}`;
+  if (m.g === 'alkan') t += '<br><i>Homologe Reihe: Jedes Molekül hat eine CH₂-Gruppe mehr als das vorige. Je länger die Kette, desto größer die Oberfläche, desto stärker die Van-der-Waals-Kräfte zwischen den Molekülen – und desto höher die Siedetemperatur.</i>';
+  if (m.iso && m.g === 'iso') t += `<br><i>Isomer: gleiche Summenformel ${m.f} wie ${geschwister.map(x => x.name).join(' und ')}, aber anderer Bau. Das verzweigte Molekül ist kugeliger, hat weniger Berührungsfläche und siedet deshalb niedriger.</i>`;
+  if (m.cis || m.name.startsWith('trans')) t += '<br><i>cis/trans-Isomerie: Um die Doppelbindung kann sich das Molekül nicht drehen. Bei cis liegen die beiden CH₃-Gruppen auf derselben Seite, bei trans gegenüber.</i>';
+  return t;
+}
 
 function molekuel(st, wurzel) {
   const m = MOL[st.stoff], S = struktur(m), { atome, bind, P, lpRicht, n } = S;
@@ -219,6 +259,7 @@ function molekuel(st, wurzel) {
     `<b>${m.name}</b> · ${m.f} · ${Object.entries(zaehl).map(([e, k]) => `${k} ${EL[e].name}`).join(', ')}`,
     `${bind.length} Bindungen${bind.some(b => b.o === 2) ? ' (mit Doppelbindung)' : ''}${bind.some(b => b.o === 3) ? ' (mit Dreifachbindung)' : ''}${bind.some(b => b.o === 1.5) ? ' (Ring mit 6 gleichwertigen Bindungen)' : ''} · ${lpSumme} freie Elektronenpaare`
       + (m.g === 'anorg' || ['methan', 'ethen', 'ethin', 'methanal', 'tetrachlormethan'].includes(st.stoff) ? ` · Form am ${EL[zentral.el].name}-Atom: <b>${geoName}</b>${m.w ? ` (${zahl(m.w)}°)` : ''}` : ''),
+    ...(m.halb ? [kwInfo(m)] : []),
     atome.some(a => a.q) ? 'Ion: trägt eine Ladung.' : polar ? '<b>polares Molekül (Dipol)</b>: Die Ladungsschwerpunkte fallen nicht zusammen.' : '<b>unpolares Molekül</b>: Die Bindungsdipole heben sich auf (oder es gibt keine).',
     `<i>${kalotte ? 'Kalottenmodell: Die Kugeln zeigen den Raum, den die Atome einnehmen (Van-der-Waals-Radien).' : 'Kugel-Stab-Modell: Kugeln = Atome, Stäbe = Elektronenpaarbindungen, gelbe Keulen = freie Elektronenpaare.'} Elektronenpaare stoßen sich ab und ordnen sich mit größtmöglichem Abstand an (EPA-Modell); freie Paare brauchen etwas mehr Platz und drücken die Bindungen zusammen. Abstände maßstäblich (Bindungslängen 0,07–0,2 nm).</i>`,
   ];
