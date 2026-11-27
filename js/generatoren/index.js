@@ -25,4 +25,5 @@ export const GENERATOREN = {
   atmung: () => import('./atmung.js'),
   ohr: () => import('./ohr.js'),
   pythagoras: () => import('./pythagoras.js'),
+  kueste: () => import('./kueste.js'),
 };

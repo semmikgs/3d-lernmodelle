@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  kueste: { name: 'Küste: Wattenmeer und Deich', generator: 'kueste', fach: 'Erdkunde', jahrgang: [5, 6], thema: 'Leben an der Küste', schulform: ALLE,
+    schlagworte: ['Nordsee', 'Küste', 'Wattenmeer', 'Gezeiten', 'Ebbe', 'Flut', 'Tidenhub', 'Priel', 'Deich', 'Sturmflut', 'Marsch', 'Geest', 'Warft', 'Siel', 'Salzwiese', 'Ostfriesische Inseln', 'Niedersachsen'],
+    kurz: 'Generator: Blockbild Geest – Marsch – Deich – Watt – Insel mit Ebbe und Flut; Seedeich im Schnitt mit Wasserständen und Sturmflut.' },
   pythagoras: { name: 'Satz des Pythagoras', generator: 'pythagoras', fach: 'Mathematik', jahrgang: [8, 9, 10], thema: 'Satzgruppe des Pythagoras', schulform: ALLE,
     schlagworte: ['Pythagoras', 'rechtwinkliges Dreieck', 'Kathete', 'Hypotenuse', 'a² + b² = c²', 'Beweis', 'Ergänzungsbeweis', 'pythagoreisches Zahlentripel', 'Raumdiagonale', 'Flächendiagonale', 'Quader'],
     kurz: 'Generator: Quadrate über den Seiten mit Kästchen, animierter Ergänzungsbeweis, Flächen- und Raumdiagonale im Quader – Seiten frei wählbar.' },
