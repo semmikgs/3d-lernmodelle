@@ -16,6 +16,9 @@ export const SCHULFORMEN = { HS: 'Hauptschule', RS: 'Realschule', GY: 'Gymnasium
 const ALLE = ['HS', 'RS', 'GY'];
 
 export const MODELLE = {
+  burg: { name: 'Mittelalterliche Burg', generator: 'burg', fach: 'Geschichte', jahrgang: [6, 7], thema: 'Mittelalter', schulform: ALLE,
+    schlagworte: ['Mittelalter', 'Burg', 'Ritter', 'Bergfried', 'Palas', 'Vorburg', 'Halsgraben', 'Schildmauer', 'Zugbrücke', 'Fallgatter', 'Verlies', 'Kemenate', 'Rittersaal', 'Burgkapelle'],
+    kurz: 'Generator: Spornburg um 1200 mit Halsgraben, Schildmauer, Bergfried, Palas, Kapelle und Vorburg – dazu Bergfried und Palas im Schnitt.' },
   langhaus: { name: 'Steinzeitliches Langhaus', generator: 'langhaus', fach: 'Geschichte', jahrgang: [5, 6], thema: 'Jungsteinzeit', schulform: ALLE,
     schlagworte: ['Steinzeit', 'Jungsteinzeit', 'Neolithikum', 'Bandkeramik', 'Langhaus', 'erste Bauern', 'Sesshaftigkeit', 'Pfostenbau', 'Flechtwerk', 'Lehm', 'Archäologie', 'Pfostenlöcher'],
     kurz: 'Generator: Langhaus der ersten Bauern (Bandkeramik) – außen, innen, Bau in fünf Schritten und Grabungsbefund mit Pfostenlöchern.' },
