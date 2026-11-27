@@ -258,7 +258,7 @@ wuerfel.quaternion.setFromEuler(ANSICHTEN.schraeg);
 document.querySelector('[data-v="schraeg"]').classList.add('on');
 
 // ---- Drehen mit Finger/Maus (wie einen echten Würfel), Zoom mit Pinch/Mausrad ----
-const zeiger = new Map(); let pinchStart = 0, abstandStart = abstand, mitteAlt = null, schiebeMaus = false;
+const zeiger = new Map(); let winkelAlt = null, pinchStart = 0, abstandStart = abstand, mitteAlt = null, schiebeMaus = false;
 const zoome = f => abstand = THREE.MathUtils.clamp(abstand * f, NAH, FERN);
 // Verschieben um Bildpunkte (dx nach rechts, dy nach unten) – Weltmaß passend zur Zoomstufe
 function schiebe(dx, dy) {
@@ -268,11 +268,11 @@ function schiebe(dx, dy) {
 }
 const el = renderer.domElement;
 el.addEventListener('contextmenu', e => e.preventDefault());
-el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); zeiger.set(e.pointerId, { x: e.clientX, y: e.clientY });
+el.addEventListener('pointerdown', e => { try { el.setPointerCapture(e.pointerId); } catch (_) { } zeiger.set(e.pointerId, { x: e.clientX, y: e.clientY });
   schiebeMaus = e.pointerType === 'mouse' && (e.button === 1 || e.button === 2 || e.shiftKey);
   if (!schiebeMaus) { ziel = null; document.querySelectorAll('#ansichten button').forEach(b => b.classList.remove('on')); }
   if (zeiger.size === 2) { const [a, b] = [...zeiger.values()]; pinchStart = Math.hypot(a.x - b.x, a.y - b.y); abstandStart = abstand;
-    mitteAlt = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; } });
+    mitteAlt = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; winkelAlt = Math.atan2(b.y - a.y, b.x - a.x); } });
 el.addEventListener('pointermove', e => {
   const alt = zeiger.get(e.pointerId); if (!alt) return;
   const neu = { x: e.clientX, y: e.clientY }; zeiger.set(e.pointerId, neu);
@@ -288,9 +288,13 @@ el.addEventListener('pointermove', e => {
     const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
     if (mitteAlt) schiebe(m.x - mitteAlt.x, m.y - mitteAlt.y);
     mitteAlt = m;
+    // Drehen mit zwei Fingern: Modell dreht sich in der Bildebene mit den Fingern mit
+    const w = Math.atan2(b.y - a.y, b.x - a.x);
+    if (winkelAlt !== null) { let dw = w - winkelAlt; if (dw > Math.PI) dw -= 2 * Math.PI; if (dw < -Math.PI) dw += 2 * Math.PI; wuerfel.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -dw)); }
+    winkelAlt = w;
   }
 });
-const los = e => { zeiger.delete(e.pointerId); if (zeiger.size < 2) { pinchStart = 0; mitteAlt = null; } };
+const los = e => { zeiger.delete(e.pointerId); if (zeiger.size < 2) { pinchStart = 0; mitteAlt = null; winkelAlt = null; } };
 el.addEventListener('pointerup', los); el.addEventListener('pointercancel', los);
 el.addEventListener('wheel', e => { e.preventDefault(); zoome(Math.exp(e.deltaY * 0.0015)); }, { passive: false });
 // +/− und Pfeile: gedrückt halten = weiterlaufen
